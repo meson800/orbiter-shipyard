@@ -74,11 +74,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Helpers.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="OrbiterMesh.cpp" />
     <ClCompile Include="Shipyard.cpp" />
     <ClCompile Include="VesselSceneNode.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Helpers.h" />
+    <ClInclude Include="OrbiterMesh.h" />
+    <ClInclude Include="OrbiterMeshGroup.h" />
     <ClInclude Include="VesselSceneNode.h" />
     <ClInclude Include="Shipyard.h" />
   </ItemGroup>
