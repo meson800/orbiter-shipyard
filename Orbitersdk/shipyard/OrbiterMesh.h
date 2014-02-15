@@ -13,9 +13,10 @@ using namespace std;
 class OrbiterMesh
 {
 public:
-	OrbiterMesh(string meshFilename);
+	OrbiterMesh(string meshFilename, video::IVideoDriver* driver);
 
 public:
 	vector<video::SMaterial> materials;
+	vector<video::ITexture*> textures;
 	vector<OrbiterMeshGroup> meshGroups;
 };
