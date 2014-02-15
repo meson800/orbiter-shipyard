@@ -17,3 +17,10 @@ bool Helpers::readLine(ifstream& file, std::vector<std::string>& tokens)
 	}
 	return true;
 }
+
+int Helpers::stringToInt(const string& inputString)
+{
+	int num;
+	istringstream(inputString) >> num;
+	return num;
+}
