@@ -24,3 +24,9 @@ int Helpers::stringToInt(const string& inputString)
 	istringstream(inputString) >> num;
 	return num;
 }
+double Helpers::stringToDouble(const string& inputString)
+{
+	double num;
+	istringstream(inputString) >> num;
+	return num;
+}

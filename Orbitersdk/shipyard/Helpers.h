@@ -10,5 +10,6 @@ class Helpers
 {
 public:
 	static bool readLine(ifstream& file, vector<string>& tokens);
-	static int stringToInt(const string& inputString)
+	static int stringToInt(const string& inputString);
+	static double stringToDouble(const string& inputString);
 };
