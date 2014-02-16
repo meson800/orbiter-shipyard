@@ -1,6 +1,14 @@
 #include "OrbiterMesh.h"
 
+OrbiterMesh::OrbiterMesh()
+{}
+
 OrbiterMesh::OrbiterMesh(string meshFilename, video::IVideoDriver* driver)
+{
+	setupMesh(meshFilename, driver);
+}
+
+void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 {
 	ifstream meshFile = ifstream(meshFilename.c_str());
 	int groupCounter = 0;
