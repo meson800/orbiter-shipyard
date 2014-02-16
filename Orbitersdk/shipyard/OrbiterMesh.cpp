@@ -75,8 +75,9 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 			if (vertexCounter == 0 && triangleCounter > 0)
 			{
 				//it's a triangle!
-				meshGroups[groupCounter].triangleList.push_back(make_tuple(Helpers::stringToInt(tokens[1]),
-					Helpers::stringToInt(tokens[2]), Helpers::stringToInt(tokens[3])));
+				meshGroups[groupCounter].triangleList.push_back(Helpers::stringToInt(tokens[1]));
+				meshGroups[groupCounter].triangleList.push_back(Helpers::stringToInt(tokens[2]));
+				meshGroups[groupCounter].triangleList.push_back(Helpers::stringToInt(tokens[3]));
 				triangleCounter--;
 				if (triangleCounter == 0)
 					//we finished this meshgroup!
