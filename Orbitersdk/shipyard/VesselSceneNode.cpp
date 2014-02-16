@@ -71,14 +71,14 @@ void VesselSceneNode::render()
 		//set transform
 		driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
 		//and draw it as a triangle list!
-		driver->drawVertexPrimitiveList(vesselMesh.meshGroups[i].vertices.data,
-			vesselMesh.meshGroups[i].vertices.size(), vesselMesh.meshGroups[i].triangleList.data,
+		driver->drawVertexPrimitiveList(vesselMesh.meshGroups[i].vertices.data(),
+			vesselMesh.meshGroups[i].vertices.size(), vesselMesh.meshGroups[i].triangleList.data(),
 			vesselMesh.meshGroups[i].triangleList.size(), video::EVT_STANDARD, scene::EPT_TRIANGLES,
 			video::EIT_32BIT);
 	}
 }
 
-const core::aabbox3d<f32>& VesselSceneNode::getBoundingBox()
+const core::aabbox3d<f32>& VesselSceneNode::getBoundingBox() const
 {
 	return vesselMesh.boundingBox;
 }
