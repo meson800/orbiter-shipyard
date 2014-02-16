@@ -82,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Helpers.h" />
+    <ClInclude Include="OrbiterDockingPort.h" />
     <ClInclude Include="OrbiterMesh.h" />
     <ClInclude Include="OrbiterMeshGroup.h" />
     <ClInclude Include="VesselSceneNode.h" />

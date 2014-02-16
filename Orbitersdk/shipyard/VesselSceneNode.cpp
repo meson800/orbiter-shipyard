@@ -1,7 +1,7 @@
 #include "VesselSceneNode.h"
 
 VesselSceneNode::VesselSceneNode(string configFilename, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id)
-: scene::ISceneNode(parent, mgr, id)
+: scene::ISceneNode(parent, mgr, id), smgr(mgr)
 {
 	vector<string> tokens;
 	ifstream configFile = ifstream(configFilename.c_str());
@@ -39,6 +39,14 @@ VesselSceneNode::VesselSceneNode(string configFilename, scene::ISceneNode* paren
 
 		//clear tokens
 		tokens.clear();
-
 	}
+	//setup docking port nodes
+	setupDockingPortNodes();
 }
+
+void VesselSceneNode::setupDockingPortNodes()
+{
+	for (int i = 0; i < dockingPorts.size(); i++)
+		dockingPortNodes.push_back(smgr->addSphereSceneNode(10, 16, this, 10, dockingPorts[i].position));
+}
+
