@@ -50,3 +50,45 @@ void VesselSceneNode::setupDockingPortNodes()
 		dockingPortNodes.push_back(smgr->addSphereSceneNode(10, 16, this, 10, dockingPorts[i].position));
 }
 
+void VesselSceneNode::OnRegisterSceneNode()
+{
+	if (IsVisible)
+		smgr->registerNodeForRendering(this);
+	ISceneNode::OnRegisterSceneNode();
+}
+
+void VesselSceneNode::render()
+{
+	video::IVideoDriver* driver = SceneManager->getVideoDriver();
+	//loop over the mesh groups, drawing them
+	for (int i = 0; i < vesselMesh.meshGroups.size(); i++)
+	{
+		//set the texture of the material
+		vesselMesh.materials[vesselMesh.meshGroups[i].materialIndex].setTexture(0,
+			vesselMesh.textures[vesselMesh.meshGroups[i].textureIndex]);
+		//set the material for the video driver
+		driver->setMaterial(vesselMesh.materials[vesselMesh.meshGroups[i].materialIndex]);
+		//set transform
+		driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
+		//and draw it as a triangle list!
+		driver->drawVertexPrimitiveList(vesselMesh.meshGroups[i].vertices.data,
+			vesselMesh.meshGroups[i].vertices.size(), vesselMesh.meshGroups[i].triangleList.data,
+			vesselMesh.meshGroups[i].triangleList.size(), video::EVT_STANDARD, scene::EPT_TRIANGLES,
+			video::EIT_32BIT);
+	}
+}
+
+const core::aabbox3d<f32>& VesselSceneNode::getBoundingBox()
+{
+	return vesselMesh.boundingBox;
+}
+
+u32 VesselSceneNode::getMaterialCount()
+{
+	return vesselMesh.materials.size();
+}
+
+video::SMaterial& VesselSceneNode::getMaterial(u32 i)
+{
+	return vesselMesh.materials[i];
+}

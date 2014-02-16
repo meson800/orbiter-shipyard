@@ -16,6 +16,10 @@ class VesselSceneNode : public scene::ISceneNode
 public:
 	VesselSceneNode(string configFilename, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id);
 	virtual void OnRegisterSceneNode();
+	virtual void render();
+	virtual const core::aabbox3d<f32>& getBoundingBox();
+	virtual u32 getMaterialCount();
+	virtual video::SMaterial& getMaterial(u32 i);
 
 private:
 	void setupDockingPortNodes();
