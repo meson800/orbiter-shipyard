@@ -151,4 +151,13 @@ OrbiterMesh::OrbiterMesh(string meshFilename, video::IVideoDriver* driver)
 		//clean up the token vector
 		tokens.clear();
 	}
+
+	//now, set up the bounding box
+	boundingBox.reset(meshGroups[0].vertices[0].Pos);
+	//loop over every vertex
+	for (int i = 0; i < meshGroups.size(); i++)
+	{
+		for (int j = 0; j < meshGroups[i].vertices.size(); i++)
+			boundingBox.addInternalPoint(meshGroups[i].vertices[j].Pos);
+	}
 }
