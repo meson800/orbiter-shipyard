@@ -7,6 +7,8 @@ bool Helpers::readLine(ifstream& file, std::vector<std::string>& tokens)
 	//return if we reached eof
 	if (getline(file, line))
 		return false;
+	//cut everything beyond a ';'
+	line.substr(line.find_first_of(';'), string::npos);
 
 	while (line.length() > 0)
 	{
