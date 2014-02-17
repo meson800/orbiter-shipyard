@@ -69,8 +69,12 @@ void VesselSceneNode::render()
 	for (int i = 0; i < vesselMesh.meshGroups.size(); i++)
 	{
 		//set the texture of the material
-		vesselMesh.materials[vesselMesh.meshGroups[i].materialIndex].setTexture(0,
-			vesselMesh.textures[vesselMesh.meshGroups[i].textureIndex]);
+		//set it to zero if there is no texture
+		if (vesselMesh.meshGroups[i].textureIndex == 0)
+			vesselMesh.materials[vesselMesh.meshGroups[i].materialIndex].setTexture(0, 0);
+		else
+			vesselMesh.materials[vesselMesh.meshGroups[i].materialIndex].setTexture(0,
+				vesselMesh.textures[vesselMesh.meshGroups[i].textureIndex]);
 		//set the material for the video driver
 		driver->setMaterial(vesselMesh.materials[vesselMesh.meshGroups[i].materialIndex]);
 		//set transform
@@ -78,7 +82,7 @@ void VesselSceneNode::render()
 		//and draw it as a triangle list!
 		driver->drawVertexPrimitiveList(vesselMesh.meshGroups[i].vertices.data(),
 			vesselMesh.meshGroups[i].vertices.size(), vesselMesh.meshGroups[i].triangleList.data(),
-			vesselMesh.meshGroups[i].triangleList.size(), video::EVT_STANDARD, scene::EPT_TRIANGLES,
+			vesselMesh.meshGroups[i].triangleList.size() / 3, video::EVT_STANDARD, scene::EPT_TRIANGLES,
 			video::EIT_32BIT);
 	}
 }

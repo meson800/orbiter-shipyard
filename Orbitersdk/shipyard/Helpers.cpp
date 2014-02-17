@@ -37,3 +37,14 @@ double Helpers::stringToDouble(const string& inputString)
 	istringstream(inputString) >> num;
 	return num;
 }
+
+video::ITexture* Helpers::readDDS(string path, string name, video::IVideoDriver* driver) 
+{
+
+	//get the DDS
+	irrutils::DdsImage ddsImage = irrutils::DdsImage(path.c_str(), driver);
+	video::IImage* image = ddsImage.getImage();
+	video::ITexture* texture = driver->addTexture(name.c_str(), image);
+	texture->grab();
+	return texture;
+}

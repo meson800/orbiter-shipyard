@@ -74,17 +74,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DdsImage.cpp" />
     <ClCompile Include="Helpers.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="OrbiterMesh.cpp" />
+    <ClCompile Include="s3tc.cpp" />
     <ClCompile Include="Shipyard.cpp" />
     <ClCompile Include="VesselSceneNode.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DdsHeader.h" />
+    <ClInclude Include="DdsImage.h" />
     <ClInclude Include="Helpers.h" />
     <ClInclude Include="OrbiterDockingPort.h" />
     <ClInclude Include="OrbiterMesh.h" />
     <ClInclude Include="OrbiterMeshGroup.h" />
+    <ClInclude Include="s3tc.h" />
     <ClInclude Include="VesselSceneNode.h" />
     <ClInclude Include="Shipyard.h" />
   </ItemGroup>

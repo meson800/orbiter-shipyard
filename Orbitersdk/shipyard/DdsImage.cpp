@@ -54,7 +54,7 @@ DdsImage::DdsImage( const char *fileName, IVideoDriver *driver )
 {
     if( driver == 0 )
     {
-        m_Device = createDevice( EDT_NULL, dimension2d<u32>(), 32, false, false, false, 0 );
+        m_Device = createDevice( EDT_NULL, core::dimension2d<u32>(), 32, false, false, false, 0 );
         m_Driver = m_Device->getVideoDriver();
     }
     else
@@ -87,7 +87,7 @@ DdsImage::~DdsImage()
 
 IImage * DdsImage::getImage()
 {
-    IImage *image = m_Driver->createImage( ECF_A8R8G8B8, dimension2d<u32>( m_DdsHeader->Width, m_DdsHeader->Height ));
+    IImage *image = m_Driver->createImage( ECF_A8R8G8B8, core::dimension2d<u32>( m_DdsHeader->Width, m_DdsHeader->Height ));
     decodePixels( image );
 
     return image;

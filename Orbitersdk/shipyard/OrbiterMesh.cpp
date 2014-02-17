@@ -39,7 +39,12 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 			{
 				int numGroups = Helpers::stringToInt(tokens[1]);
 				for (int i = 0; i < numGroups; i++)
+				{
 					meshGroups.push_back(OrbiterMeshGroup());
+					//set default
+					meshGroups[i].materialIndex = 0;
+					meshGroups[i].textureIndex = 0;
+				}
 				break;
 			}
 			//see if this is our material/texture index
@@ -73,14 +78,14 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 					Helpers::stringToDouble(tokens[0]), Helpers::stringToDouble(tokens[1]),
 					Helpers::stringToDouble(tokens[2]), Helpers::stringToDouble(tokens[3]),
 					Helpers::stringToDouble(tokens[4]), Helpers::stringToDouble(tokens[5]),
-					video::SColor(), Helpers::stringToDouble(tokens[6]), Helpers::stringToDouble(tokens[7])));
+					video::SColor(255,255,255,255), Helpers::stringToDouble(tokens[6]), Helpers::stringToDouble(tokens[7])));
 				//it's a vertex!
 				if (tokens.size() == 6)
 					meshGroups[groupCounter].vertices.push_back(video::S3DVertex(
 					Helpers::stringToDouble(tokens[0]), Helpers::stringToDouble(tokens[1]),
 					Helpers::stringToDouble(tokens[2]), Helpers::stringToDouble(tokens[3]),
 					Helpers::stringToDouble(tokens[4]), Helpers::stringToDouble(tokens[5]),
-					video::SColor(),0,0));
+					video::SColor(255, 255, 255, 255), 0, 0));
 				vertexCounter--;
 				break;
 			}
@@ -118,7 +123,9 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 			{
 				int numMaterials = Helpers::stringToInt(tokens[1]);
 				for (int i = 0; i < numMaterials; i++)
+				{
 					materials.push_back(video::SMaterial());
+				}
 				break;
 			}
 			//otherwise see if this is the main material declaration
@@ -136,29 +143,29 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 				//15	16	17	18		Emissive colour(RGBA)
 				if (tokens.size() == 19)
 				{
-					materials[materialCounter].DiffuseColor = video::SColor(Helpers::stringToInt(tokens[5]),
-						Helpers::stringToInt(tokens[2]), Helpers::stringToInt(tokens[3]), Helpers::stringToInt(tokens[4]));
-					materials[materialCounter].AmbientColor = video::SColor(Helpers::stringToInt(tokens[9]),
-						Helpers::stringToInt(tokens[6]), Helpers::stringToInt(tokens[7]), Helpers::stringToInt(tokens[8]));
-					materials[materialCounter].SpecularColor = video::SColor(Helpers::stringToInt(tokens[13]),
-						Helpers::stringToInt(tokens[10]), Helpers::stringToInt(tokens[11]), Helpers::stringToInt(tokens[12]));
+					materials[materialCounter].DiffuseColor = video::SColor(Helpers::stringToDouble(tokens[5]) * 255,
+						Helpers::stringToDouble(tokens[2]) * 255, Helpers::stringToDouble(tokens[3]) * 255, Helpers::stringToDouble(tokens[4]) * 255);
+					materials[materialCounter].AmbientColor = video::SColor(Helpers::stringToDouble(tokens[9]) * 255,
+						Helpers::stringToDouble(tokens[6]) * 255, Helpers::stringToDouble(tokens[7]) * 255, Helpers::stringToDouble(tokens[8]) * 255);
+					materials[materialCounter].SpecularColor = video::SColor(Helpers::stringToDouble(tokens[13]) * 255,
+						Helpers::stringToDouble(tokens[10]) * 255, Helpers::stringToDouble(tokens[11]) * 255, Helpers::stringToDouble(tokens[12]) * 255);
 					//set specular power-"shineness"
 					materials[materialCounter].Shininess = Helpers::stringToDouble(tokens[14]);
-					materials[materialCounter].EmissiveColor = video::SColor(Helpers::stringToInt(tokens[18]),
-						Helpers::stringToInt(tokens[15]), Helpers::stringToInt(tokens[16]), Helpers::stringToInt(tokens[17]));
+					materials[materialCounter].EmissiveColor = video::SColor(Helpers::stringToDouble(tokens[18]) * 255,
+						Helpers::stringToDouble(tokens[15]) * 255, Helpers::stringToDouble(tokens[16]) * 255, Helpers::stringToDouble(tokens[17]) * 255);
 				}
 				if (tokens.size() == 18)
 				{
-					materials[materialCounter].DiffuseColor = video::SColor(Helpers::stringToInt(tokens[5]),
-						Helpers::stringToInt(tokens[2]), Helpers::stringToInt(tokens[3]), Helpers::stringToInt(tokens[4]));
-					materials[materialCounter].AmbientColor = video::SColor(Helpers::stringToInt(tokens[9]),
-						Helpers::stringToInt(tokens[6]), Helpers::stringToInt(tokens[7]), Helpers::stringToInt(tokens[8]));
-					materials[materialCounter].SpecularColor = video::SColor(Helpers::stringToInt(tokens[13]),
-						Helpers::stringToInt(tokens[10]), Helpers::stringToInt(tokens[11]), Helpers::stringToInt(tokens[12]));
+					materials[materialCounter].DiffuseColor = video::SColor(Helpers::stringToDouble(tokens[5]) * 255,
+						Helpers::stringToDouble(tokens[2]) * 255, Helpers::stringToDouble(tokens[3]) * 255, Helpers::stringToDouble(tokens[4]) * 255);
+					materials[materialCounter].AmbientColor = video::SColor(Helpers::stringToDouble(tokens[9]) * 255,
+						Helpers::stringToDouble(tokens[6]) * 255, Helpers::stringToDouble(tokens[7]) * 255, Helpers::stringToDouble(tokens[8]) * 255);
+					materials[materialCounter].SpecularColor = video::SColor(Helpers::stringToDouble(tokens[13]) * 255,
+						Helpers::stringToDouble(tokens[10]) * 255, Helpers::stringToDouble(tokens[11]) * 255, Helpers::stringToDouble(tokens[12]) * 255);
 					//set specular power-"shineness"
 					materials[materialCounter].Shininess = 20;
-					materials[materialCounter].EmissiveColor = video::SColor(Helpers::stringToInt(tokens[17]),
-						Helpers::stringToInt(tokens[14]), Helpers::stringToInt(tokens[15]), Helpers::stringToInt(tokens[16]));
+					materials[materialCounter].EmissiveColor = video::SColor(Helpers::stringToDouble(tokens[17]) * 255,
+						Helpers::stringToDouble(tokens[14]) * 255, Helpers::stringToDouble(tokens[15]) * 255, Helpers::stringToDouble(tokens[16]) * 255);
 				}
 
 				//we're done!
@@ -179,7 +186,8 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 			//see if this is a texture path
 			if (textureCounter > 0)
 			{
-				textures.push_back(driver->getTexture(string("C:\\Other Stuff\\Orbiter\\shipyard\\Textures\\" + tokens[0]).c_str()));
+				textures.push_back(Helpers::readDDS(string("C:\\Other Stuff\\Orbiter\\shipyard\\Textures\\" + tokens[0]).c_str(), 
+					tokens[0].c_str(),driver));
 				textureCounter--;
 				break;
 			}

@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="DDS">
+      <UniqueIdentifier>{144c33b9-1e1b-4635-ac50-a6b2f4c59227}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -29,6 +32,12 @@
     </ClCompile>
     <ClCompile Include="Helpers.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DdsImage.cpp">
+      <Filter>DDS</Filter>
+    </ClCompile>
+    <ClCompile Include="s3tc.cpp">
+      <Filter>DDS</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -49,6 +58,15 @@
     </ClInclude>
     <ClInclude Include="OrbiterDockingPort.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DdsHeader.h">
+      <Filter>DDS</Filter>
+    </ClInclude>
+    <ClInclude Include="DdsImage.h">
+      <Filter>DDS</Filter>
+    </ClInclude>
+    <ClInclude Include="s3tc.h">
+      <Filter>DDS</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

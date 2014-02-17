@@ -31,7 +31,6 @@
 #include "DdsHeader.h"
 
 using namespace irr;
-using namespace irr::core;
 using namespace irr::video;
 
 using std::ifstream;
