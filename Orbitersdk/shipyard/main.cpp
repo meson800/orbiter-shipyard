@@ -1,4 +1,5 @@
 #include <irrlicht.h>
+#include "Shipyard.h"
 
 #ifdef _IRR_WINDOWS_
 #pragma comment(linker, "/subsystem:windows /ENTRY:mainCRTStartup")
@@ -22,9 +23,11 @@ int main()
 	//set caption
 	device->setWindowCaption(L"Orbiter Shipyard");
 
-	while (device->run())
-	{
-
-	}
+	//pass it off to Shipyard
+	Shipyard shipyard = Shipyard(device);
+	//and run!
+	shipyard.loop();
 	device->drop();
+	
+	return 0;
 } 

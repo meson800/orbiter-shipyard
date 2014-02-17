@@ -9,7 +9,7 @@ void Shipyard::loop()
 	smgr->addCameraSceneNodeMaya();
 
 	//register our VesselSceneNode - just staticly at the moment, but will do it later
-	VesselSceneNode* vesselNode = new VesselSceneNode(".\Config\Vessels\Deltaglider.cfg", 
+	VesselSceneNode* vesselNode = new VesselSceneNode("C:\\Other Stuff\\Orbiter\\shipyard\\Config\\Vessels\\ISS.cfg", 
 		smgr->getRootSceneNode(), smgr, 1);
 	vesselNode->drop();
 

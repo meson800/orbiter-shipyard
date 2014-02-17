@@ -18,7 +18,12 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 	int vertexCounter = 0;
 	int triangleCounter = 0;
 	int stage = 0;
-	string currentLine = 0;
+	string currentLine;
+
+	//push the default material
+	materials.push_back(video::SMaterial());
+	//push the default texture
+	textures.push_back(driver->addTexture(core::dimension2d<u32>(1, 1),"empty_texture"));
 
 	vector<string> tokens;
 	//start reading the meshgroup
@@ -30,7 +35,7 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 		case 0:
 			//stage zero is defining the meshgroups
 			//see if this is the main group definition
-			if (strcmp(tokens[0].c_str(), "GROUPS"))
+			if (strcmp(tokens[0].c_str(), "GROUPS") == 0)
 			{
 				int numGroups = Helpers::stringToInt(tokens[1]);
 				for (int i = 0; i < numGroups; i++)
@@ -38,13 +43,13 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 				break;
 			}
 			//see if this is our material/texture index
-			if (strcmp(tokens[0].c_str(), "MATERIAL"))
+			if (strcmp(tokens[0].c_str(), "MATERIAL") == 0)
 			{
 				//link the material index
 				meshGroups[groupCounter].materialIndex = Helpers::stringToInt(tokens[1]);
 				break;
 			}
-			if (strcmp(tokens[0].c_str(), "TEXTURE"))
+			if (strcmp(tokens[0].c_str(), "TEXTURE") == 0)
 			{
 				//link the texture index
 				meshGroups[groupCounter].textureIndex = Helpers::stringToInt(tokens[1]);
@@ -52,7 +57,7 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 			}
 
 			//see if this is the geometry one
-			if (strcmp(tokens[0].c_str(), "GEOM"))
+			if (strcmp(tokens[0].c_str(), "GEOM") == 0)
 			{
 				//increment the counters
 				vertexCounter = Helpers::stringToInt(tokens[1]);
@@ -63,41 +68,53 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 			//now see if this is a vertex
 			if (vertexCounter > 0 && triangleCounter > 0)
 			{
+				if (tokens.size() == 8)
+					meshGroups[groupCounter].vertices.push_back(video::S3DVertex(
+					Helpers::stringToDouble(tokens[0]), Helpers::stringToDouble(tokens[1]),
+					Helpers::stringToDouble(tokens[2]), Helpers::stringToDouble(tokens[3]),
+					Helpers::stringToDouble(tokens[4]), Helpers::stringToDouble(tokens[5]),
+					video::SColor(), Helpers::stringToDouble(tokens[6]), Helpers::stringToDouble(tokens[7])));
 				//it's a vertex!
-				meshGroups[groupCounter].vertices.push_back(video::S3DVertex(
-					Helpers::stringToDouble(tokens[1]), Helpers::stringToDouble(tokens[2]),
-					Helpers::stringToDouble(tokens[3]), Helpers::stringToDouble(tokens[4]),
-					Helpers::stringToDouble(tokens[5]), Helpers::stringToDouble(tokens[6]),
-					video::SColor(),Helpers::stringToDouble(tokens[7]), Helpers::stringToDouble(tokens[8])));
+				if (tokens.size() == 6)
+					meshGroups[groupCounter].vertices.push_back(video::S3DVertex(
+					Helpers::stringToDouble(tokens[0]), Helpers::stringToDouble(tokens[1]),
+					Helpers::stringToDouble(tokens[2]), Helpers::stringToDouble(tokens[3]),
+					Helpers::stringToDouble(tokens[4]), Helpers::stringToDouble(tokens[5]),
+					video::SColor(),0,0));
 				vertexCounter--;
 				break;
 			}
 			if (vertexCounter == 0 && triangleCounter > 0)
 			{
 				//it's a triangle!
+				meshGroups[groupCounter].triangleList.push_back(Helpers::stringToInt(tokens[0]));
 				meshGroups[groupCounter].triangleList.push_back(Helpers::stringToInt(tokens[1]));
 				meshGroups[groupCounter].triangleList.push_back(Helpers::stringToInt(tokens[2]));
-				meshGroups[groupCounter].triangleList.push_back(Helpers::stringToInt(tokens[3]));
 				triangleCounter--;
 				if (triangleCounter == 0)
+				{
 					//we finished this meshgroup!
 					groupCounter++;
+
+					//check if we are done with meshgroups
+					if (groupCounter == meshGroups.size() && meshGroups.size() != 0)
+					{
+						//we're done reading meshgroups!!!
+						stage++;
+						break;
+					}
+				}
+
 				break;
 			}
-			//check if we are done with meshgroups
-			if (groupCounter == meshGroups.size() && meshGroups.size() != 0)
-			{
-				//we're done reading meshgroups!!!
-				stage++;
-				break;
-			}
+
 			//something went wrong, just break
 			break;
 
 		case 1:
 			//now we are reading materials
 			//see if this is the main Material line with the number of materials
-			if (strcmp(tokens[0].c_str(), "MATERIALS"))
+			if (strcmp(tokens[0].c_str(), "MATERIALS") == 0)
 			{
 				int numMaterials = Helpers::stringToInt(tokens[1]);
 				for (int i = 0; i < numMaterials; i++)
@@ -105,7 +122,7 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 				break;
 			}
 			//otherwise see if this is the main material declaration
-			if (strcmp(tokens[0].c_str(), "MATERIAL"))
+			if (strcmp(tokens[0].c_str(), "MATERIAL") == 0)
 			{
 				//read the next four lines
 				for (int i = 0; i < 4; i++)
@@ -117,30 +134,43 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 				//6		7	8	9		Ambient colour(RGBA)
 				//10	11	12	13	14 Specular colour(RGBA) and specular power(float)
 				//15	16	17	18		Emissive colour(RGBA)
-				materials[materialCounter].DiffuseColor = video::SColor(Helpers::stringToInt(tokens[5]),
-					Helpers::stringToInt(tokens[2]), Helpers::stringToInt(tokens[3]), Helpers::stringToInt(tokens[4]));
-				materials[materialCounter].AmbientColor = video::SColor(Helpers::stringToInt(tokens[9]),
-					Helpers::stringToInt(tokens[6]), Helpers::stringToInt(tokens[7]), Helpers::stringToInt(tokens[8]));
-				materials[materialCounter].SpecularColor = video::SColor(Helpers::stringToInt(tokens[13]),
-					Helpers::stringToInt(tokens[10]), Helpers::stringToInt(tokens[11]), Helpers::stringToInt(tokens[12]));
-				//set specular power-"shineness"
-				materials[materialCounter].Shininess = Helpers::stringToDouble(tokens[14]);
-				materials[materialCounter].EmissiveColor = video::SColor(Helpers::stringToInt(tokens[18]),
-					Helpers::stringToInt(tokens[15]), Helpers::stringToInt(tokens[16]), Helpers::stringToInt(tokens[17]));
+				if (tokens.size() == 19)
+				{
+					materials[materialCounter].DiffuseColor = video::SColor(Helpers::stringToInt(tokens[5]),
+						Helpers::stringToInt(tokens[2]), Helpers::stringToInt(tokens[3]), Helpers::stringToInt(tokens[4]));
+					materials[materialCounter].AmbientColor = video::SColor(Helpers::stringToInt(tokens[9]),
+						Helpers::stringToInt(tokens[6]), Helpers::stringToInt(tokens[7]), Helpers::stringToInt(tokens[8]));
+					materials[materialCounter].SpecularColor = video::SColor(Helpers::stringToInt(tokens[13]),
+						Helpers::stringToInt(tokens[10]), Helpers::stringToInt(tokens[11]), Helpers::stringToInt(tokens[12]));
+					//set specular power-"shineness"
+					materials[materialCounter].Shininess = Helpers::stringToDouble(tokens[14]);
+					materials[materialCounter].EmissiveColor = video::SColor(Helpers::stringToInt(tokens[18]),
+						Helpers::stringToInt(tokens[15]), Helpers::stringToInt(tokens[16]), Helpers::stringToInt(tokens[17]));
+				}
+				if (tokens.size() == 18)
+				{
+					materials[materialCounter].DiffuseColor = video::SColor(Helpers::stringToInt(tokens[5]),
+						Helpers::stringToInt(tokens[2]), Helpers::stringToInt(tokens[3]), Helpers::stringToInt(tokens[4]));
+					materials[materialCounter].AmbientColor = video::SColor(Helpers::stringToInt(tokens[9]),
+						Helpers::stringToInt(tokens[6]), Helpers::stringToInt(tokens[7]), Helpers::stringToInt(tokens[8]));
+					materials[materialCounter].SpecularColor = video::SColor(Helpers::stringToInt(tokens[13]),
+						Helpers::stringToInt(tokens[10]), Helpers::stringToInt(tokens[11]), Helpers::stringToInt(tokens[12]));
+					//set specular power-"shineness"
+					materials[materialCounter].Shininess = 20;
+					materials[materialCounter].EmissiveColor = video::SColor(Helpers::stringToInt(tokens[17]),
+						Helpers::stringToInt(tokens[14]), Helpers::stringToInt(tokens[15]), Helpers::stringToInt(tokens[16]));
+				}
 
 				//we're done!
 				materialCounter++;
+				if (materialCounter == materials.size() && materials.size() != 0)
+					stage++;
 				break;
 			}
 
-			//check if we are done with materials
-			if (materialCounter == materials.size() && materials.size() != 0)
-				stage++;
-			break;
-
 		case 2:
 			//now we are loading textures
-			if (strcmp(tokens[0].c_str(), "TEXTURES"))
+			if (strcmp(tokens[0].c_str(), "TEXTURES") == 0)
 			{
 				textureCounter = Helpers::stringToInt(tokens[1]);
 				break;
@@ -149,7 +179,7 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 			//see if this is a texture path
 			if (textureCounter > 0)
 			{
-				textures.push_back(driver->getTexture(tokens[0].c_str()));
+				textures.push_back(driver->getTexture(string("C:\\Other Stuff\\Orbiter\\shipyard\\Textures\\" + tokens[0]).c_str()));
 				textureCounter--;
 				break;
 			}
@@ -166,7 +196,7 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 	//loop over every vertex
 	for (int i = 0; i < meshGroups.size(); i++)
 	{
-		for (int j = 0; j < meshGroups[i].vertices.size(); i++)
+		for (int j = 0; j < meshGroups[i].vertices.size(); j++)
 			boundingBox.addInternalPoint(meshGroups[i].vertices[j].Pos);
 	}
 }
