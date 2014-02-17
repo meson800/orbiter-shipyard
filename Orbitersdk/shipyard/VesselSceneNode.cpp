@@ -72,11 +72,13 @@ void VesselSceneNode::render()
 		//set it to zero if there is no texture
 		if (vesselMesh.meshGroups[i].textureIndex == 0)
 			vesselMesh.materials[vesselMesh.meshGroups[i].materialIndex].setTexture(0, 0);
-		else
+		else if (vesselMesh.meshGroups[i].materialIndex < vesselMesh.materials.size() &&
+			vesselMesh.meshGroups[i].textureIndex < vesselMesh.textures.size())
 			vesselMesh.materials[vesselMesh.meshGroups[i].materialIndex].setTexture(0,
 				vesselMesh.textures[vesselMesh.meshGroups[i].textureIndex]);
 		//set the material for the video driver
-		driver->setMaterial(vesselMesh.materials[vesselMesh.meshGroups[i].materialIndex]);
+		if (vesselMesh.meshGroups[i].materialIndex < vesselMesh.materials.size())
+			driver->setMaterial(vesselMesh.materials[vesselMesh.meshGroups[i].materialIndex]);
 		//set transform
 		driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
 		//and draw it as a triangle list!
