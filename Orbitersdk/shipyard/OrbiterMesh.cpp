@@ -12,6 +12,7 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 {
 	ifstream meshFile = ifstream(meshFilename.c_str());
 	int groupCounter = 0;
+	bool noNormal = false;
 	int materialCounter = 0;
 	int textureCounter = 0;
 	int meshGroupCounter = 0;
@@ -60,6 +61,9 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 				meshGroups[groupCounter].textureIndex = Helpers::stringToInt(tokens[1]);
 				break;
 			}
+			//see if there aren't going to be normals
+			if (strcmp(tokens[0].c_str(), "NONORMAL") == 0)
+				noNormal = true;
 
 			//see if this is the geometry one
 			if (strcmp(tokens[0].c_str(), "GEOM") == 0)
@@ -73,19 +77,38 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 			//now see if this is a vertex
 			if (vertexCounter > 0 && triangleCounter > 0)
 			{
-				if (tokens.size() == 8)
-					meshGroups[groupCounter].vertices.push_back(video::S3DVertex(
+				//see if there are no normals
+				if (noNormal)
+				{
+					//see if there are at least 4 values-this tells us there are texture coords
+					if (tokens.size() > 4)
+					{
+						//insert empty things into 3,4,5
+						for (int i = 3; i <= 5; i++)
+							tokens.insert(tokens.begin()+3, "0");
+					}
+					//whoops, just insert these at the end
+					else
+					{
+						for (int i = 3; i <= 5; i++)
+							tokens.push_back("0");
+					}
+				}
+
+				//now see if there are texture coords
+				if (tokens.size() < 7)
+				{
+					//inset empty texture coords
+					for (int i = 0; i < 2; i++)
+						tokens.push_back("0");
+				}
+				//it's a vertex!
+				meshGroups[groupCounter].vertices.push_back(video::S3DVertex(
 					Helpers::stringToDouble(tokens[0]), Helpers::stringToDouble(tokens[1]),
 					Helpers::stringToDouble(tokens[2]), Helpers::stringToDouble(tokens[3]),
 					Helpers::stringToDouble(tokens[4]), Helpers::stringToDouble(tokens[5]),
 					video::SColor(255,255,255,255), Helpers::stringToDouble(tokens[6]), Helpers::stringToDouble(tokens[7])));
-				//it's a vertex!
-				if (tokens.size() == 6)
-					meshGroups[groupCounter].vertices.push_back(video::S3DVertex(
-					Helpers::stringToDouble(tokens[0]), Helpers::stringToDouble(tokens[1]),
-					Helpers::stringToDouble(tokens[2]), Helpers::stringToDouble(tokens[3]),
-					Helpers::stringToDouble(tokens[4]), Helpers::stringToDouble(tokens[5]),
-					video::SColor(255, 255, 255, 255), 0, 0));
+				
 				vertexCounter--;
 				break;
 			}
@@ -98,8 +121,13 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 				triangleCounter--;
 				if (triangleCounter == 0)
 				{
+					//see if we need to calculate normals
+					if (noNormal)
+						setupNormals(groupCounter);
 					//we finished this meshgroup!
 					groupCounter++;
+					//reset nonormal flag
+					noNormal = false;
 
 					//check if we are done with meshgroups
 					if (groupCounter == meshGroups.size() && meshGroups.size() != 0)
@@ -207,4 +235,29 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 		for (int j = 0; j < meshGroups[i].vertices.size(); j++)
 			boundingBox.addInternalPoint(meshGroups[i].vertices[j].Pos);
 	}
+}
+
+void OrbiterMesh::setupNormals(int meshGroup)
+{
+	//reset all normals in this mesh group just in case
+	for (int i = 0; i < meshGroups[meshGroup].vertices.size(); i++)
+		meshGroups[meshGroup].vertices[i].Normal = core::vector3df(0, 0, 0);
+
+	//calculate normal
+	for (int i = 0; i < meshGroups[meshGroup].triangleList.size() / 3; i++)
+	{
+		core::vector3df firstvec = meshGroups[meshGroup].vertices[meshGroups[meshGroup].triangleList[i * 3 + 1]].Pos -
+			meshGroups[meshGroup].vertices[meshGroups[meshGroup].triangleList[i * 3]].Pos;
+		core::vector3df secondvec = meshGroups[meshGroup].vertices[meshGroups[meshGroup].triangleList[i * 3]].Pos - 
+			meshGroups[meshGroup].vertices[meshGroups[meshGroup].triangleList[i * 3 + 2]].Pos;
+		core::vector3df normal = firstvec.crossProduct(secondvec);
+		normal = normal.normalize();
+		meshGroups[meshGroup].vertices[meshGroups[meshGroup].triangleList[i * 3]].Normal += normal;
+		meshGroups[meshGroup].vertices[meshGroups[meshGroup].triangleList[i * 3 + 1]].Normal += normal;
+		meshGroups[meshGroup].vertices[meshGroups[meshGroup].triangleList[i * 3 + 2]].Normal += normal;
+	}
+
+	//normalize the normals
+	for (int i = 0; i < meshGroups[meshGroup].vertices.size(); i++)
+		meshGroups[meshGroup].vertices[i].Normal = meshGroups[meshGroup].vertices[i].Normal.normalize();
 }
