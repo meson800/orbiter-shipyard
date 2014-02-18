@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <algorithm>
 #include <irrlicht.h>
 
 #include "DdsImage.h"
@@ -19,4 +20,6 @@ public:
 	static int stringToInt(const std::string& inputString);
 	static double stringToDouble(const std::string& inputString);
 	static video::ITexture* readDDS(std::string path, std::string name, video::IVideoDriver* driver);
+	static bool BothAreSpaces(char lhs, char rhs) { return (lhs == rhs) && (lhs == ' '); }
+	static void removeExtraSpaces(std::string& str);
 };

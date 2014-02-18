@@ -10,6 +10,8 @@ bool Helpers::readLine(ifstream& file, std::vector<std::string>& tokens)
 	//cut everything beyond a ';'
 	if (line.find_first_of(';') != string::npos)
 		line.erase(line.find_first_of(';'), string::npos);
+	//remove extra spaces
+	removeExtraSpaces(line);
 
 	while (line.length() > 0)
 	{
@@ -47,4 +49,10 @@ video::ITexture* Helpers::readDDS(string path, string name, video::IVideoDriver*
 	video::ITexture* texture = driver->addTexture(name.c_str(), image);
 	texture->grab();
 	return texture;
+}
+
+void Helpers::removeExtraSpaces(std::string& str)
+{
+	std::string::iterator new_end = std::unique(str.begin(), str.end(), BothAreSpaces);
+	str.erase(new_end, str.end());
 }
