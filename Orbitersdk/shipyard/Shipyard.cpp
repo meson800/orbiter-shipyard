@@ -13,6 +13,14 @@ void Shipyard::loop()
 	
 	//add the camera
 	camera = smgr->addCameraSceneNodeMaya();
+	camera = smgr->addCameraSceneNode();
+	if (camera)
+	{
+		scene::ISceneNodeAnimator* anm = new scene::CSceneNodeAnimatorCameraCustom(device->getCursorControl());
+
+		camera->addAnimator(anm);
+		anm->drop();
+	}
 
 	smgr->setAmbientLight(SColor(150,150,150,150));
 

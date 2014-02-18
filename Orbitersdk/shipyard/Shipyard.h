@@ -3,6 +3,7 @@
 #include <irrlicht.h>
 
 #include "VesselSceneNode.h"
+#include "CSceneNodeAnimatorCameraCustom.h"
 
 #define cameraRotateSpeed = .1;
 
