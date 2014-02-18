@@ -25,3 +25,8 @@ void Shipyard::loop()
 		driver->endScene();
 	}
 }
+
+bool Shipyard::OnEvent(const SEvent& event)
+{
+	return false;
+}

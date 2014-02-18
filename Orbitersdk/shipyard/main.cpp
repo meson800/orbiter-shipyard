@@ -16,7 +16,9 @@ int main()
 
 	nulldevice->drop();
 
-	IrrlichtDevice *device = createDevice(video::EDT_DIRECT3D9, deskres, 32, false, false, false, NULL);
+	Shipyard shipyard = Shipyard();
+
+	IrrlichtDevice *device = createDevice(video::EDT_DIRECT3D9, deskres, 32, false, false, false, &shipyard);
 	if (!device)
 		return 1;
 
@@ -24,7 +26,7 @@ int main()
 	device->setWindowCaption(L"Orbiter Shipyard");
 
 	//pass it off to Shipyard
-	Shipyard shipyard = Shipyard(device);
+	shipyard.setupDevice(device);
 	//and run!
 	shipyard.loop();
 	device->drop();
