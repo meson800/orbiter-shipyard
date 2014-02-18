@@ -91,6 +91,7 @@
     <ClInclude Include="OrbiterDockingPort.h" />
     <ClInclude Include="OrbiterMesh.h" />
     <ClInclude Include="OrbiterMeshGroup.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="s3tc.h" />
     <ClInclude Include="VesselSceneNode.h" />
     <ClInclude Include="Shipyard.h" />

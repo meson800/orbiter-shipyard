@@ -9,6 +9,7 @@
 #include "OrbiterMesh.h"
 #include "Helpers.h"
 #include "OrbiterDockingPort.h"
+#include "resource.h"
 
 using namespace irr;
 using namespace std;
@@ -22,9 +23,10 @@ public:
 	virtual const core::aabbox3d<f32>& getBoundingBox() const;
 	virtual u32 getMaterialCount();
 	virtual video::SMaterial& getMaterial(u32 i);
+	void setupDockingPortNodes();
 
 private:
-	void setupDockingPortNodes();
+	
 	vector<OrbiterDockingPort> dockingPorts;
 	vector <scene::ISceneNode *> dockingPortNodes;
 	scene::ISceneManager* smgr;

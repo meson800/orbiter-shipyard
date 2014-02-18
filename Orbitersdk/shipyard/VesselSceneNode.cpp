@@ -20,12 +20,12 @@ VesselSceneNode::VesselSceneNode(string configFilename, scene::ISceneNode* paren
 		//if we are reading docking ports, create a new docking port!
 		if (readingDockingPorts)
 			dockingPorts.push_back(OrbiterDockingPort(
-			core::vector3d<f32>(Helpers::stringToDouble(tokens[1]),
-				Helpers::stringToDouble(tokens[2]), Helpers::stringToDouble(tokens[3])),
-			core::vector3d<f32>(Helpers::stringToDouble(tokens[4]),
-			Helpers::stringToDouble(tokens[5]), Helpers::stringToDouble(tokens[6])),
-				core::vector3d<f32>(Helpers::stringToDouble(tokens[7]),
-			Helpers::stringToDouble(tokens[8]), Helpers::stringToDouble(tokens[9]))));
+			core::vector3d<f32>(Helpers::stringToDouble(tokens[0]),
+				Helpers::stringToDouble(tokens[1]), Helpers::stringToDouble(tokens[2])),
+			core::vector3d<f32>(Helpers::stringToDouble(tokens[3]),
+			Helpers::stringToDouble(tokens[4]), Helpers::stringToDouble(tokens[5])),
+				core::vector3d<f32>(Helpers::stringToDouble(tokens[6]),
+			Helpers::stringToDouble(tokens[7]), Helpers::stringToDouble(tokens[8]))));
 		//now see if this is the beginning of a docking port list
 		if (tokens[0].compare("BEGIN_DOCKLIST") == 0)
 		{
@@ -46,13 +46,19 @@ VesselSceneNode::VesselSceneNode(string configFilename, scene::ISceneNode* paren
 		tokens.clear();
 	}
 	//setup docking port nodes
-	setupDockingPortNodes();
+	//setupDockingPortNodes();
 }
 
 void VesselSceneNode::setupDockingPortNodes()
 {
 	for (int i = 0; i < dockingPorts.size(); i++)
-		dockingPortNodes.push_back(smgr->addSphereSceneNode(10, 16, this, 10, dockingPorts[i].position));
+	{
+		dockingPortNodes.push_back(smgr->addSphereSceneNode(1.2, 16, this, ID_Flag_IsDockingPort, dockingPorts[i].position));
+		 dockingPortNodes[i]->getMaterial(0).AmbientColor.set(255,255,255,0);
+		 dockingPortNodes[i]->getMaterial(0).EmissiveColor.set(150, 150, 150, 150);
+		dockingPortNodes[i]->setVisible(true);
+	}
+
 }
 
 void VesselSceneNode::OnRegisterSceneNode()
@@ -87,6 +93,10 @@ void VesselSceneNode::render()
 			vesselMesh.meshGroups[i].triangleList.size() / 3, video::EVT_STANDARD, scene::EPT_TRIANGLES,
 			video::EIT_32BIT);
 	}
+
+	//render all child nodes
+	//for (int i = 0; i < dockingPortNodes.size(); i++)
+	//	dockingPortNodes[i]->render();
 }
 
 const core::aabbox3d<f32>& VesselSceneNode::getBoundingBox() const
