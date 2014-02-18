@@ -74,6 +74,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CSceneNodeAnimatorCameraCustom.cpp" />
     <ClCompile Include="DdsImage.cpp" />
     <ClCompile Include="Helpers.cpp" />
     <ClCompile Include="main.cpp" />
@@ -83,6 +84,7 @@
     <ClCompile Include="VesselSceneNode.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CSceneNodeAnimatorCameraCustom.h" />
     <ClInclude Include="DdsHeader.h" />
     <ClInclude Include="DdsImage.h" />
     <ClInclude Include="Helpers.h" />

@@ -97,6 +97,7 @@ namespace scene
 		core::position2df ZoomStart;
 		core::position2df TranslateStart;
 		core::position2df MousePos;
+		f32 mouseWheelDelta;
 		f32 ZoomSpeed;
 		f32 RotateSpeed;
 		f32 TranslateSpeed;

@@ -39,6 +39,9 @@
     <ClCompile Include="s3tc.cpp">
       <Filter>DDS</Filter>
     </ClCompile>
+    <ClCompile Include="CSceneNodeAnimatorCameraCustom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shipyard.h">
@@ -67,6 +70,9 @@
     </ClInclude>
     <ClInclude Include="s3tc.h">
       <Filter>DDS</Filter>
+    </ClInclude>
+    <ClInclude Include="CSceneNodeAnimatorCameraCustom.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

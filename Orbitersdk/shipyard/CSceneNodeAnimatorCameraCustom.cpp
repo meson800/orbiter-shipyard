@@ -77,6 +77,8 @@ bool CSceneNodeAnimatorCameraCustom::OnEvent(const SEvent& event)
 		MousePos = CursorControl->getRelativePosition();
 		break;
 	case EMIE_MOUSE_WHEEL:
+		mouseWheelDelta = event.MouseInput.Wheel;
+		break;
 	case EMIE_LMOUSE_DOUBLE_CLICK:
 	case EMIE_RMOUSE_DOUBLE_CLICK:
 	case EMIE_MMOUSE_DOUBLE_CLICK:
@@ -124,31 +126,29 @@ void CSceneNodeAnimatorCameraCustom::animateNode(ISceneNode *node, u32 timeMs)
 	f32 nRotY = RotY;
 	f32 nZoom = CurrentZoom;
 
-	if ( (isMouseKeyDown(0) && isMouseKeyDown(2)) || isMouseKeyDown(1) )
+	if ( mouseWheelDelta != 0 )
 	{
 		if (!Zooming)
 		{
-			ZoomStart = MousePos;
 			Zooming = true;
 		}
 		else
 		{
 			const f32 targetMinDistance = 0.1f;
-			nZoom += (ZoomStart.X - MousePos.X) * ZoomSpeed;
+			nZoom += (mouseWheelDelta * -.1) * ZoomSpeed;
 
 			if (nZoom < targetMinDistance) // jox: fixed bug: bounce back when zooming to close
 				nZoom = targetMinDistance;
-		}
-	}
-	else if (Zooming)
-	{
-		const f32 old = CurrentZoom;
-		CurrentZoom = CurrentZoom + (ZoomStart.X - MousePos.X ) * ZoomSpeed;
-		nZoom = CurrentZoom;
 
-		if (nZoom < 0)
-			nZoom = CurrentZoom = old;
-		Zooming = false;
+			const f32 old = CurrentZoom;
+			CurrentZoom = nZoom;
+			nZoom = CurrentZoom;
+
+			if (nZoom < 0)
+				nZoom = CurrentZoom = old;
+			mouseWheelDelta = 0;
+			Zooming = false;
+		}
 	}
 
 	// Translation ---------------------------------
@@ -190,7 +190,7 @@ void CSceneNodeAnimatorCameraCustom::animateNode(ISceneNode *node, u32 timeMs)
 
 	// Rotation ------------------------------------
 
-	if (isMouseKeyDown(0) && !Zooming)
+	if (isMouseKeyDown(1) && !Zooming)
 	{
 		if (!Rotating)
 		{
