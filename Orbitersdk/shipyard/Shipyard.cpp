@@ -12,7 +12,7 @@ void Shipyard::loop()
 	video::IVideoDriver* driver = device->getVideoDriver();
 	
 	//add the camera
-	smgr->addCameraSceneNodeMaya();
+	camera = smgr->addCameraSceneNodeMaya();
 
 	smgr->setAmbientLight(SColor(150,150,150,150));
 
@@ -41,8 +41,7 @@ core::vector3df Shipyard::returnMouseRelativePos()
 		selectedNode->updateAbsolutePosition();
 		//the plane point is from the center of the node, with the normal to the camera
 		core::plane3df plane = core::plane3df(selectedNode->getAbsolutePosition(),
-			collisionManager->getRayFromScreenCoordinates(collisionManager->getScreenCoordinatesFrom3DPosition(
-			selectedNode->getAbsolutePosition())).getVector());
+			camera->getTarget() - camera->getPosition());
 
 		//now do a ray from the current mouse position
 		core::line3df ray = collisionManager->getRayFromScreenCoordinates(device->getCursorControl()->getPosition());

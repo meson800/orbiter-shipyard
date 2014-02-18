@@ -4,6 +4,8 @@
 
 #include "VesselSceneNode.h"
 
+#define cameraRotateSpeed = .1;
+
 using namespace irr;
 
 class Shipyard : public IEventReceiver
@@ -18,6 +20,7 @@ private:
 	
 	IrrlichtDevice * device;
 	bool LMouseDown;
+	scene::ICameraSceneNode* camera;
 	scene::ISceneNode * selectedNode;
 	scene::ISceneCollisionManager* collisionManager;
 	scene::ISceneManager* smgr;
