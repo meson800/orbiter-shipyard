@@ -27,6 +27,7 @@ void Shipyard::loop()
 	//register our VesselSceneNode - just staticly at the moment, but will do it later
 	VesselSceneNode* vesselNode = new VesselSceneNode("C:\\Other Stuff\\Orbiter\\shipyard\\Config\\Vessels\\ProjectAlpha_ISS.cfg", 
 		smgr->getRootSceneNode(), smgr, 72);
+	vesselNode->setupDockingPortNodes();
 	vesselNode->drop();
 
 	//start the loop

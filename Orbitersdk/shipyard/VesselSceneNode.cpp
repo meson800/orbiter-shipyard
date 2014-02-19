@@ -93,10 +93,6 @@ void VesselSceneNode::render()
 			vesselMesh.meshGroups[i].triangleList.size() / 3, video::EVT_STANDARD, scene::EPT_TRIANGLES,
 			video::EIT_32BIT);
 	}
-
-	//render all child nodes
-	//for (int i = 0; i < dockingPortNodes.size(); i++)
-	//	dockingPortNodes[i]->render();
 }
 
 const core::aabbox3d<f32>& VesselSceneNode::getBoundingBox() const
