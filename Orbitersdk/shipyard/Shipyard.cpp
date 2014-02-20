@@ -12,7 +12,6 @@ void Shipyard::loop()
 	video::IVideoDriver* driver = device->getVideoDriver();
 	
 	//add the camera
-	camera = smgr->addCameraSceneNodeMaya();
 	camera = smgr->addCameraSceneNode();
 	if (camera)
 	{
