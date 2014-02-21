@@ -24,6 +24,7 @@ public:
 	virtual u32 getMaterialCount();
 	virtual video::SMaterial& getMaterial(u32 i);
 	void setupDockingPortNodes();
+	void changeDockingPortVisibility(bool show, bool emptyOnly);
 
 private:
 	

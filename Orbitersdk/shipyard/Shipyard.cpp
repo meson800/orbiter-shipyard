@@ -70,16 +70,24 @@ bool Shipyard::OnEvent(const SEvent& event)
 			//if we have a selected node, deselect it
 			if (selectedNode != 0)
 			{
+				//de-show docking ports
+				((VesselSceneNode*)selectedNode)->changeDockingPortVisibility(false, false);
 				selectedNode = 0;
 				return true;
 			}
 			//try to select a node
 			selectedNode = collisionManager->getSceneNodeFromScreenCoordinatesBB(
 				device->getCursorControl()->getPosition(), 72, true);
-			//set mouse position
-			originalMouse3DPos = returnMouseRelativePos();
-			//set old node location
-			originalNodePosition = selectedNode->getPosition();
+			if (selectedNode != 0)
+			{
+				//set mouse position
+				originalMouse3DPos = returnMouseRelativePos();
+				//set old node location
+				originalNodePosition = selectedNode->getPosition();
+
+				//show docking ports
+				((VesselSceneNode*)selectedNode)->changeDockingPortVisibility(true, true);
+			}
 
 			//return true if we got a node
 			return (selectedNode != 0);
