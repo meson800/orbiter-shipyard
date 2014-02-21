@@ -39,7 +39,8 @@ void Shipyard::loop()
 	while (device->run())
 	{
 		//see if we are pressing control o- so we can open a open file dialog
-		if (isKeyDown[KEY_LCONTROL] && isKeyDown[KEY_KEY_O] && !isOpenDialogOpen)
+		if ((isKeyDown[KEY_LCONTROL] || isKeyDown[KEY_RCONTROL] || isKeyDown[KEY_CONTROL])
+			&& isKeyDown[KEY_KEY_O] && !isOpenDialogOpen)
 		{
 			guiEnv->addFileOpenDialog(L"Select Config File", true, 0, -1, true);
 			isOpenDialogOpen = true;
@@ -87,12 +88,17 @@ bool Shipyard::OnEvent(const SEvent& event)
 	case EET_GUI_EVENT:
 		switch (event.GUIEvent.EventType)
 		{
-		case gui::EGET_FILE_SELECTED: 
+		case gui::EGET_FILE_SELECTED:
+		{
 			(gui::IGUIFileOpenDialog*)event.GUIEvent.Caller;
 			std::wstring uniString = std::wstring(((gui::IGUIFileOpenDialog*)event.GUIEvent.Caller)->getFileName());
 			std::string filename = std::string(uniString.begin(), uniString.end());
 			//create a new vessel
 			vessels.push_back(new VesselSceneNode(filename, smgr->getRootSceneNode(), smgr, 72));
+			isOpenDialogOpen = false;
+			break;
+		}
+		case gui::EGET_FILE_CHOOSE_DIALOG_CANCELLED:
 			isOpenDialogOpen = false;
 			break;
 		}
