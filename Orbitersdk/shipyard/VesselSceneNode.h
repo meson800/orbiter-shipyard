@@ -28,7 +28,6 @@ public:
 private:
 	
 	vector<OrbiterDockingPort> dockingPorts;
-	vector <scene::ISceneNode *> dockingPortNodes;
 	scene::ISceneManager* smgr;
 	OrbiterMesh vesselMesh;
 };
