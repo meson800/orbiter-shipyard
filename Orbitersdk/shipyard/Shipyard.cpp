@@ -1,10 +1,18 @@
 #include "Shipyard.h"
 
+Shipyard::Shipyard()
+{
+	for (u32 i = 0; i<KEY_KEY_CODES_COUNT; ++i)
+		isKeyDown[i] = false;
+	isOpenDialogOpen = false;
+}
+
 void Shipyard::setupDevice(IrrlichtDevice * _device)
 {
 	device = _device;
 	smgr = device->getSceneManager();
 	collisionManager = smgr->getSceneCollisionManager();
+	guiEnv = device->getGUIEnvironment();
 }
 
 void Shipyard::loop()
@@ -26,14 +34,22 @@ void Shipyard::loop()
 	//register our VesselSceneNode - just staticly at the moment, but will do it later
 	vessels.push_back(new VesselSceneNode("C:\\Other Stuff\\Orbiter\\shipyard\\Config\\Vessels\\ProjectAlpha_ISS.cfg", 
 		smgr->getRootSceneNode(), smgr, 72));
-	vessels[0]->setupDockingPortNodes();
 
 	//start the loop
 	while (device->run())
 	{
+		//see if we are pressing control o- so we can open a open file dialog
+		if (isKeyDown[KEY_LCONTROL] && isKeyDown[KEY_KEY_O] && !isOpenDialogOpen)
+		{
+			guiEnv->addFileOpenDialog(L"Select Config File", true, 0, -1, true);
+			isOpenDialogOpen = true;
+		}
+
 		driver->beginScene(true, true, video::SColor(0, 100, 100, 100));
 
 		smgr->drawAll();
+
+		guiEnv->drawAll();
 
 		driver->endScene();
 	}
@@ -68,6 +84,19 @@ bool Shipyard::OnEvent(const SEvent& event)
 {
 	switch (event.EventType)
 	{
+	case EET_GUI_EVENT:
+		switch (event.GUIEvent.EventType)
+		{
+		case gui::EGET_FILE_SELECTED: 
+			(gui::IGUIFileOpenDialog*)event.GUIEvent.Caller;
+			std::wstring uniString = std::wstring(((gui::IGUIFileOpenDialog*)event.GUIEvent.Caller)->getFileName());
+			std::string filename = std::string(uniString.begin(), uniString.end());
+			//create a new vessel
+			vessels.push_back(new VesselSceneNode(filename, smgr->getRootSceneNode(), smgr, 72));
+			isOpenDialogOpen = false;
+			break;
+		}
+		break;
 	case EET_KEY_INPUT_EVENT:
 		//it's a key, store it
 		isKeyDown[event.KeyInput.Key] = event.KeyInput.PressedDown;
@@ -76,6 +105,9 @@ bool Shipyard::OnEvent(const SEvent& event)
 		switch (event.MouseInput.Event)
 		{
 		case EMIE_LMOUSE_PRESSED_DOWN:
+			//return if we have the dialog open
+			if (isOpenDialogOpen)
+				return false;
 			//if we have a selected node, deselect it
 			if (selectedNode != 0)
 			{
@@ -85,6 +117,7 @@ bool Shipyard::OnEvent(const SEvent& event)
 				return true;
 			}
 			//try to select a node
+			selectedNode = 0;
 			selectedNode = collisionManager->getSceneNodeFromScreenCoordinatesBB(
 				device->getCursorControl()->getPosition(), 72, true);
 			if (selectedNode != 0)

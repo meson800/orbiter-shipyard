@@ -2,6 +2,7 @@
 
 #include <irrlicht.h>
 #include <vector>
+#include <string>
 
 #include "VesselSceneNode.h"
 #include "CSceneNodeAnimatorCameraCustom.h"
@@ -13,6 +14,7 @@ using namespace irr;
 class Shipyard : public IEventReceiver
 {
 public:
+	Shipyard();
 	void setupDevice(IrrlichtDevice * _device);
 	void loop();
 	bool OnEvent(const SEvent & event);
@@ -20,8 +22,10 @@ public:
 private:
 	core::vector3df returnMouseRelativePos();
 	
+	gui::IGUIEnvironment* guiEnv;
 	std::vector<VesselSceneNode*> vessels;
 	bool isKeyDown[KEY_KEY_CODES_COUNT];
+	bool isOpenDialogOpen;
 	IrrlichtDevice * device;
 	scene::ICameraSceneNode* camera;
 	scene::ISceneNode * selectedNode;

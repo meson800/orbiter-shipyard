@@ -46,7 +46,7 @@ VesselSceneNode::VesselSceneNode(string configFilename, scene::ISceneNode* paren
 		tokens.clear();
 	}
 	//setup docking port nodes
-	//setupDockingPortNodes();
+	setupDockingPortNodes();
 }
 
 void VesselSceneNode::setupDockingPortNodes()
