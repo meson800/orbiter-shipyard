@@ -53,10 +53,10 @@ void VesselSceneNode::setupDockingPortNodes()
 {
 	for (int i = 0; i < dockingPorts.size(); i++)
 	{
-		dockingPortNodes.push_back(smgr->addSphereSceneNode(1.2, 16, this, ID_Flag_IsDockingPort, dockingPorts[i].position));
-		 dockingPortNodes[i]->getMaterial(0).AmbientColor.set(255,255,255,0);
-		 dockingPortNodes[i]->getMaterial(0).EmissiveColor.set(150, 150, 150, 150);
-		dockingPortNodes[i]->setVisible(true);
+		dockingPorts[i].portNode = smgr->addSphereSceneNode(1.2, 16, this, ID_Flag_IsDockingPort, dockingPorts[i].position);
+		dockingPorts[i].portNode->getMaterial(0).AmbientColor.set(255,255,255,0);
+		dockingPorts[i].portNode->getMaterial(0).EmissiveColor.set(150, 150, 150, 150);
+		dockingPorts[i].portNode->setVisible(true);
 	}
 
 }
