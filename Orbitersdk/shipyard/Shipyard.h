@@ -20,10 +20,10 @@ private:
 	core::vector3df returnMouseRelativePos();
 	
 	IrrlichtDevice * device;
-	bool LMouseDown;
 	scene::ICameraSceneNode* camera;
 	scene::ISceneNode * selectedNode;
 	scene::ISceneCollisionManager* collisionManager;
 	scene::ISceneManager* smgr;
-	core::vector3df oldMouse3DPos;
+	core::vector3df originalMouse3DPos;
+	core::vector3df originalNodePosition;
 };

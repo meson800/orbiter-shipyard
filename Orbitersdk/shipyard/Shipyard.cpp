@@ -67,34 +67,32 @@ bool Shipyard::OnEvent(const SEvent& event)
 		switch (event.MouseInput.Event)
 		{
 		case EMIE_LMOUSE_PRESSED_DOWN:
-			LMouseDown = true;
+			//if we have a selected node, deselect it
+			if (selectedNode != 0)
+			{
+				selectedNode = 0;
+				return true;
+			}
 			//try to select a node
 			selectedNode = collisionManager->getSceneNodeFromScreenCoordinatesBB(
 				device->getCursorControl()->getPosition(), 72, true);
 			//set mouse position
-			oldMouse3DPos = returnMouseRelativePos();
+			originalMouse3DPos = returnMouseRelativePos();
+			//set old node location
+			originalNodePosition = selectedNode->getPosition();
+
 			//return true if we got a node
 			return (selectedNode != 0);
 			break;
 
-		case EMIE_LMOUSE_LEFT_UP:
-			LMouseDown = false;
-			return false;
-			break;
-
 		case EMIE_MOUSE_MOVED:
-			//return if we aren't dragging
-			if (LMouseDown == false)
-				return false;
 			//see if we have a node
 			if (selectedNode != 0)
 			{
 				//calculate new mouse pos
 				core::vector3df mouse3DPos = returnMouseRelativePos();
 				//move the node by the difference of the two
-				selectedNode->setPosition(selectedNode->getPosition() + (mouse3DPos - oldMouse3DPos));
-				//update old pos
-				oldMouse3DPos = mouse3DPos;
+				selectedNode->setPosition(originalNodePosition + (mouse3DPos - originalMouse3DPos));
 			}
 			break;
 		}
