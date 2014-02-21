@@ -63,6 +63,10 @@ bool Shipyard::OnEvent(const SEvent& event)
 {
 	switch (event.EventType)
 	{
+	case EET_KEY_INPUT_EVENT:
+		//it's a key, store it
+		isKeyDown[event.KeyInput.Key] = event.KeyInput.PressedDown;
+		break;
 	case EET_MOUSE_INPUT_EVENT:
 		switch (event.MouseInput.Event)
 		{
@@ -104,6 +108,7 @@ bool Shipyard::OnEvent(const SEvent& event)
 			}
 			break;
 		}
+		break;
 	}
 	return false;
 }

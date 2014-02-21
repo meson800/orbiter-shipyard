@@ -19,6 +19,7 @@ public:
 private:
 	core::vector3df returnMouseRelativePos();
 	
+	bool isKeyDown[KEY_KEY_CODES_COUNT];
 	IrrlichtDevice * device;
 	scene::ICameraSceneNode* camera;
 	scene::ISceneNode * selectedNode;
