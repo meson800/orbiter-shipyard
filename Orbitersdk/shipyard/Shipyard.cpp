@@ -24,10 +24,9 @@ void Shipyard::loop()
 	smgr->setAmbientLight(SColor(150,150,150,150));
 
 	//register our VesselSceneNode - just staticly at the moment, but will do it later
-	VesselSceneNode* vesselNode = new VesselSceneNode("C:\\Other Stuff\\Orbiter\\shipyard\\Config\\Vessels\\ProjectAlpha_ISS.cfg", 
-		smgr->getRootSceneNode(), smgr, 72);
-	vesselNode->setupDockingPortNodes();
-	vesselNode->drop();
+	vessels.push_back(new VesselSceneNode("C:\\Other Stuff\\Orbiter\\shipyard\\Config\\Vessels\\ProjectAlpha_ISS.cfg", 
+		smgr->getRootSceneNode(), smgr, 72));
+	vessels[0]->setupDockingPortNodes();
 
 	//start the loop
 	while (device->run())
@@ -37,6 +36,12 @@ void Shipyard::loop()
 		smgr->drawAll();
 
 		driver->endScene();
+	}
+	//drop all vessels
+	for (int i = 0; i < vessels.size(); i++)
+	{
+		vessels[0]->drop();
+		vessels.erase(vessels.begin());
 	}
 }
 

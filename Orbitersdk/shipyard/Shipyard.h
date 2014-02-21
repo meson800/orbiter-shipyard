@@ -1,6 +1,7 @@
 #pragma once
 
 #include <irrlicht.h>
+#include <vector>
 
 #include "VesselSceneNode.h"
 #include "CSceneNodeAnimatorCameraCustom.h"
@@ -19,6 +20,7 @@ public:
 private:
 	core::vector3df returnMouseRelativePos();
 	
+	std::vector<VesselSceneNode*> vessels;
 	bool isKeyDown[KEY_KEY_CODES_COUNT];
 	IrrlichtDevice * device;
 	scene::ICameraSceneNode* camera;
