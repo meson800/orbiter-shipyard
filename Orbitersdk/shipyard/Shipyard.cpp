@@ -106,6 +106,36 @@ bool Shipyard::OnEvent(const SEvent& event)
 	case EET_KEY_INPUT_EVENT:
 		//it's a key, store it
 		isKeyDown[event.KeyInput.Key] = event.KeyInput.PressedDown;
+		//if we are dragging a node, see if it is a rotation
+		if (selectedNode != 0 && event.KeyInput.PressedDown)
+		{
+			core::vector3df currentRotation = selectedNode->getRotation();
+			switch (event.KeyInput.Key)
+			{
+			case KEY_KEY_A:
+				currentRotation.Y -= 90;
+				break;
+			case KEY_KEY_D:
+				currentRotation.Y += 90;
+				break;
+			case KEY_KEY_S:
+				currentRotation.Z -= 90;
+				break;
+			case KEY_KEY_W:
+				currentRotation.Z += 90;
+				break;
+			case KEY_KEY_Q:
+				currentRotation.X -= 90;
+				break;
+			case KEY_KEY_E:
+				currentRotation.X += 90;
+				break;
+			default:
+				break;
+			}
+			//set rotation
+			selectedNode->setRotation(currentRotation);
+		}
 		break;
 	case EET_MOUSE_INPUT_EVENT:
 		switch (event.MouseInput.Event)
