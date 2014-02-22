@@ -186,3 +186,36 @@ bool Shipyard::OnEvent(const SEvent& event)
 	}
 	return false;
 }
+
+void Shipyard::checkNodeForSnapping(VesselSceneNode* node)
+{
+	//loop over empty docking ports on this node
+	for (int i = 0; i < node->dockingPorts.size(); i++)
+	{
+		if (node->dockingPorts[i].docked == false)
+		{
+			//now, loop over the OTHER vessels (not equal to this node)
+			//and see if it is close to another port's empty docking ports
+			for (int j = 0; j < vessels.size(); j++)
+			{
+				if (vessels[j] != node)
+				{
+					//check it's docking ports
+					for (int k = 0; k < vessels[j]->dockingPorts.size(); k++)
+					{
+						//check if it is not docked, and they are within a certain distance
+						if (!vessels[j]->dockingPorts[k].docked &&
+							((node->getAbsolutePosition() + node->returnRotatedVector(node->dockingPorts[i].position)) -
+							(vessels[j]->getAbsolutePosition() + vessels[j]->returnRotatedVector(vessels[j]->dockingPorts[k].position))
+							).getLengthSQ() < 16)
+						{
+							//snap it
+							node->snap(node->dockingPorts[i], vessels[j]->dockingPorts[k]);
+						}
+
+					}
+				}
+			}
+		}
+	}
+}

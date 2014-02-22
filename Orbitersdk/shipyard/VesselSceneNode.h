@@ -28,9 +28,9 @@ public:
 	void snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort);
 	core::vector3df returnRotatedVector(const core::vector3df& vec);
 
-private:
-	
 	vector<OrbiterDockingPort> dockingPorts;
+
+private:
 	scene::ISceneManager* smgr;
 	OrbiterMesh vesselMesh;
 };
