@@ -42,7 +42,7 @@ void Shipyard::loop()
 		if ((isKeyDown[KEY_LCONTROL] || isKeyDown[KEY_RCONTROL] || isKeyDown[KEY_CONTROL])
 			&& isKeyDown[KEY_KEY_O] && !isOpenDialogOpen)
 		{
-			guiEnv->addFileOpenDialog(L"Select Config File", true, 0, -1, true);
+			guiEnv->addFileOpenDialog(L"Select Config File", true, 0, -1, true,"config\\vessels");
 			isOpenDialogOpen = true;
 		}
 
