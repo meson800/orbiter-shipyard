@@ -25,6 +25,8 @@ public:
 	virtual video::SMaterial& getMaterial(u32 i);
 	void setupDockingPortNodes();
 	void changeDockingPortVisibility(bool show, bool emptyOnly);
+	void snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort);
+	core::vector3df returnRotatedVector(const core::vector3df& vec);
 
 private:
 	

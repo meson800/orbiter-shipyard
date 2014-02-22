@@ -122,3 +122,40 @@ void VesselSceneNode::changeDockingPortVisibility(bool show, bool emptyOnly)
 			dockingPorts[i].portNode->setVisible(show);
 	}
 }
+
+core::vector3df VesselSceneNode::returnRotatedVector(const core::vector3df& vec)
+{
+	//update our absolute position
+	updateAbsolutePosition();
+	//first, rotate the vector of the approach port by our current rotation
+	//do this by making a quaternoin
+	core::quaternion thisRotation = core::quaternion(getRotation() * core::DEGTORAD);
+	//now return a rotated vector
+	return thisRotation * vec;
+}
+
+void VesselSceneNode::snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort)
+{
+	//ok, this gets complicated
+	//update our absolute position
+	updateAbsolutePosition();
+	//this is the eventual final quaternion rotation
+	core::quaternion finalRotation;
+	
+	//get the rotated port direction, times -1 to reverse it so it will match with the other port
+	core::vector3df ourPortDirection = -1 * returnRotatedVector(ourPort.approachDirection);
+	//get the other rotated port vector
+	core::vector3df otherPortDirection = ((VesselSceneNode*)theirPort.parent)->returnRotatedVector(theirPort.approachDirection);
+	//get our first quaternion
+	finalRotation.rotationFromTo(ourPortDirection, otherPortDirection);
+
+	//NOTE: APPLY REF DIRECTION ROTATION
+
+	//apply this final rotation
+	core::vector3df rotationInEuler;
+	finalRotation.toEuler(rotationInEuler);
+	//multiply to get it back in degrees
+	rotationInEuler *= core::RADTODEG;
+	setRotation(getRotation() + rotationInEuler);
+
+}
