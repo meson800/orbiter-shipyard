@@ -139,6 +139,7 @@ void VesselSceneNode::snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& thei
 	//ok, this gets complicated
 	//update our absolute position
 	updateAbsolutePosition();
+	theirPort.parent->updateAbsolutePosition();
 	//this is the eventual final quaternion rotation
 	core::quaternion finalRotation;
 	
@@ -156,6 +157,17 @@ void VesselSceneNode::snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& thei
 	finalRotation.toEuler(rotationInEuler);
 	//multiply to get it back in degrees
 	rotationInEuler *= core::RADTODEG;
-	setRotation(getRotation() + rotationInEuler);
+
+	//make sure the w isn't zero
+	if (finalRotation.W != 0)
+		setRotation(getRotation() + rotationInEuler);
+
+	//now move the thing to match with it
+	//set our position to the difference between the docking ports- theirs minus ours
+	core::vector3df startPosition = getAbsolutePosition();
+	core::vector3df difference = (theirPort.parent->getAbsolutePosition() + theirPort.parent->returnRotatedVector(theirPort.position))
+		- (getAbsolutePosition() + returnRotatedVector(ourPort.position));
+	setPosition(startPosition + difference);
+
 
 }

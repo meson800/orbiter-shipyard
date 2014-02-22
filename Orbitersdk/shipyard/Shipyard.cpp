@@ -179,6 +179,8 @@ bool Shipyard::OnEvent(const SEvent& event)
 				core::vector3df mouse3DPos = returnMouseRelativePos();
 				//move the node by the difference of the two
 				selectedNode->setPosition(originalNodePosition + (mouse3DPos - originalMouse3DPos));
+				//try snapping
+				checkNodeForSnapping(((VesselSceneNode*)selectedNode));
 			}
 			break;
 		}
