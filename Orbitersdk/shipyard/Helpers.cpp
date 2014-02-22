@@ -15,6 +15,9 @@ bool Helpers::readLine(ifstream& file, std::vector<std::string>& tokens)
 
 	while (line.length() > 0)
 	{
+		//cut any beginning spaces
+		if (line.at(0) == ' ')
+			line = line.substr(1, string::npos);
 		//push the first token
 		tokens.push_back(line.substr(0, line.find_first_of(' ')));
 		//remove the first token

@@ -32,8 +32,8 @@ void Shipyard::loop()
 	smgr->setAmbientLight(SColor(150,150,150,150));
 
 	//register our VesselSceneNode - just staticly at the moment, but will do it later
-	vessels.push_back(new VesselSceneNode("C:\\Other Stuff\\Orbiter\\shipyard\\Config\\Vessels\\ProjectAlpha_ISS.cfg", 
-		smgr->getRootSceneNode(), smgr, 72));
+	//vessels.push_back(new VesselSceneNode("C:\\Other Stuff\\Orbiter\\shipyard\\Config\\Vessels\\ProjectAlpha_ISS.cfg", 
+	//	smgr->getRootSceneNode(), smgr, 72));
 
 	//start the loop
 	while (device->run())
