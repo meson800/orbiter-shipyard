@@ -1,3 +1,7 @@
+#pragma once
+
+#define VESSEL_ID 72
+
 enum NodeId
 {
 	ID_IsNotPickable = 0,

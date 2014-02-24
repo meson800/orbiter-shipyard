@@ -55,7 +55,7 @@ void VesselSceneNode::setupDockingPortNodes()
 	{
 		dockingPorts[i].parent = this;
 		dockingPorts[i].docked = false;
-		dockingPorts[i].portNode = smgr->addSphereSceneNode(1.2, 16, this, ID_Flag_IsDockingPort, dockingPorts[i].position);
+		dockingPorts[i].portNode = smgr->addSphereSceneNode((f32)1.2, 16, this, ID_Flag_IsDockingPort, dockingPorts[i].position);
 		dockingPorts[i].portNode->getMaterial(0).AmbientColor.set(255,255,255,0);
 		dockingPorts[i].portNode->getMaterial(0).EmissiveColor.set(150, 150, 150, 150);
 		dockingPorts[i].portNode->setVisible(false);
@@ -114,7 +114,7 @@ video::SMaterial& VesselSceneNode::getMaterial(u32 i)
 
 void VesselSceneNode::changeDockingPortVisibility(bool show, bool emptyOnly)
 {
-	for (int i = 0; i < dockingPorts.size(); i++)
+	for (unsigned int i = 0; i < dockingPorts.size(); i++)
 	{
 		//if emptyOnly is false, always show/hide node
 		//if emptyOnly is true, only show if this one is empty

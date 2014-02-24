@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-
+#include "resource.h"
 #include "VesselSceneNode.h"
 #include "CSceneNodeAnimatorCameraCustom.h"
 

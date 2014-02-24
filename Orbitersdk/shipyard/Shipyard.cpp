@@ -55,7 +55,7 @@ void Shipyard::loop()
 		driver->endScene();
 	}
 	//drop all vessels
-	for (int i = 0; i < vessels.size(); i++)
+	for (unsigned int i = 0; i < vessels.size(); i++)
 	{
 		vessels[0]->drop();
 		vessels.erase(vessels.begin());
@@ -94,7 +94,7 @@ bool Shipyard::OnEvent(const SEvent& event)
 			std::wstring uniString = std::wstring(((gui::IGUIFileOpenDialog*)event.GUIEvent.Caller)->getFileName());
 			std::string filename = std::string(uniString.begin(), uniString.end());
 			//create a new vessel
-			vessels.push_back(new VesselSceneNode(filename, smgr->getRootSceneNode(), smgr, 72));
+			vessels.push_back(new VesselSceneNode(filename, smgr->getRootSceneNode(), smgr, VESSEL_ID));
 			isOpenDialogOpen = false;
 			break;
 		}
@@ -155,7 +155,12 @@ bool Shipyard::OnEvent(const SEvent& event)
 			//try to select a node
 			selectedNode = 0;
 			selectedNode = collisionManager->getSceneNodeFromScreenCoordinatesBB(
-				device->getCursorControl()->getPosition(), 72, true);
+				device->getCursorControl()->getPosition(), VESSEL_ID, true);
+			if (selectedNode->getID() != VESSEL_ID)
+			{
+				selectedNode = 0;
+				return true;
+			}
 			if (selectedNode != 0)
 			{
 				//set mouse position
@@ -192,18 +197,18 @@ bool Shipyard::OnEvent(const SEvent& event)
 void Shipyard::checkNodeForSnapping(VesselSceneNode* node)
 {
 	//loop over empty docking ports on this node
-	for (int i = 0; i < node->dockingPorts.size(); i++)
+	for (unsigned int i = 0; i < node->dockingPorts.size(); i++)
 	{
 		if (node->dockingPorts[i].docked == false)
 		{
 			//now, loop over the OTHER vessels (not equal to this node)
 			//and see if it is close to another port's empty docking ports
-			for (int j = 0; j < vessels.size(); j++)
+			for (unsigned int j = 0; j < vessels.size(); j++)
 			{
 				if (vessels[j] != node)
 				{
 					//check it's docking ports
-					for (int k = 0; k < vessels[j]->dockingPorts.size(); k++)
+					for (unsigned int k = 0; k < vessels[j]->dockingPorts.size(); k++)
 					{
 						//check if it is not docked, and they are within a certain distance
 						if (!vessels[j]->dockingPorts[k].docked &&
