@@ -1,5 +1,7 @@
 #include <irrlicht.h>
+#include <algorithm>
 #include "Shipyard.h"
+#include "Helpers.h"
 
 #ifdef _IRR_WINDOWS_
 #pragma comment(linker, "/subsystem:windows /ENTRY:mainCRTStartup")
@@ -24,6 +26,11 @@ int main()
 
 	//set caption
 	device->setWindowCaption(L"Orbiter Shipyard");
+
+	//set the working directory
+	std::string directory = device->getFileSystem()->getWorkingDirectory().c_str();
+	std::replace(directory.begin(), directory.end(), '/', '\\');
+	Helpers::workingDirectory = directory;
 
 	//pass it off to Shipyard
 	shipyard.setupDevice(device);

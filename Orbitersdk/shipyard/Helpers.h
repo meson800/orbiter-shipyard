@@ -16,6 +16,7 @@ using namespace irr;
 class Helpers
 {
 public:
+	static std::string workingDirectory;
 	static bool readLine(ifstream& file, vector<std::string>& tokens);
 	static int stringToInt(const std::string& inputString);
 	static double stringToDouble(const std::string& inputString);

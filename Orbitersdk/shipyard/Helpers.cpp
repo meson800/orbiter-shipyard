@@ -1,5 +1,6 @@
 #include "Helpers.h"
 
+std::string Helpers::workingDirectory = "";
 bool Helpers::readLine(ifstream& file, std::vector<std::string>& tokens)
 {
 	std::string line;
