@@ -3,12 +3,12 @@
 OrbiterMesh::OrbiterMesh()
 {}
 
-OrbiterMesh::OrbiterMesh(string meshFilename, video::IVideoDriver* driver)
+OrbiterMesh::OrbiterMesh(string meshFilename, video::IVideoDriver* driver, scene::ISceneManager* smgr)
 {
-	setupMesh(meshFilename, driver);
+	setupMesh(meshFilename, driver, smgr);
 }
 
-void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
+void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver, scene::ISceneManager* smgr)
 {
 	ifstream meshFile = ifstream(meshFilename.c_str());
 	int groupCounter = 0;
@@ -214,7 +214,7 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 			//see if this is a texture path
 			if (textureCounter > 0)
 			{
-				textures.push_back(Helpers::readDDS(string("C:\\Other Stuff\\Orbiter\\shipyard\\Textures\\" + tokens[0]).c_str(), 
+				textures.push_back(Helpers::readDDS(string(Helpers::workingDirectory + "\\Textures\\" + tokens[0]).c_str(),
 					tokens[0].c_str(),driver));
 				textureCounter--;
 				break;

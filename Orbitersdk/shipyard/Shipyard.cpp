@@ -5,6 +5,7 @@ Shipyard::Shipyard()
 	for (u32 i = 0; i<KEY_KEY_CODES_COUNT; ++i)
 		isKeyDown[i] = false;
 	isOpenDialogOpen = false;
+	selectedNode = 0;
 }
 
 void Shipyard::setupDevice(IrrlichtDevice * _device)

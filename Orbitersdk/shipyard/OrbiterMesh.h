@@ -16,8 +16,8 @@ class OrbiterMesh
 {
 public:
 	OrbiterMesh();
-	OrbiterMesh(string meshFilename, video::IVideoDriver* driver);
-	void setupMesh(string meshFilename, video::IVideoDriver* driver);
+	OrbiterMesh(string meshFilename, video::IVideoDriver* driver, scene::ISceneManager* smgr);
+	void setupMesh(string meshFilename, video::IVideoDriver* driver, scene::ISceneManager* smgr);
 	core::aabbox3d<f32> boundingBox;
 	vector<video::SMaterial> materials;
 	vector<video::ITexture*> textures;

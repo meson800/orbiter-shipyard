@@ -39,7 +39,7 @@ VesselSceneNode::VesselSceneNode(string configFilename, scene::ISceneNode* paren
 		//see if it matches
 		if (tokens[0].compare("meshname") == 0)
 			//load the mesh!
-			vesselMesh.setupMesh(string("C:\\Other Stuff\\Orbiter\\shipyard\\Meshes\\" + tokens[2] + ".msh"), mgr->getVideoDriver()); //tokens 2 because the format is
+			vesselMesh.setupMesh(string(Helpers::workingDirectory + "\\Meshes\\" + tokens[2] + ".msh"), mgr->getVideoDriver(), smgr); //tokens 2 because the format is
 		//MeshName = blahblah
 
 		//clear tokens
