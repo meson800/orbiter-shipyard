@@ -150,16 +150,31 @@ void VesselSceneNode::snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& thei
 	//get our first quaternion
 	finalRotation.rotationFromTo(ourPortDirection, otherPortDirection);
 
-	//NOTE: APPLY REF DIRECTION ROTATION
-
-	//apply this final rotation
 	core::vector3df rotationInEuler;
 	finalRotation.toEuler(rotationInEuler);
 	//multiply to get it back in degrees
 	rotationInEuler *= core::RADTODEG;
 
-	//make sure the w isn't zero
-	if (finalRotation.W != 0)
+	//first rotate around this direction
+	//make sure the w isn't zero or that we have an empty vector
+	if (!(finalRotation.W == 0 || (finalRotation.X == 0 && finalRotation.Y == 0 && finalRotation.Z == 0)))
+		setRotation(getRotation() + rotationInEuler);
+
+	//NOTE: APPLY REF DIRECTION ROTATION
+	core::quaternion refDirectionRotation;
+	//find the quaternoin
+	refDirectionRotation.rotationFromTo(ourPort.parent->returnRotatedVector(ourPort.referenceDirection),
+		theirPort.parent->returnRotatedVector(theirPort.referenceDirection));
+
+
+
+	//apply this ref direction rotation
+	refDirectionRotation.toEuler(rotationInEuler);
+	//multiply to get it back in degrees
+	rotationInEuler *= core::RADTODEG;
+
+	//apply rotation
+	if (!(refDirectionRotation.W == 0 || (refDirectionRotation.X == 0 && refDirectionRotation.Y == 0 &&refDirectionRotation.Z == 0)))
 		setRotation(getRotation() + rotationInEuler);
 
 	//now move the thing to match with it
