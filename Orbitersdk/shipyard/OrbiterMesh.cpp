@@ -171,29 +171,30 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver, sc
 				//15	16	17	18		Emissive colour(RGBA)
 				if (tokens.size() == 19)
 				{
-					materials[materialCounter].DiffuseColor = video::SColor(Helpers::stringToDouble(tokens[5]) * 255,
-						Helpers::stringToDouble(tokens[2]) * 255, Helpers::stringToDouble(tokens[3]) * 255, Helpers::stringToDouble(tokens[4]) * 255);
-					materials[materialCounter].AmbientColor = video::SColor(Helpers::stringToDouble(tokens[9]) * 255,
-						Helpers::stringToDouble(tokens[6]) * 255, Helpers::stringToDouble(tokens[7]) * 255, Helpers::stringToDouble(tokens[8]) * 255);
-					materials[materialCounter].SpecularColor = video::SColor(Helpers::stringToDouble(tokens[13]) * 255,
-						Helpers::stringToDouble(tokens[10]) * 255, Helpers::stringToDouble(tokens[11]) * 255, Helpers::stringToDouble(tokens[12]) * 255);
+					materials[materialCounter].DiffuseColor = video::SColorf(Helpers::stringToDouble(tokens[2]) ,
+						Helpers::stringToDouble(tokens[3]), Helpers::stringToDouble(tokens[4]), Helpers::stringToDouble(tokens[5])).toSColor();
+					materials[materialCounter].AmbientColor = video::SColorf(Helpers::stringToDouble(tokens[6]),
+						Helpers::stringToDouble(tokens[7]), Helpers::stringToDouble(tokens[8]), Helpers::stringToDouble(tokens[9])).toSColor();
+					materials[materialCounter].SpecularColor = video::SColorf(Helpers::stringToDouble(tokens[10]) ,
+						Helpers::stringToDouble(tokens[11]), Helpers::stringToDouble(tokens[12]), Helpers::stringToDouble(tokens[13])).toSColor();
 					//set specular power-"shineness"
 					materials[materialCounter].Shininess = Helpers::stringToDouble(tokens[14]);
-					materials[materialCounter].EmissiveColor = video::SColor(Helpers::stringToDouble(tokens[18]) * 255,
-						Helpers::stringToDouble(tokens[15]) * 255, Helpers::stringToDouble(tokens[16]) * 255, Helpers::stringToDouble(tokens[17]) * 255);
+					materials[materialCounter].EmissiveColor = video::SColorf(Helpers::stringToDouble(tokens[15]) ,
+						Helpers::stringToDouble(tokens[16]), Helpers::stringToDouble(tokens[17]), Helpers::stringToDouble(tokens[18])).toSColor();
 				}
 				if (tokens.size() == 18)
 				{
-					materials[materialCounter].DiffuseColor = video::SColor(Helpers::stringToDouble(tokens[5]) * 255,
-						Helpers::stringToDouble(tokens[2]) * 255, Helpers::stringToDouble(tokens[3]) * 255, Helpers::stringToDouble(tokens[4]) * 255);
-					materials[materialCounter].AmbientColor = video::SColor(Helpers::stringToDouble(tokens[9]) * 255,
-						Helpers::stringToDouble(tokens[6]) * 255, Helpers::stringToDouble(tokens[7]) * 255, Helpers::stringToDouble(tokens[8]) * 255);
-					materials[materialCounter].SpecularColor = video::SColor(Helpers::stringToDouble(tokens[13]) * 255,
-						Helpers::stringToDouble(tokens[10]) * 255, Helpers::stringToDouble(tokens[11]) * 255, Helpers::stringToDouble(tokens[12]) * 255);
+					materials[materialCounter].DiffuseColor = video::SColorf(Helpers::stringToDouble(tokens[2]),
+						Helpers::stringToDouble(tokens[3]), Helpers::stringToDouble(tokens[4]), Helpers::stringToDouble(tokens[5])).toSColor();
+					materials[materialCounter].AmbientColor = video::SColorf(Helpers::stringToDouble(tokens[6]),
+						Helpers::stringToDouble(tokens[7]), Helpers::stringToDouble(tokens[8]), Helpers::stringToDouble(tokens[9])).toSColor();
+					materials[materialCounter].SpecularColor = video::SColorf(Helpers::stringToDouble(tokens[10]),
+						Helpers::stringToDouble(tokens[11]), Helpers::stringToDouble(tokens[12]), Helpers::stringToDouble(tokens[13])).toSColor();
 					//set specular power-"shineness"
 					materials[materialCounter].Shininess = 20;
-					materials[materialCounter].EmissiveColor = video::SColor(Helpers::stringToDouble(tokens[17]) * 255,
-						Helpers::stringToDouble(tokens[14]) * 255, Helpers::stringToDouble(tokens[15]) * 255, Helpers::stringToDouble(tokens[16]) * 255);
+					materials[materialCounter].Shininess = Helpers::stringToDouble(tokens[14]);
+					materials[materialCounter].EmissiveColor = video::SColorf(Helpers::stringToDouble(tokens[14]),
+						Helpers::stringToDouble(tokens[15]), Helpers::stringToDouble(tokens[16]), Helpers::stringToDouble(tokens[17])).toSColor();
 				}
 
 				//we're done!
