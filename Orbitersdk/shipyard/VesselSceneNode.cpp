@@ -87,12 +87,6 @@ void VesselSceneNode::render()
 		//set the material for the video driver
 		if (vesselMesh.meshGroups[i].materialIndex < vesselMesh.materials.size())
 			driver->setMaterial(vesselMesh.materials[vesselMesh.meshGroups[i].materialIndex]);
-		SColor ambientColor = vesselMesh.materials[vesselMesh.meshGroups[i].materialIndex].AmbientColor;
-		int alpha, red, blue, green;
-		alpha = ambientColor.getAlpha();
-		red = ambientColor.getRed();
-		green = ambientColor.getGreen();
-		blue = ambientColor.getBlue();
 		//set transform
 		driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
 		//and draw it as a triangle list!
