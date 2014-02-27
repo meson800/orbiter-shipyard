@@ -77,6 +77,9 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver, sc
 			//now see if this is a vertex
 			if (vertexCounter > 0 && triangleCounter > 0)
 			{
+				//if there are no normals
+				if (tokens.size() <= 3)
+					noNormal = true;
 				//see if there are no normals
 				if (noNormal)
 				{
@@ -164,38 +167,25 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver, sc
 					Helpers::readLine(meshFile, tokens);
 				//now the next 17 values should be in tokens[2]-tokens[18]
 
+				//insert standard shininess if it doesn't exist
+				if (tokens.size() == 18)
+					tokens.insert(tokens.begin() + 14, "20");
+
 				//orbiter format
 				//2		3	4	5		Diffuse colour(RGBA)
 				//6		7	8	9		Ambient colour(RGBA)
 				//10	11	12	13	14 Specular colour(RGBA) and specular power(float)
 				//15	16	17	18		Emissive colour(RGBA)
-				if (tokens.size() == 19)
-				{
 					materials[materialCounter].DiffuseColor = video::SColorf(Helpers::stringToDouble(tokens[2]) ,
 						Helpers::stringToDouble(tokens[3]), Helpers::stringToDouble(tokens[4]), Helpers::stringToDouble(tokens[5])).toSColor();
-					materials[materialCounter].AmbientColor = video::SColorf(Helpers::stringToDouble(tokens[6]),
-						Helpers::stringToDouble(tokens[7]), Helpers::stringToDouble(tokens[8]), Helpers::stringToDouble(tokens[9])).toSColor();
-					materials[materialCounter].SpecularColor = video::SColorf(Helpers::stringToDouble(tokens[10]) ,
-						Helpers::stringToDouble(tokens[11]), Helpers::stringToDouble(tokens[12]), Helpers::stringToDouble(tokens[13])).toSColor();
+					materials[materialCounter].AmbientColor = video::SColorf(Helpers::stringToDouble(tokens[9]),
+						Helpers::stringToDouble(tokens[6]), Helpers::stringToDouble(tokens[7]), Helpers::stringToDouble(tokens[8])).toSColor();
+					materials[materialCounter].SpecularColor = video::SColorf(Helpers::stringToDouble(tokens[13]) ,
+						Helpers::stringToDouble(tokens[10]), Helpers::stringToDouble(tokens[11]), Helpers::stringToDouble(tokens[12])).toSColor();
 					//set specular power-"shineness"
 					materials[materialCounter].Shininess = Helpers::stringToDouble(tokens[14]);
-					materials[materialCounter].EmissiveColor = video::SColorf(Helpers::stringToDouble(tokens[15]) ,
-						Helpers::stringToDouble(tokens[16]), Helpers::stringToDouble(tokens[17]), Helpers::stringToDouble(tokens[18])).toSColor();
-				}
-				if (tokens.size() == 18)
-				{
-					materials[materialCounter].DiffuseColor = video::SColorf(Helpers::stringToDouble(tokens[2]),
-						Helpers::stringToDouble(tokens[3]), Helpers::stringToDouble(tokens[4]), Helpers::stringToDouble(tokens[5])).toSColor();
-					materials[materialCounter].AmbientColor = video::SColorf(Helpers::stringToDouble(tokens[6]),
-						Helpers::stringToDouble(tokens[7]), Helpers::stringToDouble(tokens[8]), Helpers::stringToDouble(tokens[9])).toSColor();
-					materials[materialCounter].SpecularColor = video::SColorf(Helpers::stringToDouble(tokens[10]),
-						Helpers::stringToDouble(tokens[11]), Helpers::stringToDouble(tokens[12]), Helpers::stringToDouble(tokens[13])).toSColor();
-					//set specular power-"shineness"
-					materials[materialCounter].Shininess = 20;
-					materials[materialCounter].Shininess = Helpers::stringToDouble(tokens[14]);
-					materials[materialCounter].EmissiveColor = video::SColorf(Helpers::stringToDouble(tokens[14]),
+					materials[materialCounter].EmissiveColor = video::SColorf(Helpers::stringToDouble(tokens[18]) ,
 						Helpers::stringToDouble(tokens[15]), Helpers::stringToDouble(tokens[16]), Helpers::stringToDouble(tokens[17])).toSColor();
-				}
 
 				//we're done!
 				materialCounter++;
