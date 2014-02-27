@@ -162,30 +162,45 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver, sc
 			//otherwise see if this is the main material declaration
 			if (strcmp(tokens[0].c_str(), "MATERIAL") == 0)
 			{
+				//clear whatever is in this line
+				tokens.clear();
+
 				//read the next four lines
 				for (int i = 0; i < 4; i++)
 					Helpers::readLine(meshFile, tokens);
 				//now the next 17 values should be in tokens[2]-tokens[18]
 
 				//insert standard shininess if it doesn't exist
-				if (tokens.size() == 18)
-					tokens.insert(tokens.begin() + 14, "20");
+				if (tokens.size() == 16)
+					tokens.insert(tokens.begin() + 12, "20");
 
 				//orbiter format
-				//2		3	4	5		Diffuse colour(RGBA)
-				//6		7	8	9		Ambient colour(RGBA)
-				//10	11	12	13	14 Specular colour(RGBA) and specular power(float)
-				//15	16	17	18		Emissive colour(RGBA)
-					materials[materialCounter].DiffuseColor = video::SColorf(Helpers::stringToDouble(tokens[2]) ,
-						Helpers::stringToDouble(tokens[3]), Helpers::stringToDouble(tokens[4]), Helpers::stringToDouble(tokens[5])).toSColor();
-					materials[materialCounter].AmbientColor = video::SColorf(Helpers::stringToDouble(tokens[9]),
-						Helpers::stringToDouble(tokens[6]), Helpers::stringToDouble(tokens[7]), Helpers::stringToDouble(tokens[8])).toSColor();
-					materials[materialCounter].SpecularColor = video::SColorf(Helpers::stringToDouble(tokens[13]) ,
-						Helpers::stringToDouble(tokens[10]), Helpers::stringToDouble(tokens[11]), Helpers::stringToDouble(tokens[12])).toSColor();
-					//set specular power-"shineness"
-					materials[materialCounter].Shininess = Helpers::stringToDouble(tokens[14]);
-					materials[materialCounter].EmissiveColor = video::SColorf(Helpers::stringToDouble(tokens[18]) ,
-						Helpers::stringToDouble(tokens[15]), Helpers::stringToDouble(tokens[16]), Helpers::stringToDouble(tokens[17])).toSColor();
+				//0		1	2	3		Diffuse colour(RGBA)
+				//4		5	6	7		Ambient colour(RGBA)
+				//8		9	10	11	12 Specular colour(RGBA) and specular power(float)
+				//13	14	15	16		Emissive colour(RGBA)
+				materials[materialCounter].DiffuseColor.setRed(Helpers::stringToDouble(tokens[0]) * 255);
+				materials[materialCounter].DiffuseColor.setGreen(Helpers::stringToDouble(tokens[1]) * 255);
+				materials[materialCounter].DiffuseColor.setBlue(Helpers::stringToDouble(tokens[2]) * 255);
+				materials[materialCounter].DiffuseColor.setAlpha(Helpers::stringToDouble(tokens[3]) * 255);
+
+				materials[materialCounter].AmbientColor.setRed(Helpers::stringToDouble(tokens[4]) * 255);
+				materials[materialCounter].AmbientColor.setGreen(Helpers::stringToDouble(tokens[5]) * 255);
+				materials[materialCounter].AmbientColor.setBlue(Helpers::stringToDouble(tokens[6]) * 255);
+				materials[materialCounter].AmbientColor.setAlpha(Helpers::stringToDouble(tokens[7]) * 255);
+
+				materials[materialCounter].SpecularColor.setRed(Helpers::stringToDouble(tokens[8]) * 255);
+				materials[materialCounter].SpecularColor.setGreen(Helpers::stringToDouble(tokens[9]) * 255);
+				materials[materialCounter].SpecularColor.setBlue(Helpers::stringToDouble(tokens[10]) * 255);
+				materials[materialCounter].SpecularColor.setAlpha(Helpers::stringToDouble(tokens[11]) * 255);
+				//set specular power-"shineness"
+				materials[materialCounter].Shininess = Helpers::stringToDouble(tokens[12]);
+
+				materials[materialCounter].EmissiveColor.setRed(Helpers::stringToDouble(tokens[13]) * 255);
+				materials[materialCounter].EmissiveColor.setGreen(Helpers::stringToDouble(tokens[14]) * 255);
+				materials[materialCounter].EmissiveColor.setBlue(Helpers::stringToDouble(tokens[15]) * 255);
+				materials[materialCounter].EmissiveColor.setAlpha(Helpers::stringToDouble(tokens[16]) * 255);
+
 
 				//we're done!
 				materialCounter++;
