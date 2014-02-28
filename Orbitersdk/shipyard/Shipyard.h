@@ -25,7 +25,7 @@ public:
 
 private:
 	core::vector3df returnMouseRelativePos();
-	void checkNodeForSnapping(VesselSceneNode* node);
+	void checkNodeDockingPorts(VesselSceneNode* node, bool dock=false);
 	
 	gui::IGUIEnvironment* guiEnv;
 	std::vector<VesselSceneNode*> vessels;
