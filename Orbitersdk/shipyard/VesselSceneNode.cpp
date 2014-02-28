@@ -205,6 +205,6 @@ void VesselSceneNode::dock(OrbiterDockingPort& ourPort, OrbiterDockingPort& thei
 	ourPort.docked = true;
 	theirPort.docked = true;
 	//set dockedTo pointers
-	ourPort.dockedTo = theirPort.parent;
-	theirPort.dockedTo = ourPort.parent;
+	ourPort.dockedTo = &theirPort;
+	theirPort.dockedTo = &ourPort;
 }
