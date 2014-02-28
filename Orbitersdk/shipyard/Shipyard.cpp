@@ -270,6 +270,8 @@ bool Shipyard::OnEvent(const SEvent& event)
 			//if we have a selected node, deselect it
 			if (selectedNode != 0)
 			{
+				//try docking this node
+				checkNodeDockingPorts((VesselSceneNode*)selectedNode, true);
 				//de-show docking ports
 				((VesselSceneNode*)selectedNode)->changeDockingPortVisibility(false, false);
 				selectedNode = 0;
@@ -308,7 +310,7 @@ bool Shipyard::OnEvent(const SEvent& event)
 				//move the node by the difference of the two
 				selectedNode->setPosition(originalNodePosition + (mouse3DPos - originalMouse3DPos));
 				//try snapping
-				checkNodeForSnapping(((VesselSceneNode*)selectedNode));
+				checkNodeDockingPorts(((VesselSceneNode*)selectedNode));
 			}
 			break;
 		}
@@ -317,7 +319,7 @@ bool Shipyard::OnEvent(const SEvent& event)
 	return false;
 }
 
-void Shipyard::checkNodeForSnapping(VesselSceneNode* node)
+void Shipyard::checkNodeDockingPorts(VesselSceneNode* node, bool dock)
 {
 	//loop over empty docking ports on this node
 	for (unsigned int i = 0; i < node->dockingPorts.size(); i++)
@@ -339,8 +341,11 @@ void Shipyard::checkNodeForSnapping(VesselSceneNode* node)
 							(vessels[j]->getAbsolutePosition() + vessels[j]->returnRotatedVector(vessels[j]->dockingPorts[k].position))
 							).getLengthSQ() < 16)
 						{
-							//snap it
-							node->snap(node->dockingPorts[i], vessels[j]->dockingPorts[k]);
+							//snap it if dock=false, dock if dock=true
+							if (!dock)
+								node->snap(node->dockingPorts[i], vessels[j]->dockingPorts[k]);
+							else
+								node->dock(node->dockingPorts[i], vessels[j]->dockingPorts[k]);
 						}
 
 					}
