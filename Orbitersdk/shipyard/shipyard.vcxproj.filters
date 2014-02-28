@@ -49,6 +49,7 @@
       <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="DataManager.cpp">
+    <ClCompile Include="StackFunctions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -86,6 +87,7 @@
     <ClInclude Include="resource.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="SE_ToolBox.h">
       <Filter>GUI</Filter>
     </ClInclude>
@@ -96,6 +98,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DataManager.h">
+=======
+    <ClInclude Include="StackFunctions.h">
+>>>>>>> Added createStack function to recurse through docking ports,
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
