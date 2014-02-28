@@ -196,3 +196,15 @@ void VesselSceneNode::snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& thei
 
 
 }
+
+void VesselSceneNode::dock(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort)
+{
+	//snap just for good measure
+	snap(ourPort, theirPort);
+	//set both docked flags
+	ourPort.docked = true;
+	theirPort.docked = true;
+	//set dockedTo pointers
+	ourPort.dockedTo = theirPort.parent;
+	theirPort.dockedTo = ourPort.parent;
+}
