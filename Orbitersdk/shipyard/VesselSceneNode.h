@@ -28,6 +28,7 @@ public:
 	void setupDockingPortNodes();
 	void changeDockingPortVisibility(bool show, bool emptyOnly);
 	void snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort);
+	void dock(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort);
 	core::vector3df returnRotatedVector(const core::vector3df& vec);
 
 	vector<OrbiterDockingPort> dockingPorts;
