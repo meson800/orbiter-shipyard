@@ -9,13 +9,15 @@
 
 using namespace irr;
 
+
+
 int main()
 {
+
 	// create a NULL device to detect screen resolution
 	IrrlichtDevice *nulldevice = createDevice(video::EDT_NULL);
 
 	core::dimension2d<u32> deskres = nulldevice->getVideoModeList()->getDesktopResolution();
-
 	nulldevice->drop();
 
 	Shipyard shipyard = Shipyard();

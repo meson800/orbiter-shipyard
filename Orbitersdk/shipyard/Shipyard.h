@@ -7,6 +7,7 @@
 #include "resource.h"
 #include "VesselSceneNode.h"
 #include "CSceneNodeAnimatorCameraCustom.h"
+#include "DataManager.h"
 
 #define cameraRotateSpeed = .1;
 
@@ -35,4 +36,6 @@ private:
 	scene::ISceneManager* smgr;
 	core::vector3df originalMouse3DPos;
 	core::vector3df originalNodePosition;
+	DataManager dataManager;
+
 };

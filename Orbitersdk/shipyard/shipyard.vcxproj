@@ -53,10 +53,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>C:\Users\beni\Documents\GitHub\StackEditor\orbiter-stackEditor\Orbitersdk\irrlicht-1.8.1\include;C:\Users\beni\Documents\GitHub\StackEditor\orbiter-stackEditor\Orbitersdk\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>irrlicht.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\beni\Documents\GitHub\StackEditor\orbiter-stackEditor\Orbitersdk\irrlicht-1.8.1\lib\Win32-visualstudio;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -79,21 +81,27 @@
     <ClCompile Include="DdsImage.cpp" />
     <ClCompile Include="Helpers.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="DataManager.cpp" />
     <ClCompile Include="OrbiterMesh.cpp" />
     <ClCompile Include="s3tc.cpp" />
+    <ClCompile Include="SE_ToolBox.cpp" />
     <ClCompile Include="Shipyard.cpp" />
     <ClCompile Include="VesselSceneNode.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Common.h" />
     <ClInclude Include="CSceneNodeAnimatorCameraCustom.h" />
     <ClInclude Include="DdsHeader.h" />
     <ClInclude Include="DdsImage.h" />
+    <ClInclude Include="GuiIdentifiers.h" />
     <ClInclude Include="Helpers.h" />
+    <ClInclude Include="DataManager.h" />
     <ClInclude Include="OrbiterDockingPort.h" />
     <ClInclude Include="OrbiterMesh.h" />
     <ClInclude Include="OrbiterMeshGroup.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="s3tc.h" />
+    <ClInclude Include="SE_ToolBox.h" />
     <ClInclude Include="VesselSceneNode.h" />
     <ClInclude Include="Shipyard.h" />
   </ItemGroup>

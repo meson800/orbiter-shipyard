@@ -10,6 +10,7 @@
 #include "Helpers.h"
 #include "OrbiterDockingPort.h"
 #include "resource.h"
+#include "DataManager.h"
 
 using namespace irr;
 using namespace std;
@@ -18,6 +19,7 @@ class VesselSceneNode : public scene::ISceneNode
 {
 public:
 	VesselSceneNode(string configFilename, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id);
+	VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id);
 	virtual void OnRegisterSceneNode();
 	virtual void render();
 	virtual const core::aabbox3d<f32>& getBoundingBox() const;
@@ -32,5 +34,6 @@ public:
 
 private:
 	scene::ISceneManager* smgr;
-	OrbiterMesh vesselMesh;
+	OrbiterMesh *vesselMesh;
+	VesselData *vesselData;
 };

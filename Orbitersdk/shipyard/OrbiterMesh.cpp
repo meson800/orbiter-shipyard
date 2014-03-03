@@ -5,12 +5,14 @@ OrbiterMesh::OrbiterMesh()
 
 OrbiterMesh::OrbiterMesh(string meshFilename, video::IVideoDriver* driver, scene::ISceneManager* smgr)
 {
-	setupMesh(meshFilename, driver, smgr);
+	setupMesh(meshFilename, driver);
 }
 
-void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver, scene::ISceneManager* smgr)
+bool OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 {
 	ifstream meshFile = ifstream(meshFilename.c_str());
+	if (!meshFile) return false;
+
 	int groupCounter = 0;
 	bool noNormal = false;
 	int materialCounter = 0;
@@ -241,6 +243,7 @@ void OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver, sc
 		for (int j = 0; j < meshGroups[i].vertices.size(); j++)
 			boundingBox.addInternalPoint(meshGroups[i].vertices[j].Pos);
 	}
+	return true;
 }
 
 void OrbiterMesh::setupNormals(int meshGroup)

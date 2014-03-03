@@ -1,9 +1,11 @@
 #include "Shipyard.h"
+//#include "SE_ToolBox.h""
 
 Shipyard::Shipyard()
 {
 	for (u32 i = 0; i<KEY_KEY_CODES_COUNT; ++i)
 		isKeyDown[i] = false;
+	
 	isOpenDialogOpen = false;
 	selectedNode = 0;
 }
@@ -14,6 +16,22 @@ void Shipyard::setupDevice(IrrlichtDevice * _device)
 	smgr = device->getSceneManager();
 	collisionManager = smgr->getSceneCollisionManager();
 	guiEnv = device->getGUIEnvironment();
+	
+	core::dimension2d<u32> dim = device->getVideoDriver()->getScreenSize();
+
+	//just stuff to experiment with the GUI
+	/*CGUIToolBox *defToolBox = new CGUIToolBox(rect<s32>(0, dim.Height - 210, dim.Width, dim.Height), guiEnv, NULL);
+	guiEnv->getRootGUIElement()->addChild(defToolBox);
+	defToolBox->addElement(dataManager->GetGlobalConfig("IMS/Command_Modules/BM112_CONTROL_MODULE.cfg", device->getVideoDriver()));
+	defToolBox->addElement(dataManager->GetGlobalConfig("IMS/Command_Modules/BM201_CONTROL_MODULE.cfg", device->getVideoDriver()));
+	defToolBox->addElement(dataManager->GetGlobalConfig("IMS/Command_Modules/BM112_CONTROL_MODULE.cfg", device->getVideoDriver()));
+	defToolBox->addElement(dataManager->GetGlobalConfig("IMS/Command_Modules/BM201_CONTROL_MODULE.cfg", device->getVideoDriver()));
+	defToolBox->addElement(dataManager->GetGlobalConfig("IMS/Command_Modules/BM112_CONTROL_MODULE.cfg", device->getVideoDriver()));
+	defToolBox->addElement(dataManager->GetGlobalConfig("IMS/Command_Modules/BM201_CONTROL_MODULE.cfg", device->getVideoDriver()));
+	defToolBox->addElement(dataManager->GetGlobalConfig("IMS/Command_Modules/BM112_CONTROL_MODULE.cfg", device->getVideoDriver()));
+	defToolBox->addElement(dataManager->GetGlobalConfig("IMS/Command_Modules/BM201_CONTROL_MODULE.cfg", device->getVideoDriver()));
+	defToolBox->addElement(dataManager->GetGlobalConfig("IMS/Command_Modules/BM112_CONTROL_MODULE.cfg", device->getVideoDriver()));
+	defToolBox->addElement(dataManager->GetGlobalConfig("IMS/Command_Modules/BM201_CONTROL_MODULE.cfg", device->getVideoDriver()));*/
 }
 
 void Shipyard::loop()
@@ -54,6 +72,7 @@ void Shipyard::loop()
 		guiEnv->drawAll();
 
 		driver->endScene();
+		
 	}
 	//drop all vessels
 	for (unsigned int i = 0; i < vessels.size(); i++)
@@ -93,9 +112,11 @@ bool Shipyard::OnEvent(const SEvent& event)
 		{
 			(gui::IGUIFileOpenDialog*)event.GUIEvent.Caller;
 			std::wstring uniString = std::wstring(((gui::IGUIFileOpenDialog*)event.GUIEvent.Caller)->getFileName());
-			std::string filename = std::string(uniString.begin(), uniString.end());
+			std::string fullfilename = std::string(uniString.begin(), uniString.end());
+			std::string filename = fullfilename.substr(Helpers::workingDirectory.length() + 16);
 			//create a new vessel
-			vessels.push_back(new VesselSceneNode(filename, smgr->getRootSceneNode(), smgr, VESSEL_ID));
+			VesselData *newVessel = dataManager.GetGlobalConfig(filename, device->getVideoDriver());
+			vessels.push_back(new VesselSceneNode(newVessel, smgr->getRootSceneNode(), smgr, VESSEL_ID));
 			isOpenDialogOpen = false;
 			break;
 		}
@@ -227,3 +248,5 @@ void Shipyard::checkNodeForSnapping(VesselSceneNode* node)
 		}
 	}
 }
+
+

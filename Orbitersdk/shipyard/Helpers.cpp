@@ -1,7 +1,7 @@
 #include "Helpers.h"
 
 std::string Helpers::workingDirectory = "";
-bool Helpers::readLine(ifstream& file, std::vector<std::string>& tokens)
+bool Helpers::readLine(ifstream& file, std::vector<std::string>& tokens, const string &delimiters)
 {
 	std::string line;
 
@@ -14,19 +14,19 @@ bool Helpers::readLine(ifstream& file, std::vector<std::string>& tokens)
 	//remove extra spaces
 	removeExtraSpaces(line);
 
-	while (line.length() > 0)
+	// Skipping delimiters at the beginning
+	string::size_type lastPos = line.find_first_not_of(delimiters, 0);
+	// Find first "non-delimiter".
+	string::size_type pos = line.find_first_of(delimiters, lastPos);
+
+	while (pos != string::npos || lastPos != string::npos) 
 	{
-		//cut any beginning spaces
-		if (line.at(0) == ' ')
-			line = line.substr(1, string::npos);
-		//push the first token
-		tokens.push_back(line.substr(0, line.find_first_of(' ')));
-		//remove the first token
-		//check to see if line.find_first_of is npos
-		if (line.find_first_of(' ') == string::npos)
-			line.erase(0, string::npos);
-		else
-			line.erase(0, line.find_first_of(' ') + 1);
+		// Found a token, add it to the vector.
+		tokens.push_back(line.substr(lastPos, pos - lastPos));
+		// Skip delimiters.  Note the "not_of"
+		lastPos = line.find_first_not_of(delimiters, pos);
+		// Find next "non-delimiter"
+		pos = line.find_first_of(delimiters, lastPos);
 	}
 	return true;
 }

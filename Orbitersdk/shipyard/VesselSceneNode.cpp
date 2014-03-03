@@ -39,13 +39,23 @@ VesselSceneNode::VesselSceneNode(string configFilename, scene::ISceneNode* paren
 		//see if it matches
 		if (tokens[0].compare("meshname") == 0)
 			//load the mesh!
-			vesselMesh.setupMesh(string(Helpers::workingDirectory + "\\Meshes\\" + tokens[2] + ".msh"), mgr->getVideoDriver(), smgr); //tokens 2 because the format is
+			vesselMesh->setupMesh(string(Helpers::workingDirectory + "\\Meshes\\" + tokens[2] + ".msh"), mgr->getVideoDriver()); //tokens 2 because the format is
 		//MeshName = blahblah
 
 		//clear tokens
 		tokens.clear();
 	}
 	//setup docking port nodes
+	setupDockingPortNodes();
+}
+
+VesselSceneNode::VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id)
+: scene::ISceneNode(parent, mgr, id), smgr(mgr)
+{
+	vesselData = vesData;
+	vesselMesh = vesselData->vesselMesh;
+	dockingPorts = vesselData->dockingPorts;
+
 	setupDockingPortNodes();
 }
 
@@ -74,42 +84,42 @@ void VesselSceneNode::render()
 {
 	video::IVideoDriver* driver = SceneManager->getVideoDriver();
 	//loop over the mesh groups, drawing them
-	for (int i = 0; i < vesselMesh.meshGroups.size(); i++)
+	for (int i = 0; i < vesselMesh->meshGroups.size(); i++)
 	{
 		//set the texture of the material
 		//set it to zero if there is no texture
-		if (vesselMesh.meshGroups[i].textureIndex == 0)
-			vesselMesh.materials[vesselMesh.meshGroups[i].materialIndex].setTexture(0, 0);
-		else if (vesselMesh.meshGroups[i].materialIndex < vesselMesh.materials.size() &&
-			vesselMesh.meshGroups[i].textureIndex < vesselMesh.textures.size())
-			vesselMesh.materials[vesselMesh.meshGroups[i].materialIndex].setTexture(0,
-				vesselMesh.textures[vesselMesh.meshGroups[i].textureIndex]);
+		if (vesselMesh->meshGroups[i].textureIndex == 0)
+			vesselMesh->materials[vesselMesh->meshGroups[i].materialIndex].setTexture(0, 0);
+		else if (vesselMesh->meshGroups[i].materialIndex < vesselMesh->materials.size() &&
+			vesselMesh->meshGroups[i].textureIndex < vesselMesh->textures.size())
+			vesselMesh->materials[vesselMesh->meshGroups[i].materialIndex].setTexture(0,
+				vesselMesh->textures[vesselMesh->meshGroups[i].textureIndex]);
 		//set the material for the video driver
-		if (vesselMesh.meshGroups[i].materialIndex < vesselMesh.materials.size())
-			driver->setMaterial(vesselMesh.materials[vesselMesh.meshGroups[i].materialIndex]);
+		if (vesselMesh->meshGroups[i].materialIndex < vesselMesh->materials.size())
+			driver->setMaterial(vesselMesh->materials[vesselMesh->meshGroups[i].materialIndex]);
 		//set transform
 		driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
 		//and draw it as a triangle list!
-		driver->drawVertexPrimitiveList(vesselMesh.meshGroups[i].vertices.data(),
-			vesselMesh.meshGroups[i].vertices.size(), vesselMesh.meshGroups[i].triangleList.data(),
-			vesselMesh.meshGroups[i].triangleList.size() / 3, video::EVT_STANDARD, scene::EPT_TRIANGLES,
+		driver->drawVertexPrimitiveList(vesselMesh->meshGroups[i].vertices.data(),
+			vesselMesh->meshGroups[i].vertices.size(), vesselMesh->meshGroups[i].triangleList.data(),
+			vesselMesh->meshGroups[i].triangleList.size() / 3, video::EVT_STANDARD, scene::EPT_TRIANGLES,
 			video::EIT_32BIT);
 	}
 }
 
 const core::aabbox3d<f32>& VesselSceneNode::getBoundingBox() const
 {
-	return vesselMesh.boundingBox;
+	return vesselMesh->boundingBox;
 }
 
 u32 VesselSceneNode::getMaterialCount()
 {
-	return vesselMesh.materials.size();
+	return vesselMesh->materials.size();
 }
 
 video::SMaterial& VesselSceneNode::getMaterial(u32 i)
 {
-	return vesselMesh.materials[i];
+	return vesselMesh->materials[i];
 }
 
 void VesselSceneNode::changeDockingPortVisibility(bool show, bool emptyOnly)
