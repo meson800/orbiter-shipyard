@@ -1,5 +1,6 @@
 #include "Shipyard.h"
-//#include "SE_ToolBox.h""
+#include "GuiIdentifiers.h"
+#include "windows.h"
 
 Shipyard::Shipyard()
 {
@@ -8,6 +9,12 @@ Shipyard::Shipyard()
 	
 	isOpenDialogOpen = false;
 	selectedNode = 0;
+	cursorOnGui = false;
+}
+
+Shipyard::~Shipyard()
+{
+	saveToolBoxes();
 }
 
 void Shipyard::setupDevice(IrrlichtDevice * _device)
@@ -16,22 +23,44 @@ void Shipyard::setupDevice(IrrlichtDevice * _device)
 	smgr = device->getSceneManager();
 	collisionManager = smgr->getSceneCollisionManager();
 	guiEnv = device->getGUIEnvironment();
-	
+
+	//initialising GUI skin to something nicer and loading a bigger font.
+	//well, loading the font, anyways. They messed around with the color identifiers since the last irrlicht version, it'll take a while to set the skin up properly :/
+	IGUIFont * font = guiEnv->getFont("StackEditor/deffont.bmp");
+
+	gui::IGUISkin* Skin = guiEnv->getSkin();
+	Skin->setFont(font);
+/*	Skin->setColor(EGDC_3D_FACE, video::SColor(255, 43, 44, 131));
+	Skin->setColor(EGDC_HIGH_LIGHT, video::SColor(255, 207, 183, 52));
+	Skin->setColor(EGDC_HIGH_LIGHT_TEXT, video::SColor(255, 4, 5, 76));
+	Skin->setColor(EGDC_BUTTON_TEXT, video::SColor(255, 255, 255, 255));
+	Skin->setColor(EGDC_3D_SHADOW, video::SColor(255, 43, 44, 131));
+	Skin->setColor(EGDC_3D_HIGH_LIGHT, video::SColor(255, 43, 44, 131));
+	Skin->setColor(EGDC_3D_LIGHT, video::SColor(255, 43, 44, 131));
+	Skin->setColor(EGDC_TOOLTIP, video::SColor(255, 4, 5, 76));
+	Skin->setColor(EGDC_TOOLTIP_BACKGROUND, video::SColor(255, 207, 183, 52));
+	Skin->setColor(EGDC_SCROLLBAR, video::SColor(179, 207, 183, 52));
+	//Skin->setColor(EGDC_WINDOW, video::SColor(255, 4, 5, 76));
+	Skin->setColor(EGDC_EDITABLE, video::SColor(255, 207, 183, 52));
+	Skin->setColor(EGDC_FOCUSED_EDITABLE, video::SColor(255, 43, 44, 131));*/
+
 	core::dimension2d<u32> dim = device->getVideoDriver()->getScreenSize();
 
-	//just stuff to experiment with the GUI
-	/*CGUIToolBox *defToolBox = new CGUIToolBox(rect<s32>(0, dim.Height - 210, dim.Width, dim.Height), guiEnv, NULL);
-	guiEnv->getRootGUIElement()->addChild(defToolBox);
-	defToolBox->addElement(dataManager->GetGlobalConfig("IMS/Command_Modules/BM112_CONTROL_MODULE.cfg", device->getVideoDriver()));
-	defToolBox->addElement(dataManager->GetGlobalConfig("IMS/Command_Modules/BM201_CONTROL_MODULE.cfg", device->getVideoDriver()));
-	defToolBox->addElement(dataManager->GetGlobalConfig("IMS/Command_Modules/BM112_CONTROL_MODULE.cfg", device->getVideoDriver()));
-	defToolBox->addElement(dataManager->GetGlobalConfig("IMS/Command_Modules/BM201_CONTROL_MODULE.cfg", device->getVideoDriver()));
-	defToolBox->addElement(dataManager->GetGlobalConfig("IMS/Command_Modules/BM112_CONTROL_MODULE.cfg", device->getVideoDriver()));
-	defToolBox->addElement(dataManager->GetGlobalConfig("IMS/Command_Modules/BM201_CONTROL_MODULE.cfg", device->getVideoDriver()));
-	defToolBox->addElement(dataManager->GetGlobalConfig("IMS/Command_Modules/BM112_CONTROL_MODULE.cfg", device->getVideoDriver()));
-	defToolBox->addElement(dataManager->GetGlobalConfig("IMS/Command_Modules/BM201_CONTROL_MODULE.cfg", device->getVideoDriver()));
-	defToolBox->addElement(dataManager->GetGlobalConfig("IMS/Command_Modules/BM112_CONTROL_MODULE.cfg", device->getVideoDriver()));
-	defToolBox->addElement(dataManager->GetGlobalConfig("IMS/Command_Modules/BM201_CONTROL_MODULE.cfg", device->getVideoDriver()));*/
+	//initialisng listbox to show available toolboxes
+	toolBoxList = guiEnv->addListBox(rect<s32>(0, 0, 100, dim.Height - 210), 0, TOOLBOXLIST, true);
+	toolBoxList->setName("Toolboxes");
+
+	loadToolBoxes();
+
+	if (toolboxes.size() == 0)
+	//adding an empty toolbox in case there are none defined, since you can't even add toolboxes if there is none
+	{
+		toolboxes.push_back(new CGUIToolBox("empty toolbox", rect<s32>(0, dim.Height - 210, dim.Width, dim.Height), guiEnv, NULL));
+		guiEnv->getRootGUIElement()->addChild(toolboxes[toolboxes.size() - 1]);
+		toolBoxList->addItem(L"empty toolbox");
+	}
+	toolBoxList->setSelected(0);
+	switchToolBox();
 }
 
 void Shipyard::loop()
@@ -72,6 +101,18 @@ void Shipyard::loop()
 		guiEnv->drawAll();
 
 		driver->endScene();
+
+		//checking toolboxes for vessels to be created
+		for (UINT i = 0; i < toolboxes.size(); ++i)
+		{
+			VesselData *createVessel = toolboxes[i]->checkCreateVessel();
+			if (createVessel != NULL)
+			{
+				vessels.push_back(new VesselSceneNode(createVessel, smgr->getRootSceneNode(), smgr, VESSEL_ID));
+				selectedNode = vessels[vessels.size() - 1];
+			}
+
+		}
 		
 	}
 	//drop all vessels
@@ -103,6 +144,7 @@ core::vector3df Shipyard::returnMouseRelativePos()
 
 bool Shipyard::OnEvent(const SEvent& event)
 {
+	
 	switch (event.EventType)
 	{
 	case EET_GUI_EVENT:
@@ -112,18 +154,73 @@ bool Shipyard::OnEvent(const SEvent& event)
 		{
 			(gui::IGUIFileOpenDialog*)event.GUIEvent.Caller;
 			std::wstring uniString = std::wstring(((gui::IGUIFileOpenDialog*)event.GUIEvent.Caller)->getFileName());
+			
 			std::string fullfilename = std::string(uniString.begin(), uniString.end());
 			std::string filename = fullfilename.substr(Helpers::workingDirectory.length() + 16);
-			//create a new vessel
-			VesselData *newVessel = dataManager.GetGlobalConfig(filename, device->getVideoDriver());
-			vessels.push_back(new VesselSceneNode(newVessel, smgr->getRootSceneNode(), smgr, VESSEL_ID));
-			isOpenDialogOpen = false;
+			//create a new toolbox entry
+			toolboxes[UINT(toolBoxList->getSelected())]->addElement(dataManager.GetGlobalConfig(filename, device->getVideoDriver()));
+			//reopen file dialog to make multiple selections easier
+			guiEnv->addFileOpenDialog(L"Select Config File", true, 0, -1);
 			break;
 		}
+		case gui::EGET_LISTBOX_CHANGED:
+		{
+			switchToolBox();
+			break;
+		}
+		case gui::EGET_MESSAGEBOX_OK:
+		{
+			if (event.GUIEvent.Caller->getID() == TBXNAMEMSG)
+			{
+				core::dimension2d<u32> dim = device->getVideoDriver()->getScreenSize();
+				IGUIEditBox *toolboxName = (gui::IGUIEditBox*)event.GUIEvent.Caller->getElementFromId(TBXNAMEENTRY, true);
+				std::string strName = std::string(stringc(toolboxName->getText()).c_str());
+
+				if (strName != "")
+				{
+					toolboxes.push_back(new CGUIToolBox(strName, rect<s32>(0, dim.Height - 210, dim.Width, dim.Height), guiEnv, NULL));
+					toolBoxList->addItem(toolboxName->getText());
+					guiEnv->getRootGUIElement()->addChild(toolboxes[toolboxes.size() - 1]);
+					switchToolBox();
+				}
+			}
+			break;
+		}
+		case gui::EGET_MENU_ITEM_SELECTED:
+			if (event.GUIEvent.Caller->getID() == TOOLBOXCONTEXT)
+			{
+				s32 menuItem = ((gui::IGUIContextMenu*)event.GUIEvent.Caller)->getSelectedItem();
+				if (menuItem == 0)
+				//open file dialog to add new element
+				{
+					IGUIFileOpenDialog *dlg = guiEnv->addFileOpenDialog(L"Select Config File", true, 0, -1, false, "config\\vessels");
+				}
+				if (menuItem == 1)
+				{
+					toolboxes[UINT(toolBoxList->getSelected())]->removeCurrentElement();
+				}
+				if (menuItem == 2)
+				//spawn a naming dialog
+				{
+					selectedNode = 0;
+					IGUIWindow *msgBx = guiEnv->addMessageBox(L"toolbox name", L"please enter a name for your toolbox", true, EMBF_OK | EMBF_CANCEL, 0, TBXNAMEMSG);
+					msgBx->setMinSize(dimension2du(300, 150));
+					guiEnv->addEditBox(L"toolbox name", rect<s32>(20, 100, 280, 130), true, msgBx, TBXNAMEENTRY);
+				}
+			}
+			break;
+		
 		case gui::EGET_FILE_CHOOSE_DIALOG_CANCELLED:
 			isOpenDialogOpen = false;
 			break;
+		case gui::EGET_ELEMENT_HOVERED:
+			cursorOnGui = true;
+			break;
+		case gui::EGET_ELEMENT_LEFT:
+			cursorOnGui = false;
+			break;
 		}
+
 		break;
 	case EET_KEY_INPUT_EVENT:
 		//it's a key, store it
@@ -160,12 +257,13 @@ bool Shipyard::OnEvent(const SEvent& event)
 		}
 		break;
 	case EET_MOUSE_INPUT_EVENT:
+		//return if cursor is over the GUI, so the GUI gets the event
+		if (cursorOnGui)
+			return false;
 		switch (event.MouseInput.Event)
 		{
 		case EMIE_LMOUSE_PRESSED_DOWN:
-			//return if we have the dialog open
-			if (isOpenDialogOpen)
-				return false;
+
 			//if we have a selected node, deselect it
 			if (selectedNode != 0)
 			{
@@ -250,3 +348,83 @@ void Shipyard::checkNodeForSnapping(VesselSceneNode* node)
 }
 
 
+bool Shipyard::loadToolBoxes()
+//loads all tbx files from the Toolbox directory
+{
+	core::dimension2d<u32> dim = device->getVideoDriver()->getScreenSize();
+	std::string tbxPath = std::string(Helpers::workingDirectory + "/StackEditor/Toolboxes/");
+	std::string searchPath = std::string(tbxPath + "*.tbx");
+	HANDLE searchFileHndl;
+	WIN32_FIND_DATA foundFile;
+	//initialising the first character to check if FindFirstFile was succesfull
+	foundFile.cFileName[0] = 0;
+	
+	vector<std::string> entriesToLoad;
+
+	bool searchFiles = true;
+	
+	searchFileHndl = FindFirstFile(searchPath.data(), &foundFile);
+	if (foundFile.cFileName[0] == 0)
+	{
+		searchFiles = false;
+	}
+
+	//searching all tbx files in the directory
+	while (searchFiles)
+	{
+		if (foundFile.dwFileAttributes != FILE_ATTRIBUTE_DIRECTORY)
+		{
+			//creating the toolbox and adding it to the GUI
+			
+			std::string toolboxName(foundFile.cFileName);
+			toolboxes.push_back(new CGUIToolBox(toolboxName.substr(0, toolboxName.size() - 4), rect<s32>(0, dim.Height - 210, dim.Width, dim.Height), guiEnv, NULL));
+			guiEnv->getRootGUIElement()->addChild(toolboxes[toolboxes.size() - 1]);
+
+			//adding the toolbox to the toolbox list
+			toolBoxList->addItem(stringw(toolboxes[toolboxes.size() - 1]->getName().c_str()).c_str());
+
+			//open the tbx file
+			ifstream tbxFile = ifstream(tbxPath + foundFile.cFileName);
+			std::string line;
+			while (getline(tbxFile, line))
+			//loading the toolbox entries
+			{
+				toolboxes[toolboxes.size() - 1]->addElement(dataManager.GetGlobalConfig(line, device->getVideoDriver()));
+			}
+			tbxFile.close();
+		}
+		searchFiles = FindNextFile(searchFileHndl, &foundFile);
+	}
+	FindClose(searchFileHndl);
+
+	return false;
+}
+
+
+void Shipyard::saveToolBoxes()
+{
+
+	for (UINT i = 0; i < toolboxes.size(); ++i)
+	{
+		toolboxes[i]->saveToolBox();
+	}
+}
+
+
+void Shipyard::switchToolBox()
+{
+	int selBox = toolBoxList->getSelected();
+	for (UINT i = 0; i < toolboxes.size(); ++i)
+	{
+		if (i == selBox)
+		{
+			toolboxes[i]->setVisible(true);
+			toolboxes[i]->bringToFront(toolboxes[i]);
+		}
+		else
+		{
+			toolboxes[i]->setVisible(false);
+		}
+	}
+
+}

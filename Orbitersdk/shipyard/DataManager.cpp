@@ -122,7 +122,7 @@ VesselData *DataManager::LoadVesselData(string configFileName, video::IVideoDriv
 			readingDockingPorts = false;
 		}
 		//if we are reading docking ports, create a new docking port!
-		if (readingDockingPorts)
+		if (readingDockingPorts && tokens.size() == 9)
 			newVessel->dockingPorts.push_back(OrbiterDockingPort(
 			core::vector3d<f32>(Helpers::stringToDouble(tokens[0]),
 			Helpers::stringToDouble(tokens[1]), Helpers::stringToDouble(tokens[2])),

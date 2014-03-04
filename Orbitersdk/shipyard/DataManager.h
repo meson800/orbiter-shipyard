@@ -6,7 +6,7 @@
 
 struct VesselData
 {
-	string className;
+	std::string className;
 	OrbiterMesh *vesselMesh;
 	vector<OrbiterDockingPort> dockingPorts;
 	ITexture *vesselImg;

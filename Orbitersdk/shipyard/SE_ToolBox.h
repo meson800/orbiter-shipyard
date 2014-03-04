@@ -10,7 +10,10 @@ using namespace irr::gui;
 using namespace irr::scene;
 using namespace std;
 
-//the toolbox class handles its own GUI and loads the files assigned to it 
+
+
+
+//the toolbox class handles its own events and loads the files assigned to it 
 const int MGUIET_TOOLBOX = irr::gui::EGUIET_COUNT + 1;
 
 
@@ -18,7 +21,7 @@ class CGUIToolBox :
 	public irr::gui::IGUIElement
 {
 public:
-	CGUIToolBox(core::rect<s32> rectangle, irr::gui::IGUIEnvironment* environment, irr::gui::IGUIElement* parent);
+	CGUIToolBox(std::string _name, core::rect<s32> rectangle, irr::gui::IGUIEnvironment* environment, irr::gui::IGUIElement* parent);
 	~CGUIToolBox(void);
 
 	virtual irr::gui::IGUIEnvironment* GetEnvironment() { return Environment; }
@@ -26,8 +29,12 @@ public:
 	virtual bool OnEvent(const SEvent& event);
 
 	virtual bool addElement(VesselData *newElement);				//creates a toolbox entry from a VesselData pointer
+	void removeCurrentElement();								//removes the element that was right clicked last
 
 	virtual void draw();
+	VesselData *checkCreateVessel();										//if called, returns pointer to vesseldata to be created. NULL if no vessel is scheduled for creation. Returns to NULL after calling.
+	std::string getName();
+	void saveToolBox();
 private:
 	vector<VesselData*> entries;
 //	IGUIElement* maneuverGUI;
@@ -37,4 +44,9 @@ private:
 	int width;
 	int imgWidth;
 	int scrollPos;
+
+	UINT GetEntryUnderCursor(int x);										//returns the index of the entry over which the cursor currently hovers
+	VesselData *vesselToCreate;
+	UINT rightClickedElement;												//stores the element that was right clicked last
+	std::string name;
 };

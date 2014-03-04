@@ -1,9 +1,11 @@
 #include "GuiIdentifiers.h"
 #include "SE_ToolBox.h"
 
-CGUIToolBox::CGUIToolBox(core::rect<s32> rectangle, irr::gui::IGUIEnvironment* environment, irr::gui::IGUIElement* parent)
+CGUIToolBox::CGUIToolBox(std::string _name, core::rect<s32> rectangle, irr::gui::IGUIEnvironment* environment, irr::gui::IGUIElement* parent)
 : IGUIElement((irr::gui::EGUI_ELEMENT_TYPE)MGUIET_TOOLBOX, environment, parent, -1, rectangle)
 {
+	
+	name = _name;
 	width = rectangle.getWidth();
 	imgWidth = 164;
 	scrollPos = 0;
@@ -21,7 +23,13 @@ CGUIToolBox::CGUIToolBox(core::rect<s32> rectangle, irr::gui::IGUIEnvironment* e
 	ScrollBar->setVisible(false);
 	ScrollBar->setPos(0);
 
+	vesselToCreate = NULL;
+	rightClickedElement = -1;
+
+	//setVisible(false);
 }
+
+
 
 CGUIToolBox::~CGUIToolBox(void)
 {
@@ -47,7 +55,7 @@ bool CGUIToolBox::OnEvent(const SEvent& event)
 			break;
 		}
 	case EET_MOUSE_INPUT_EVENT:
-		if (event.MouseInput.Event == EMIE_LMOUSE_PRESSED_DOWN)
+		if (event.MouseInput.Event == EMIE_LMOUSE_PRESSED_DOWN || event.MouseInput.Event == EMIE_RMOUSE_PRESSED_DOWN)
 		{
 			if (Environment->hasFocus(this) &&
 				!AbsoluteClippingRect.isPointInside(core::position2d<s32>(event.MouseInput.X, event.MouseInput.Y)))
@@ -58,11 +66,23 @@ bool CGUIToolBox::OnEvent(const SEvent& event)
 
 			Environment->setFocus(this);
 		}
-		else if (event.MouseInput.Event == EMIE_RMOUSE_PRESSED_DOWN)
+		if (event.MouseInput.Event == EMIE_LMOUSE_DOUBLE_CLICK)
 		{
-			IGUIContextMenu *mnu = Environment->addContextMenu(rect<s32>(event.MouseInput.X, event.MouseInput.Y, event.MouseInput.X + 50, event.MouseInput.Y + 50), this, TOOLBOX);
+			UINT entryToCreate = GetEntryUnderCursor(event.MouseInput.X);
+			if (entryToCreate < entries.size())
+			{
+				vesselToCreate = entries[entryToCreate];
+			}
+
+		}
+		else if (event.MouseInput.Event == EMIE_RMOUSE_PRESSED_DOWN)
+		//create context menu for editting toolbox
+		{
+			IGUIContextMenu *mnu = Environment->addContextMenu(rect<s32>(event.MouseInput.X, event.MouseInput.Y, event.MouseInput.X + 50, event.MouseInput.Y + 50), 0, TOOLBOXCONTEXT);
 			mnu->addItem(L"add vessel");
 			mnu->addItem(L"remove vessel");
+			mnu->addItem(L"create new toolbox");
+			rightClickedElement = GetEntryUnderCursor(event.MouseInput.X);
 		}
 	}
 	return IGUIElement::OnEvent(event);
@@ -71,14 +91,15 @@ bool CGUIToolBox::OnEvent(const SEvent& event)
 
 void CGUIToolBox::draw()
 {
-	if (!IsVisible)
+	if (!isVisible())
 	{
 		return;
 	}
 
 	if (ScrollBar->isVisible())
 	{
-		scrollPos = ScrollBar->getPos();
+		scrollPos = double(ScrollBar->getPos()) / 100 * ((entries.size() * imgWidth) - AbsoluteRect.getWidth());
+		bool bugme = true;
 	}
 
 	IGUISkin* skin = Environment->getSkin();
@@ -110,6 +131,7 @@ void CGUIToolBox::draw()
 bool CGUIToolBox::addElement(VesselData *newElement)
 //adds a ToolBox Entry from the passed VesselData. Returns false if pointer is NULL
 {
+	rightClickedElement = -1;
 	if (newElement != NULL)
 	{
 		entries.push_back(newElement);
@@ -122,4 +144,59 @@ bool CGUIToolBox::addElement(VesselData *newElement)
 		return true;
 	}
 	return false;
+}
+
+
+VesselData *CGUIToolBox::checkCreateVessel()
+{
+	if (vesselToCreate != NULL)
+	//function automatically resets after it's been checked
+	{
+		VesselData* retVessel = vesselToCreate;
+		vesselToCreate = NULL;
+		return retVessel;
+	}
+	return NULL;
+}
+
+
+void CGUIToolBox::removeCurrentElement()
+//removes the element from the toolbox that was right-clicked last
+{
+	if (rightClickedElement != -1)
+	{
+		entries.erase(entries.begin() + rightClickedElement);
+	}
+	rightClickedElement = -1;
+
+	if (entries.size() * imgWidth <= width)
+	{
+		ScrollBar->setVisible(false);
+		ScrollBar->setEnabled(false);
+		scrollPos = 0;
+	}
+}
+
+std::string CGUIToolBox::getName()
+{
+	return name;
+}
+
+void CGUIToolBox::saveToolBox()
+{
+	std::string toolboxPath = std::string(Helpers::workingDirectory + "/StackEditor/Toolboxes/" + name + ".tbx");
+	ofstream toolboxFile = ofstream(toolboxPath.c_str(), ios::out);
+	for (UINT i = 0; i < entries.size(); ++i)
+	{
+		toolboxFile << entries[i]->className << "\n";
+	}
+	toolboxFile.close();
+}
+
+
+UINT CGUIToolBox::GetEntryUnderCursor(int x)
+//returns the index of the entry over which the cursor currently hovers. x is x-position of mouse cursor
+{
+	int effectiveCursorPos = scrollPos + x;		//position of the cursor on the toolbox overall (not just visible part)
+	return effectiveCursorPos / imgWidth;		//calculating index of entry at this position
 }
