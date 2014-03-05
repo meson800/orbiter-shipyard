@@ -1,17 +1,40 @@
+#define STRICT 1
+#define ORBITER_MODULE
+
 #include <irrlicht.h>
 #include <algorithm>
+#include "orbitersdk.h"
 #include "Shipyard.h"
 #include "Helpers.h"
 
+
 #ifdef _IRR_WINDOWS_
-#pragma comment(linker, "/subsystem:windows /ENTRY:mainCRTStartup")
+#pragma comment(linker, "/subsystem:windows")
 #endif
 
 using namespace irr;
 
+DWORD g_dwCmd;
+void OpenSE(void *context);
 
+DLLCLBK void InitModule(HINSTANCE hDLL)
+{
 
-int main()
+	// To allow the user to open our new dialog box, we create
+	// an entry in the "Custom Functions" list which is accessed
+	// in Orbiter via Ctrl-F4.
+	g_dwCmd = oapiRegisterCustomCmd("StackEditor",
+		"Opens StackEditor in an external window",
+		OpenSE, NULL);
+
+}
+
+DLLCLBK void ExitModule(HINSTANCE hDLL)
+{
+	oapiUnregisterCustomCmd(g_dwCmd);
+}
+
+void OpenSE(void *context)
 {
 
 	// create a NULL device to detect screen resolution
@@ -25,7 +48,7 @@ int main()
 
 	IrrlichtDevice *device = createDevice(video::EDT_DIRECT3D9, deskres, 32, false, false, false, &shipyard);
 	if (!device)
-		return 1;
+		return;
 
 	//set caption
 	device->setWindowCaption(L"Orbiter Shipyard");
@@ -41,5 +64,5 @@ int main()
 	shipyard.loop();
 	device->drop();
 	
-	return 0;
+	return;
 } 
