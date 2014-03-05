@@ -17,11 +17,13 @@ int main()
 	//loading configuration from StackEditor.cfg
 	core::dimension2d<u32> windowRes = dimension2d<u32>(0,0);
 	std::string tbxSet("default");
-	vector<std::string> tokens;
-	std::string cfgPath = std::string(Helpers::workingDirectory + "\\StackEditor\\StackEditor.cfg");
+	std::string cfgPath("./StackEditor/StackEditor.cfg");
 	ifstream configFile = ifstream(cfgPath.c_str());
+
+	Helpers::writeToLog(std::string("Initialising StackEditor..."));
 	if (configFile)
 	{
+		vector<std::string> tokens;
 		while (Helpers::readLine(configFile, tokens))
 		{
 			if (tokens.size() == 0) continue;
@@ -35,16 +37,26 @@ int main()
 			{
 				if (tokens.size() > 2)
 				//putting together the rest of the string again if the folder name contains a space
-				for (UINT i = 1; i < tokens.size(); ++i)
 				{
-					tbxSet += std::string(tokens[i] + " ");
+					tbxSet = "";
+					for (UINT i = 1; i < tokens.size(); ++i)
+					{
+						tbxSet += std::string(tokens[i] + " ");
+					}
 				}
 				else
 				{
 					tbxSet = tokens[1];
 				}
 			}
+
+			tokens.clear();
 		}
+		configFile.close();
+	}
+	else
+	{
+		Helpers::writeToLog(std::string("\n WARNING: StackEditor.cfg not found!"));
 	}
 
 	if (windowRes == dimension2d<u32>(0, 0))
@@ -62,6 +74,8 @@ int main()
 	if (!device)
 		return 1;
 
+	Helpers::writeToLog(std::string("\n Irrlicht device ok..."));
+
 	//set caption
 	device->setWindowCaption(L"Orbiter Shipyard");
 
@@ -71,7 +85,7 @@ int main()
 	Helpers::workingDirectory = directory;
 
 	//pass it off to Shipyard
-	shipyard.setupDevice(device);
+	shipyard.setupDevice(device, tbxSet);
 	//and run!
 	shipyard.loop();
 	device->drop();

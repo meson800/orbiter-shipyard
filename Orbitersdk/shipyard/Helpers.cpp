@@ -60,3 +60,15 @@ void Helpers::removeExtraSpaces(std::string& str)
 	std::string::iterator new_end = std::unique(str.begin(), str.end(), BothAreSpaces);
 	str.erase(new_end, str.end());
 }
+
+void Helpers::writeToLog(std::string &logMsg, bool close)
+{
+	static ofstream logFile = ofstream("./StackEditor/StackEditor.log", ios::out);
+	logFile << logMsg;
+
+	if (close)
+	{
+		logFile << "end log";
+		logFile.close();
+	}
+}

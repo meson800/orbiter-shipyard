@@ -182,9 +182,9 @@ std::string CGUIToolBox::getName()
 	return name;
 }
 
-void CGUIToolBox::saveToolBox()
+void CGUIToolBox::saveToolBox(std::string subfolder)
 {
-	std::string toolboxPath = std::string(Helpers::workingDirectory + "/StackEditor/Toolboxes/" + name + ".tbx");
+	std::string toolboxPath = std::string(Helpers::workingDirectory + "/StackEditor/Toolboxes/" + subfolder + name + ".tbx");
 	ofstream toolboxFile = ofstream(toolboxPath.c_str(), ios::out);
 	for (UINT i = 0; i < entries.size(); ++i)
 	{

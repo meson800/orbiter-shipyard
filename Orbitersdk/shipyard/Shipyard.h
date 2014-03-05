@@ -19,7 +19,7 @@ class Shipyard : public IEventReceiver
 public:
 	Shipyard();
 	~Shipyard();
-	void setupDevice(IrrlichtDevice * _device);
+	void setupDevice(IrrlichtDevice * _device, std::string toolboxSet);
 	void loop();
 	bool OnEvent(const SEvent & event);
 
@@ -27,6 +27,7 @@ private:
 	core::vector3df returnMouseRelativePos();
 	void checkNodeForSnapping(VesselSceneNode* node);
 	
+	std::string tbxSet;
 	gui::IGUIEnvironment* guiEnv;
 	std::vector<VesselSceneNode*> vessels;
 	bool isKeyDown[KEY_KEY_CODES_COUNT];

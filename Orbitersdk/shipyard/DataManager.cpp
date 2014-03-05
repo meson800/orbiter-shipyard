@@ -9,7 +9,19 @@ DataManager::DataManager()
 
 DataManager::~DataManager()
 {
+	for (map<string, OrbiterMesh*>::iterator pos = meshMap.begin(); pos != meshMap.end(); ++pos)
+	{
+		delete pos->second;
+	}
+	meshMap.clear();
 
+	for (map<string, VesselData*>::iterator pos = cfgMap.begin(); pos != cfgMap.end(); ++pos)
+	{
+		delete pos->second;
+	}
+	cfgMap.clear();
+
+	imgMap.clear();			//Irrlicht will drop the textures itself
 }
 
 
@@ -31,6 +43,7 @@ OrbiterMesh* DataManager::GetGlobalMesh(string meshName, video::IVideoDriver* dr
 		//mesh not found, delete allocated pointer and return NULL
 		{
 			delete newMesh;
+			Helpers::writeToLog(std::string("\n ERROR: could not load mesh: " + meshName + ".msh"));
 			return NULL;
 		}
 	}
@@ -54,6 +67,10 @@ VesselData* DataManager::GetGlobalConfig(string cfgName, video::IVideoDriver* dr
 			//cfg loaded succesfully, enter in map and return pointer
 		{
 			cfgMap[cfgName] = newVessel;
+		}
+		else
+		{
+			Helpers::writeToLog(std::string("\n ERROR: could not load cfg: " + cfgName));
 		}
 		return newVessel;
 	}
@@ -81,6 +98,7 @@ video::ITexture *DataManager::GetGlobalImg(string imgName, video::IVideoDriver* 
 		{
 			video::ITexture *newTex = driver->addTexture("tbxtex", img);
 			imgMap[imgName] = newTex;
+			img->drop();
 			return newTex;
 		}
 		else
@@ -100,6 +118,9 @@ video::ITexture *DataManager::GetGlobalImg(string imgName, video::IVideoDriver* 
 VesselData *DataManager::LoadVesselData(string configFileName, video::IVideoDriver* driver)
 //loads vessel data from config file. returns NULL if file not found.
 {
+	bool meshDefined = false;
+	bool portsDefined = false;
+
 	vector<string> tokens;
 	string completeCfgPath = Helpers::workingDirectory + "\\config\\vessels\\" + configFileName;
 	ifstream configFile = ifstream(completeCfgPath.c_str());
@@ -122,18 +143,29 @@ VesselData *DataManager::LoadVesselData(string configFileName, video::IVideoDriv
 			readingDockingPorts = false;
 		}
 		//if we are reading docking ports, create a new docking port!
-		if (readingDockingPorts && tokens.size() == 9)
+		if (readingDockingPorts && tokens.size() >= 9)
+		{
 			newVessel->dockingPorts.push_back(OrbiterDockingPort(
-			core::vector3d<f32>(Helpers::stringToDouble(tokens[0]),
-			Helpers::stringToDouble(tokens[1]), Helpers::stringToDouble(tokens[2])),
-			core::vector3d<f32>(Helpers::stringToDouble(tokens[3]),
-			Helpers::stringToDouble(tokens[4]), Helpers::stringToDouble(tokens[5])),
-			core::vector3d<f32>(Helpers::stringToDouble(tokens[6]),
-			Helpers::stringToDouble(tokens[7]), Helpers::stringToDouble(tokens[8]))));
+				core::vector3d<f32>(Helpers::stringToDouble(tokens[0]),
+				Helpers::stringToDouble(tokens[1]), Helpers::stringToDouble(tokens[2])),
+				core::vector3d<f32>(Helpers::stringToDouble(tokens[3]),
+				Helpers::stringToDouble(tokens[4]), Helpers::stringToDouble(tokens[5])),
+				core::vector3d<f32>(Helpers::stringToDouble(tokens[6]),
+				Helpers::stringToDouble(tokens[7]), Helpers::stringToDouble(tokens[8]))));
+			if (tokens.size() > 9)
+			{
+				Helpers::writeToLog(std::string("\n WARNING: Unusual docking port definition in cfg file " + configFileName) + ": definition contains more than 9 entries!");
+			}
+		}
+		else if (readingDockingPorts && tokens.size() < 9)
+		{
+			Helpers::writeToLog(std::string("\n ERROR: Invalid docking port definition in cfg file " + configFileName) + ": definition contains less than 9 entries!");
+		}
 		//now see if this is the beginning of a docking port list
 		if (tokens[0].compare("BEGIN_DOCKLIST") == 0)
 		{
 			readingDockingPorts = true;
+			portsDefined = true;
 		}
 
 
@@ -145,6 +177,7 @@ VesselData *DataManager::LoadVesselData(string configFileName, video::IVideoDriv
 			//load the mesh!
 		{
 			newVessel->vesselMesh = GetGlobalMesh(tokens[1], driver);
+			meshDefined = true;
 		}
 
 
@@ -156,6 +189,15 @@ VesselData *DataManager::LoadVesselData(string configFileName, video::IVideoDriv
 
 		//clear tokens
 		tokens.clear();
+	}
+
+	if (!meshDefined)
+	{
+		Helpers::writeToLog(std::string("\n WARNING: no mesh defined in " + configFileName));
+	}
+	if (!portsDefined)
+	{
+		Helpers::writeToLog(std::string("\n WARNING: no docking ports defined in " + configFileName));
 	}
 	return newVessel;
 }

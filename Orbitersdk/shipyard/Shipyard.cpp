@@ -15,14 +15,16 @@ Shipyard::Shipyard()
 Shipyard::~Shipyard()
 {
 	saveToolBoxes();
+	Helpers::writeToLog(std::string("\n Terminating StackEditor..."), true);
 }
 
-void Shipyard::setupDevice(IrrlichtDevice * _device)
+void Shipyard::setupDevice(IrrlichtDevice * _device, std::string toolboxSet)
 {
 	device = _device;
 	smgr = device->getSceneManager();
 	collisionManager = smgr->getSceneCollisionManager();
 	guiEnv = device->getGUIEnvironment();
+	tbxSet = toolboxSet;
 
 	//initialising GUI skin to something nicer and loading a bigger font.
 	//well, loading the font, anyways. They messed around with the color identifiers since the last irrlicht version, it'll take a while to set the skin up properly :/
@@ -55,12 +57,15 @@ void Shipyard::setupDevice(IrrlichtDevice * _device)
 	if (toolboxes.size() == 0)
 	//adding an empty toolbox in case there are none defined, since you can't even add toolboxes if there is none
 	{
+		Helpers::writeToLog(std::string("\n WARNING: No toolboxes loaded, initialising default..."));
 		toolboxes.push_back(new CGUIToolBox("empty toolbox", rect<s32>(0, dim.Height - 210, dim.Width, dim.Height), guiEnv, NULL));
 		guiEnv->getRootGUIElement()->addChild(toolboxes[toolboxes.size() - 1]);
 		toolBoxList->addItem(L"empty toolbox");
 	}
 	toolBoxList->setSelected(0);
 	switchToolBox();
+	
+	Helpers::writeToLog(std::string("\n Initialisation complete..."));
 }
 
 void Shipyard::loop()
@@ -350,7 +355,8 @@ bool Shipyard::loadToolBoxes()
 //loads all tbx files from the Toolbox directory
 {
 	core::dimension2d<u32> dim = device->getVideoDriver()->getScreenSize();
-	std::string tbxPath = std::string(Helpers::workingDirectory + "/StackEditor/Toolboxes/");
+	std::string tbxPath = std::string(Helpers::workingDirectory + "/StackEditor/Toolboxes/" + tbxSet + "/");
+	Helpers::writeToLog(std::string("\n Loading toolbox set: ") + tbxSet);
 	std::string searchPath = std::string(tbxPath + "*.tbx");
 	HANDLE searchFileHndl;
 	WIN32_FIND_DATA foundFile;
@@ -364,6 +370,7 @@ bool Shipyard::loadToolBoxes()
 	searchFileHndl = FindFirstFile(searchPath.data(), &foundFile);
 	if (foundFile.cFileName[0] == 0)
 	{
+		Helpers::writeToLog(std::string("\n ERROR: could not open directory: /StackEditor/Toolboxes/" + tbxSet + " or no files in directory"));
 		searchFiles = false;
 	}
 
@@ -373,7 +380,8 @@ bool Shipyard::loadToolBoxes()
 		if (foundFile.dwFileAttributes != FILE_ATTRIBUTE_DIRECTORY)
 		{
 			//creating the toolbox and adding it to the GUI
-			
+			Helpers::writeToLog(std::string("\n Loading " + std::string(foundFile.cFileName) + "..."));
+
 			std::string toolboxName(foundFile.cFileName);
 			toolboxes.push_back(new CGUIToolBox(toolboxName.substr(0, toolboxName.size() - 4), rect<s32>(0, dim.Height - 210, dim.Width, dim.Height), guiEnv, NULL));
 			guiEnv->getRootGUIElement()->addChild(toolboxes[toolboxes.size() - 1]);
@@ -401,10 +409,10 @@ bool Shipyard::loadToolBoxes()
 
 void Shipyard::saveToolBoxes()
 {
-
+	
 	for (UINT i = 0; i < toolboxes.size(); ++i)
 	{
-		toolboxes[i]->saveToolBox();
+		toolboxes[i]->saveToolBox(std::string(tbxSet + "/"));
 	}
 }
 
