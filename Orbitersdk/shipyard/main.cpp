@@ -3,6 +3,7 @@
 
 #include <irrlicht.h>
 #include <algorithm>
+#include <thread>
 #include "orbitersdk.h"
 #include "Shipyard.h"
 #include "Helpers.h"
@@ -15,7 +16,8 @@
 using namespace irr;
 
 DWORD g_dwCmd;
-void OpenSE(void *context);
+void startSEThread(void *context);
+void OpenSE();
 
 DLLCLBK void InitModule(HINSTANCE hDLL)
 {
@@ -25,7 +27,7 @@ DLLCLBK void InitModule(HINSTANCE hDLL)
 	// in Orbiter via Ctrl-F4.
 	g_dwCmd = oapiRegisterCustomCmd("StackEditor",
 		"Opens StackEditor in an external window",
-		OpenSE, NULL);
+		startSEThread, NULL);
 
 }
 
@@ -34,7 +36,13 @@ DLLCLBK void ExitModule(HINSTANCE hDLL)
 	oapiUnregisterCustomCmd(g_dwCmd);
 }
 
-void OpenSE(void *context)
+void startSEThread(void *context)
+{
+	std::thread seThread(OpenSE);
+	seThread.detach();
+}
+
+void OpenSE()
 {
 
 	// create a NULL device to detect screen resolution
