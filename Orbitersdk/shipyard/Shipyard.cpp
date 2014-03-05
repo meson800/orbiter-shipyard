@@ -87,11 +87,9 @@ void Shipyard::loop()
 	while (device->run())
 	{
 		//see if we are pressing control o- so we can open a open file dialog
-		if ((isKeyDown[KEY_LCONTROL] || isKeyDown[KEY_RCONTROL] || isKeyDown[KEY_CONTROL])
-			&& isKeyDown[KEY_KEY_O] && !isOpenDialogOpen)
+		if (isKeyDown[KEY_LCONTROL] || isKeyDown[KEY_RCONTROL] || isKeyDown[KEY_CONTROL])
 		{
-			guiEnv->addFileOpenDialog(L"Select Config File", true, 0, -1, true,"config\\vessels");
-			isOpenDialogOpen = true;
+//			device->postEventFromUser(EMIE_MMOUSE_PRESSED_DOWN);
 		}
 
 		driver->beginScene(true, true, video::SColor(0, 100, 100, 100));

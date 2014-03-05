@@ -88,6 +88,7 @@ namespace scene
 		bool isMouseKeyDown(s32 key) const;
 
 		bool MouseKeys[3];
+		bool ctrl;
 
 		gui::ICursorControl *CursorControl;
 		scene::ICameraSceneNode* OldCamera;

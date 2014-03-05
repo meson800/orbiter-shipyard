@@ -50,45 +50,64 @@ CSceneNodeAnimatorCameraCustom::~CSceneNodeAnimatorCameraCustom()
 //! for changing their position, look at target or whatever.
 bool CSceneNodeAnimatorCameraCustom::OnEvent(const SEvent& event)
 {
-	if (event.EventType != EET_MOUSE_INPUT_EVENT)
-		return false;
-
-	switch(event.MouseInput.Event)
+	if (event.EventType == EET_MOUSE_INPUT_EVENT)
 	{
-	case EMIE_LMOUSE_PRESSED_DOWN:
-		MouseKeys[0] = true;
-		break;
-	case EMIE_RMOUSE_PRESSED_DOWN:
-		MouseKeys[2] = true;
-		break;
-	case EMIE_MMOUSE_PRESSED_DOWN:
-		MouseKeys[1] = true;
-		break;
-	case EMIE_LMOUSE_LEFT_UP:
-		MouseKeys[0] = false;
-		break;
-	case EMIE_RMOUSE_LEFT_UP:
-		MouseKeys[2] = false;
-		break;
-	case EMIE_MMOUSE_LEFT_UP:
-		MouseKeys[1] = false;
-		break;
-	case EMIE_MOUSE_MOVED:
-		MousePos = CursorControl->getRelativePosition();
-		break;
-	case EMIE_MOUSE_WHEEL:
-		mouseWheelDelta = event.MouseInput.Wheel;
-		break;
-	case EMIE_LMOUSE_DOUBLE_CLICK:
-	case EMIE_RMOUSE_DOUBLE_CLICK:
-	case EMIE_MMOUSE_DOUBLE_CLICK:
-	case EMIE_LMOUSE_TRIPLE_CLICK:
-	case EMIE_RMOUSE_TRIPLE_CLICK:
-	case EMIE_MMOUSE_TRIPLE_CLICK:
-	case EMIE_COUNT:
-		return false;
+
+		switch (event.MouseInput.Event)
+		{
+		case EMIE_LMOUSE_PRESSED_DOWN:
+			MouseKeys[0] = true;
+			break;
+		case EMIE_RMOUSE_PRESSED_DOWN:
+			MouseKeys[2] = true;
+			break;
+		case EMIE_MMOUSE_PRESSED_DOWN:
+			MouseKeys[1] = true;
+			break;
+		case EMIE_LMOUSE_LEFT_UP:
+			MouseKeys[0] = false;
+			break;
+		case EMIE_RMOUSE_LEFT_UP:
+			MouseKeys[2] = false;
+			break;
+		case EMIE_MMOUSE_LEFT_UP:
+			MouseKeys[1] = false;
+			break;
+		case EMIE_MOUSE_MOVED:
+			MousePos = CursorControl->getRelativePosition();
+			break;
+		case EMIE_MOUSE_WHEEL:
+			mouseWheelDelta = event.MouseInput.Wheel;
+			break;
+		case EMIE_LMOUSE_DOUBLE_CLICK:
+		case EMIE_RMOUSE_DOUBLE_CLICK:
+		case EMIE_MMOUSE_DOUBLE_CLICK:
+		case EMIE_LMOUSE_TRIPLE_CLICK:
+		case EMIE_RMOUSE_TRIPLE_CLICK:
+		case EMIE_MMOUSE_TRIPLE_CLICK:
+		case EMIE_COUNT:
+			return false;
+		}
+		return true;
 	}
-	return true;
+	else if (event.EventType == EET_KEY_INPUT_EVENT)
+	{
+		if (event.KeyInput.Key == KEY_LCONTROL)
+		{
+			if (event.KeyInput.PressedDown)
+			{
+				ctrl = true;
+				return true;
+			}
+			else
+			{
+				ctrl = false;
+				return true;
+			}
+		}
+	}
+	ctrl = false;
+	return false;
 }
 
 
@@ -190,7 +209,7 @@ void CSceneNodeAnimatorCameraCustom::animateNode(ISceneNode *node, u32 timeMs)
 
 	// Rotation ------------------------------------
 
-	if (isMouseKeyDown(1) && !Zooming)
+	if ((isMouseKeyDown(1) && !Zooming) || (ctrl && !Zooming))
 	{
 		if (!Rotating)
 		{
