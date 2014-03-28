@@ -26,6 +26,40 @@ void VesselStack::rotateStack(core::vector3df relativeRot)
 	}
 }
 
+void VesselStack::setMoveReference(core::vector3df refPos)
+{
+	//set the reference
+	moveReference = refPos;
+	//set the inital positions of each node
+	previousPositions.clear();
+	for (unsigned int i = 0; i < nodes.size(); i++)
+	{
+		previousPositions.push_back(nodes[i]->getPosition());
+	}
+}
+
+void VesselStack::moveStackReferenced(core::vector3df movePos)
+{
+	//We have to do this system from the reference point because of the way snapping is handled
+	//If this just added a relative position to each of the nodes, a small mouse movement would never
+	//be able to move the node out of the snapping radius, resulting in permenant snapping.
+	//This way always moves the node to a position relative to the initial position, making snapping work
+
+	//check to make sure that we have the same amount of positions in previousPositions than we have nodes
+	if (nodes.size() != previousPositions.size())
+	{
+		Helpers::writeToLog(std::string("Tried to move a vessel stack without setting up previousPositions\n"));
+		return;
+	}
+
+	//loop over, setting relative position
+	for (unsigned int i = 0; i < nodes.size(); i++)
+	{
+		nodes[i]->setPosition(previousPositions[i] + (movePos - moveReference));
+	}
+
+}
+
 //recursive function to init a vessel stack
 void VesselStack::createStackHelper(VesselSceneNode* startingVessel, OrbiterDockingPort* fromPort)
 {
