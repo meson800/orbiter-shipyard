@@ -12,6 +12,7 @@ public:
 	void rotateStack(core::vector3df relativeRot);
 	void setMoveReference(core::vector3df refPos);
 	void moveStackReferenced(core::vector3df movePos);
+	void moveStackRelative(core::vector3df movePos);
 private:
 	//recursive helper to init the stack
 	void createStackHelper(VesselSceneNode* startingVessel, OrbiterDockingPort* fromPort);

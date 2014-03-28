@@ -38,6 +38,14 @@ void VesselStack::setMoveReference(core::vector3df refPos)
 	}
 }
 
+void VesselStack::moveStackRelative(core::vector3df movePos)
+{
+	//set reference to a null position, and just run the normal referenced move
+	//NOTE: this destroys the reference, don't use this in the middle of using moveStackReferenced
+	setMoveReference(core::vector3df());
+	moveStackReferenced(movePos);
+}
+
 void VesselStack::moveStackReferenced(core::vector3df movePos)
 {
 	//We have to do this system from the reference point because of the way snapping is handled
