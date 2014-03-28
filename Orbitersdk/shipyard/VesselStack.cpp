@@ -6,6 +6,24 @@ VesselStack::VesselStack(VesselSceneNode* startingVessel)
 	createStackHelper(startingVessel, 0);
 }
 
+void VesselStack::rotateStack(core::vector3df relativeRot)
+{
+	//apply this rotation to each of the parent nodes
+	core::quaternion x, y, z;
+	x.fromAngleAxis(relativeRot.X * core::DEGTORAD, core::vector3df(1, 0, 0));
+	y.fromAngleAxis(relativeRot.Y * core::DEGTORAD, core::vector3df(0, 1, 0));
+	z.fromAngleAxis(relativeRot.Z * core::DEGTORAD, core::vector3df(0, 0, 1));
+	//now use the force, erm, quaternoins to rotate each node in the stack to avoid gimbal lock
+	for (unsigned int i = 0; i < nodes.size(); i++)
+	{
+		core::quaternion thisNodeRotation = core::quaternion(nodes[i]->getRotation() * core::DEGTORAD);
+		//rotate this sucker
+		thisNodeRotation = thisNodeRotation * x * y * z;
+		//set the rotation
+		nodes[i]->setRotation(thisNodeRotation.toEuler * core::RADTODEG);
+	}
+}
+
 //recursive function to init a vessel stack
 void VesselStack::createStackHelper(VesselSceneNode* startingVessel, OrbiterDockingPort* fromPort)
 {
