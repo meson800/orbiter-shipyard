@@ -270,8 +270,13 @@ bool Shipyard::OnEvent(const SEvent& event)
 			{
 				//try docking this node
 				selectedVesselStack->checkForSnapping(vessels, true);
+
 				//de-show docking ports
-				//((VesselSceneNode*)selectedNode)->changeDockingPortVisibility(false, false);
+				selectedVesselStack->changeDockingPortVisibility(false, false);
+				//deshow all the rest of the empty docking ports
+				for (unsigned int i = 0; i < vessels.size(); i++)
+					vessels[i]->changeDockingPortVisibility(false, false);
+
 				delete selectedVesselStack;
 				selectedVesselStack = 0;
 				return true;
@@ -291,8 +296,11 @@ bool Shipyard::OnEvent(const SEvent& event)
 				//setup the move reference
 				selectedVesselStack->setMoveReference(returnMouseRelativePos());
 
-				//show docking ports
-				//((VesselSceneNode*)selectedNode)->changeDockingPortVisibility(true, true);
+				//show empty docking ports
+				selectedVesselStack->changeDockingPortVisibility(true, false);
+				//show all the rest of the empty docking ports
+				for (unsigned int i = 0; i < vessels.size(); i++)
+					vessels[i]->changeDockingPortVisibility(true, false);
 			}
 
 			//return true if we got a vessel stack
