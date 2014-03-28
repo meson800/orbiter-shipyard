@@ -6,6 +6,12 @@ VesselStack::VesselStack(VesselSceneNode* startingVessel)
 	createStackHelper(startingVessel, 0);
 }
 
+void VesselStack::changeDockingPortVisibility(bool showEmpty, bool showDocked)
+{
+	for (unsigned int i = 0; i < nodes.size(); i++)
+		nodes[i]->changeDockingPortVisibility(showEmpty, showDocked);
+}
+
 int VesselStack::numVessels()
 {
 	return nodes.size();

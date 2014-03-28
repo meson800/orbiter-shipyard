@@ -18,7 +18,7 @@ using namespace std;
 class VesselSceneNode : public scene::ISceneNode
 {
 public:
-	VesselSceneNode(string configFilename, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id);
+	VesselSceneNode(std::string configFilename, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id);
 	VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id);
 	virtual void OnRegisterSceneNode();
 	virtual void render();
@@ -26,7 +26,7 @@ public:
 	virtual u32 getMaterialCount();
 	virtual video::SMaterial& getMaterial(u32 i);
 	void setupDockingPortNodes();
-	void changeDockingPortVisibility(bool show, bool emptyOnly);
+	void changeDockingPortVisibility(bool showEmpty, bool showDocked);
 	void snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort);
 	void dock(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort);
 	core::vector3df returnRotatedVector(const core::vector3df& vec);

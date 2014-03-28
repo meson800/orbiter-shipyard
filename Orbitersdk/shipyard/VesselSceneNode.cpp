@@ -122,14 +122,14 @@ video::SMaterial& VesselSceneNode::getMaterial(u32 i)
 	return vesselMesh->materials[i];
 }
 
-void VesselSceneNode::changeDockingPortVisibility(bool show, bool emptyOnly)
+void VesselSceneNode::changeDockingPortVisibility(bool showEmpty, bool showDocked)
 {
 	for (unsigned int i = 0; i < dockingPorts.size(); i++)
 	{
-		//if emptyOnly is false, always show/hide node
-		//if emptyOnly is true, only show if this one is empty
-		if (emptyOnly == false || dockingPorts[i].docked == false)
-			dockingPorts[i].portNode->setVisible(show);
+		if (dockingPorts[i].docked == false)
+			dockingPorts[i].portNode->setVisible(showEmpty);
+		else
+			dockingPorts[i].portNode->setVisible(showDocked);
 	}
 }
 

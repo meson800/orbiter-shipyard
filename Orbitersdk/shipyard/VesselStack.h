@@ -14,6 +14,7 @@ public:
 	void moveStackReferenced(core::vector3df movePos);
 	void moveStackRelative(core::vector3df movePos);
 	void checkForSnapping(std::vector<VesselSceneNode*>& vessels, bool dock=false);
+	void changeDockingPortVisibility(bool showEmpty, bool showDocked);
 	int numVessels();
 	VesselSceneNode* getVessel(int index);
 private:
