@@ -68,6 +68,46 @@ void VesselStack::moveStackReferenced(core::vector3df movePos)
 
 }
 
+void VesselStack::checkForSnapping(std::vector<VesselSceneNode*>& vessels, bool dock)
+{
+	//loop over each node
+	for (unsigned int nodeNum = 0; nodeNum < nodes.size(); nodeNum++)
+	{
+		//loop over empty docking ports on this node
+		for (unsigned int i = 0; i < nodes[nodeNum]->dockingPorts.size(); i++)
+		{
+			if (nodes[nodeNum]->dockingPorts[i].docked == false)
+			{
+				//now, loop over the OTHER vessels (not equal to this node)
+				//and see if it is close to another port's empty docking ports
+				for (unsigned int j = 0; j < vessels.size(); j++)
+				{
+					if (vessels[j] != nodes[nodeNum])
+					{
+						//check it's docking ports
+						for (unsigned int k = 0; k < vessels[j]->dockingPorts.size(); k++)
+						{
+							//check if it is not docked, and they are within a certain distance
+							if (!vessels[j]->dockingPorts[k].docked &&
+								((nodes[nodeNum]->getAbsolutePosition() + nodes[nodeNum]->returnRotatedVector(nodes[nodeNum]->dockingPorts[i].position)) -
+								(vessels[j]->getAbsolutePosition() + vessels[j]->returnRotatedVector(vessels[j]->dockingPorts[k].position))
+								).getLengthSQ() < 16)
+							{
+								//snap it if dock=false, dock if dock=true
+								if (!dock)
+									nodes[nodeNum]->snap(nodes[nodeNum]->dockingPorts[i], vessels[j]->dockingPorts[k]);
+								else
+									nodes[nodeNum]->dock(nodes[nodeNum]->dockingPorts[i], vessels[j]->dockingPorts[k]);
+							}
+
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 //recursive function to init a vessel stack
 void VesselStack::createStackHelper(VesselSceneNode* startingVessel, OrbiterDockingPort* fromPort)
 {

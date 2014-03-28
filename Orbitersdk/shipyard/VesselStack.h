@@ -13,6 +13,7 @@ public:
 	void setMoveReference(core::vector3df refPos);
 	void moveStackReferenced(core::vector3df movePos);
 	void moveStackRelative(core::vector3df movePos);
+	void checkForSnapping(std::vector<VesselSceneNode*>& vessels, bool dock);
 private:
 	//recursive helper to init the stack
 	void createStackHelper(VesselSceneNode* startingVessel, OrbiterDockingPort* fromPort);
