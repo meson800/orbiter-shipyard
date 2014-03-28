@@ -20,7 +20,9 @@ void VesselStack::rotateStack(core::vector3df relativeRot)
 		//rotate this sucker
 		thisNodeRotation = thisNodeRotation * x * y * z;
 		//set the rotation
-		nodes[i]->setRotation(thisNodeRotation.toEuler * core::RADTODEG);
+		core::vector3df eulerRotation;
+		thisNodeRotation.toEuler(eulerRotation);
+		nodes[i]->setRotation(eulerRotation * core::RADTODEG);
 	}
 }
 
