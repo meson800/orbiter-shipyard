@@ -8,7 +8,7 @@ Shipyard::Shipyard()
 		isKeyDown[i] = false;
 	
 	isOpenDialogOpen = false;
-	selectedNode = 0;
+	selectedVesselStack = 0;
 	cursorOnGui = false;
 }
 
@@ -112,7 +112,8 @@ void Shipyard::loop()
 			if (createVessel != NULL)
 			{
 				vessels.push_back(new VesselSceneNode(createVessel, smgr->getRootSceneNode(), smgr, VESSEL_ID));
-				selectedNode = vessels[vessels.size() - 1];
+				//create a selected stack
+//				selectedVesselStack = new VesselStack(vessels[vessels.size() - 1]);
 			}
 
 		}
@@ -129,12 +130,12 @@ void Shipyard::loop()
 core::vector3df Shipyard::returnMouseRelativePos()
 {
 	core::vector3df mouse3DPos;
-	if (selectedNode != 0)
+	if (selectedVesselStack != 0 && selectedVesselStack->numVessels() != 0)
 	{
 		//update the absolute position
-		selectedNode->updateAbsolutePosition();
+		selectedVesselStack->getVessel(0)->updateAbsolutePosition();
 		//the plane point is from the center of the node, with the normal to the camera
-		core::plane3df plane = core::plane3df(selectedNode->getAbsolutePosition(),
+		core::plane3df plane = core::plane3df(selectedVesselStack->getVessel(0)->getAbsolutePosition(),
 			camera->getTarget() - camera->getPosition());
 
 		//now do a ray from the current mouse position
@@ -205,7 +206,7 @@ bool Shipyard::OnEvent(const SEvent& event)
 				if (menuItem == 2)
 				//spawn a naming dialog
 				{
-					selectedNode = 0;
+//					selectedNode = 0;
 					IGUIWindow *msgBx = guiEnv->addMessageBox(L"toolbox name", L"please enter a name for your toolbox", true, EMBF_OK | EMBF_CANCEL, 0, TBXNAMEMSG);
 					msgBx->setMinSize(dimension2du(300, 150));
 					guiEnv->addEditBox(L"toolbox name", rect<s32>(20, 100, 280, 130), true, msgBx, TBXNAMEENTRY);
@@ -229,34 +230,31 @@ bool Shipyard::OnEvent(const SEvent& event)
 		//it's a key, store it
 		isKeyDown[event.KeyInput.Key] = event.KeyInput.PressedDown;
 		//if we are dragging a node, see if it is a rotation
-		if (selectedNode != 0 && event.KeyInput.PressedDown)
+		if (selectedVesselStack != 0 && event.KeyInput.PressedDown)
 		{
-			core::vector3df currentRotation = selectedNode->getRotation();
 			switch (event.KeyInput.Key)
 			{
 			case KEY_KEY_A:
-				currentRotation.Y -= 90;
+				selectedVesselStack->rotateStack(core::vector3df(0, -90, 0));
 				break;
 			case KEY_KEY_D:
-				currentRotation.Y += 90;
+				selectedVesselStack->rotateStack(core::vector3df(0, 90, 0));
 				break;
 			case KEY_KEY_S:
-				currentRotation.Z -= 90;
+				selectedVesselStack->rotateStack(core::vector3df(0, 0, -90));
 				break;
 			case KEY_KEY_W:
-				currentRotation.Z += 90;
+				selectedVesselStack->rotateStack(core::vector3df(0, 0, 90));
 				break;
 			case KEY_KEY_Q:
-				currentRotation.X -= 90;
+				selectedVesselStack->rotateStack(core::vector3df(-90, 0, 0));
 				break;
 			case KEY_KEY_E:
-				currentRotation.X += 90;
+				selectedVesselStack->rotateStack(core::vector3df(90, 0, 0));
 				break;
 			default:
 				break;
 			}
-			//set rotation
-			selectedNode->setRotation(currentRotation);
 		}
 		break;
 	case EET_MOUSE_INPUT_EVENT:
@@ -266,93 +264,56 @@ bool Shipyard::OnEvent(const SEvent& event)
 		switch (event.MouseInput.Event)
 		{
 		case EMIE_LMOUSE_PRESSED_DOWN:
-
+		{
 			//if we have a selected node, deselect it
-			if (selectedNode != 0)
+			if (selectedVesselStack != 0)
 			{
 				//try docking this node
-				checkNodeDockingPorts((VesselSceneNode*)selectedNode, true);
+				selectedVesselStack->checkForSnapping(vessels, true);
 				//de-show docking ports
-				((VesselSceneNode*)selectedNode)->changeDockingPortVisibility(false, false);
-				selectedNode = 0;
+				//((VesselSceneNode*)selectedNode)->changeDockingPortVisibility(false, false);
+				delete selectedVesselStack;
+				selectedVesselStack = 0;
 				return true;
 			}
 			//try to select a node
-			selectedNode = 0;
-			selectedNode = collisionManager->getSceneNodeFromScreenCoordinatesBB(
+			selectedVesselStack = 0;
+			scene::ISceneNode* selectedNode = collisionManager->getSceneNodeFromScreenCoordinatesBB(
 				device->getCursorControl()->getPosition(), VESSEL_ID, true);
-			if (selectedNode->getID() != VESSEL_ID)
+			if (selectedNode->getID() == VESSEL_ID)
 			{
+				//it's a vessel!  Create the stack
+				selectedVesselStack = new VesselStack((VesselSceneNode*)selectedNode);
 				selectedNode = 0;
-				return true;
 			}
-			if (selectedNode != 0)
+			if (selectedVesselStack != 0)
 			{
-				//set mouse position
-				originalMouse3DPos = returnMouseRelativePos();
-				//set old node location
-				originalNodePosition = selectedNode->getPosition();
+				//setup the move reference
+				selectedVesselStack->setMoveReference(returnMouseRelativePos());
 
 				//show docking ports
-				((VesselSceneNode*)selectedNode)->changeDockingPortVisibility(true, true);
+				//((VesselSceneNode*)selectedNode)->changeDockingPortVisibility(true, true);
 			}
 
-			//return true if we got a node
-			return (selectedNode != 0);
+			//return true if we got a vessel stack
+			return (selectedVesselStack != 0);
 			break;
-
+		}
 		case EMIE_MOUSE_MOVED:
 			//see if we have a node
-			if (selectedNode != 0)
+			if (selectedVesselStack != 0)
 			{
-				//calculate new mouse pos
-				core::vector3df mouse3DPos = returnMouseRelativePos();
-				//move the node by the difference of the two
-				selectedNode->setPosition(originalNodePosition + (mouse3DPos - originalMouse3DPos));
+				//move the stack
+				selectedVesselStack->moveStackReferenced(returnMouseRelativePos());
+
 				//try snapping
-				checkNodeDockingPorts(((VesselSceneNode*)selectedNode));
+				selectedVesselStack->checkForSnapping(vessels);
 			}
 			break;
 		}
 		break;
 	}
 	return false;
-}
-
-void Shipyard::checkNodeDockingPorts(VesselSceneNode* node, bool dock)
-{
-	//loop over empty docking ports on this node
-	for (unsigned int i = 0; i < node->dockingPorts.size(); i++)
-	{
-		if (node->dockingPorts[i].docked == false)
-		{
-			//now, loop over the OTHER vessels (not equal to this node)
-			//and see if it is close to another port's empty docking ports
-			for (unsigned int j = 0; j < vessels.size(); j++)
-			{
-				if (vessels[j] != node)
-				{
-					//check it's docking ports
-					for (unsigned int k = 0; k < vessels[j]->dockingPorts.size(); k++)
-					{
-						//check if it is not docked, and they are within a certain distance
-						if (!vessels[j]->dockingPorts[k].docked &&
-							((node->getAbsolutePosition() + node->returnRotatedVector(node->dockingPorts[i].position)) -
-							(vessels[j]->getAbsolutePosition() + vessels[j]->returnRotatedVector(vessels[j]->dockingPorts[k].position))
-							).getLengthSQ() < 16)
-						{
-							//snap it if dock=false, dock if dock=true
-							if (!dock)
-								node->snap(node->dockingPorts[i], vessels[j]->dockingPorts[k]);
-							else
-								node->dock(node->dockingPorts[i], vessels[j]->dockingPorts[k]);
-						}
-
-					}
-				}
-			}
-		}
-	}
 }
 
 

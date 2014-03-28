@@ -6,6 +6,7 @@
 
 #include "resource.h"
 #include "VesselSceneNode.h"
+#include "VesselStack.h"
 #include "CSceneNodeAnimatorCameraCustom.h"
 #include "DataManager.h"
 #include "SE_ToolBox.h"
@@ -25,7 +26,6 @@ public:
 
 private:
 	core::vector3df returnMouseRelativePos();
-	void checkNodeDockingPorts(VesselSceneNode* node, bool dock=false);
 	
 	std::string tbxSet;
 	gui::IGUIEnvironment* guiEnv;
@@ -34,11 +34,9 @@ private:
 	bool isOpenDialogOpen;
 	IrrlichtDevice * device;
 	scene::ICameraSceneNode* camera;
-	scene::ISceneNode * selectedNode;
+	VesselStack * selectedVesselStack;
 	scene::ISceneCollisionManager* collisionManager;
 	scene::ISceneManager* smgr;
-	core::vector3df originalMouse3DPos;
-	core::vector3df originalNodePosition;
 	DataManager dataManager;
 
 	bool cursorOnGui;				//registers when the cursor is over a GUI element, so events can be passed on
