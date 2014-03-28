@@ -68,6 +68,11 @@ void Shipyard::setupDevice(IrrlichtDevice * _device, std::string toolboxSet)
 	Helpers::writeToLog(std::string("\n Initialisation complete..."));
 }
 
+void Shipyard::centerCamera()
+{
+	camera->setTarget(returnOverallBoundingBox().getCenter());
+}
+
 void Shipyard::loop()
 {
 	video::IVideoDriver* driver = device->getVideoDriver();
@@ -144,6 +149,14 @@ core::vector3df Shipyard::returnMouseRelativePos()
 		plane.getIntersectionWithLine(ray.start, ray.getVector(), mouse3DPos);
 	}
 	return mouse3DPos;
+}
+
+core::aabbox3d<f32> Shipyard::returnOverallBoundingBox()
+{
+	core::aabbox3d<f32> result;
+	for (unsigned int i = 0; i < vessels.size(); i++)
+		result.addInternalBox(vessels[i]->getTransformedBoundingBox());
+	return result;
 }
 
 bool Shipyard::OnEvent(const SEvent& event)

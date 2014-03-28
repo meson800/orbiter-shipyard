@@ -25,6 +25,9 @@ public:
 	bool OnEvent(const SEvent & event);
 
 private:
+	core::aabbox3d<f32> returnOverallBoundingBox();
+	void centerCamera();
+
 	core::vector3df returnMouseRelativePos();
 	
 	std::string tbxSet;
