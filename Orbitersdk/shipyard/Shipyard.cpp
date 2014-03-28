@@ -117,8 +117,9 @@ void Shipyard::loop()
 			if (createVessel != NULL)
 			{
 				vessels.push_back(new VesselSceneNode(createVessel, smgr->getRootSceneNode(), smgr, VESSEL_ID));
-				//create a selected stack
-//				selectedVesselStack = new VesselStack(vessels[vessels.size() - 1]);
+				//if this is the first vessel, center the camera
+				if (vessels.size() == 1)
+					centerCamera();
 			}
 
 		}
@@ -242,6 +243,11 @@ bool Shipyard::OnEvent(const SEvent& event)
 	case EET_KEY_INPUT_EVENT:
 		//it's a key, store it
 		isKeyDown[event.KeyInput.Key] = event.KeyInput.PressedDown;
+
+		//see if it is the "c" key, to center the camera
+		if (event.KeyInput.Key == KEY_KEY_C)
+			centerCamera();
+
 		//if we are dragging a node, see if it is a rotation
 		if (selectedVesselStack != 0 && event.KeyInput.PressedDown)
 		{
