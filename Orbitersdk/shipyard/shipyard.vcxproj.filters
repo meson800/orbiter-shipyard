@@ -1,69 +1,57 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="DDS">
-      <UniqueIdentifier>{144c33b9-1e1b-4635-ac50-a6b2f4c59227}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GUI">
-      <UniqueIdentifier>{afed85fa-9b77-447a-a743-9b721fcb3c85}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Shipyard.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VesselSceneNode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="OrbiterMesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Helpers.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DdsImage.cpp">
-      <Filter>DDS</Filter>
-    </ClCompile>
-    <ClCompile Include="s3tc.cpp">
-      <Filter>DDS</Filter>
-    </ClCompile>
     <ClCompile Include="CSceneNodeAnimatorCameraCustom.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SE_ToolBox.cpp">
-      <Filter>GUI</Filter>
+      <Filter>C++ Files</Filter>
     </ClCompile>
     <ClCompile Include="DataManager.cpp">
-    <ClCompile Include="StackFunctions.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>C++ Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DdsImage.cpp">
+      <Filter>C++ Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Helpers.cpp">
+      <Filter>C++ Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>C++ Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OrbiterMesh.cpp">
+      <Filter>C++ Files</Filter>
+    </ClCompile>
+    <ClCompile Include="s3tc.cpp">
+      <Filter>C++ Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SE_ToolBox.cpp">
+      <Filter>C++ Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Shipyard.cpp">
+      <Filter>C++ Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VesselSceneNode.cpp">
+      <Filter>C++ Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VesselStack.cpp">
+      <Filter>C++ Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Shipyard.h">
+    <ClInclude Include="Common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VesselSceneNode.h">
+    <ClInclude Include="CSceneNodeAnimatorCameraCustom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OrbiterMesh.h">
+    <ClInclude Include="DataManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OrbiterMeshGroup.h">
+    <ClInclude Include="DdsHeader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DdsImage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuiIdentifiers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Helpers.h">
@@ -72,36 +60,37 @@
     <ClInclude Include="OrbiterDockingPort.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DdsHeader.h">
-      <Filter>DDS</Filter>
+    <ClInclude Include="OrbiterMesh.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DdsImage.h">
-      <Filter>DDS</Filter>
-    </ClInclude>
-    <ClInclude Include="s3tc.h">
-      <Filter>DDS</Filter>
-    </ClInclude>
-    <ClInclude Include="CSceneNodeAnimatorCameraCustom.h">
+    <ClInclude Include="OrbiterMeshGroup.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
-      <Filter>Resource Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
-<<<<<<< HEAD
+    <ClInclude Include="s3tc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="SE_ToolBox.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="GuiIdentifiers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Common.h">
+    <ClInclude Include="Shipyard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DataManager.h">
-=======
-    <ClInclude Include="StackFunctions.h">
->>>>>>> Added createStack function to recurse through docking ports,
+    <ClInclude Include="VesselSceneNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="VesselStack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{376a3d2f-39c0-4630-913f-5dc612ac4392}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="C++ Files">
+      <UniqueIdentifier>{26cfe5e5-a320-4ad7-8bd7-d20acf5b4aa5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

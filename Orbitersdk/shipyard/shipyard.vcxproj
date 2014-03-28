@@ -86,7 +86,7 @@
     <ClCompile Include="s3tc.cpp" />
     <ClCompile Include="SE_ToolBox.cpp" />
     <ClCompile Include="Shipyard.cpp" />
-    <ClCompile Include="StackFunctions.cpp" />
+    <ClCompile Include="VesselStack.cpp" />
     <ClCompile Include="VesselSceneNode.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -103,7 +103,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="s3tc.h" />
     <ClInclude Include="SE_ToolBox.h" />
-    <ClInclude Include="StackFunctions.h" />
+    <ClInclude Include="VesselStack.h" />
     <ClInclude Include="VesselSceneNode.h" />
     <ClInclude Include="Shipyard.h" />
   </ItemGroup>
