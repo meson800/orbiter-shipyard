@@ -6,6 +6,18 @@ VesselStack::VesselStack(VesselSceneNode* startingVessel)
 	createStackHelper(startingVessel, 0);
 }
 
+int VesselStack::numVessels()
+{
+	return nodes.size();
+}
+
+VesselSceneNode* VesselStack::getVessel(int index)
+{
+	if (index >= nodes.size())
+		return 0;
+	return nodes[index];
+}
+
 void VesselStack::rotateStack(core::vector3df relativeRot)
 {
 	//apply this rotation to each of the parent nodes
