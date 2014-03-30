@@ -251,28 +251,40 @@ bool Shipyard::OnEvent(const SEvent& event)
 		//if we are dragging a node, see if it is a rotation
 		if (selectedVesselStack != 0 && event.KeyInput.PressedDown)
 		{
+			bool didWeRotate = false;
 			switch (event.KeyInput.Key)
 			{
 			case KEY_KEY_A:
 				selectedVesselStack->rotateStack(core::vector3df(0, -90, 0));
+				didWeRotate = true;
 				break;
 			case KEY_KEY_D:
 				selectedVesselStack->rotateStack(core::vector3df(0, 90, 0));
+				didWeRotate = true;
 				break;
 			case KEY_KEY_S:
 				selectedVesselStack->rotateStack(core::vector3df(0, 0, -90));
+				didWeRotate = true;
 				break;
 			case KEY_KEY_W:
 				selectedVesselStack->rotateStack(core::vector3df(0, 0, 90));
+				didWeRotate = true;
 				break;
 			case KEY_KEY_Q:
 				selectedVesselStack->rotateStack(core::vector3df(-90, 0, 0));
+				didWeRotate = true;
 				break;
 			case KEY_KEY_E:
 				selectedVesselStack->rotateStack(core::vector3df(90, 0, 0));
+				didWeRotate = true;
 				break;
 			default:
 				break;
+			}
+			if (didWeRotate)
+			{
+				//reset the move reference, as we screwed up the initial positions
+				selectedVesselStack->setMoveReference(returnMouseRelativePos());
 			}
 		}
 		break;

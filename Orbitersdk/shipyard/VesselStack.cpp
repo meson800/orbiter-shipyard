@@ -117,7 +117,8 @@ void VesselStack::checkForSnapping(std::vector<VesselSceneNode*>& vessels, bool 
 				//and see if it is close to another port's empty docking ports
 				for (unsigned int j = 0; j < vessels.size(); j++)
 				{
-					if (vessels[j] != nodes[nodeNum])
+					//make sure this vessel isn't in our stack
+					if (std::find(nodes.begin(), nodes.end(), vessels[j]) == nodes.end())
 					{
 						//check it's docking ports
 						for (unsigned int k = 0; k < vessels[j]->dockingPorts.size(); k++)
