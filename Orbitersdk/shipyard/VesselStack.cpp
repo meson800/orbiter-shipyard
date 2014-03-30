@@ -27,20 +27,37 @@ VesselSceneNode* VesselStack::getVessel(int index)
 void VesselStack::rotateStack(core::vector3df relativeRot)
 {
 	//apply this rotation to each of the parent nodes
-	core::quaternion x, y, z;
+	core::quaternion x, y, z, finalRot;
 	x.fromAngleAxis(relativeRot.X * core::DEGTORAD, core::vector3df(1, 0, 0));
 	y.fromAngleAxis(relativeRot.Y * core::DEGTORAD, core::vector3df(0, 1, 0));
 	z.fromAngleAxis(relativeRot.Z * core::DEGTORAD, core::vector3df(0, 0, 1));
+	finalRot = x * y * z;
+
 	//now use the force, erm, quaternoins to rotate each node in the stack to avoid gimbal lock
 	for (unsigned int i = 0; i < nodes.size(); i++)
 	{
 		core::quaternion thisNodeRotation = core::quaternion(nodes[i]->getRotation() * core::DEGTORAD);
 		//rotate this sucker
-		thisNodeRotation = thisNodeRotation * x * y * z;
+		thisNodeRotation = thisNodeRotation * finalRot;
 		//set the rotation
 		core::vector3df eulerRotation;
 		thisNodeRotation.toEuler(eulerRotation);
 		nodes[i]->setRotation(eulerRotation * core::RADTODEG);
+	}
+
+	//now that the nodes are rotated into the correct directions, move them so they line up correctly
+	//first, find the center
+	core::aabbox3d<f32> overallBox;
+	for (unsigned int i = 0; i < nodes.size(); i++)
+		overallBox.addInternalBox(nodes[i]->getTransformedBoundingBox());
+	core::vector3df center = overallBox.getCenter();
+	//now, compare each node's position to the center, rotate the relative position by the overall rotation, and translate it
+	for (unsigned int i = 0; i < nodes.size(); i++)
+	{
+		nodes[i]->updateAbsolutePosition();
+		core::vector3df relativePos = nodes[i]->getAbsolutePosition() - center;
+		core::vector3df rotatedPos = finalRot * relativePos;
+		nodes[i]->setPosition(nodes[i]->getPosition() + (rotatedPos - relativePos));
 	}
 }
 
