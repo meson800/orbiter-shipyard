@@ -1,5 +1,7 @@
 #pragma once
 
+#include <mutex>
+
 #include "Common.h"
 #include "OrbiterMesh.h"
 #include "OrbiterDockingPort.h"
@@ -20,14 +22,16 @@ public:
 	DataManager();
 	~DataManager();
 
-	OrbiterMesh* GetGlobalMesh(string meshName, video::IVideoDriver* driver);
-	VesselData* GetGlobalConfig(string configName, video::IVideoDriver* driver);
-	video::ITexture *GetGlobalImg(string imgName, video::IVideoDriver* driver);
+	OrbiterMesh* GetGlobalMesh(std::string meshName, video::IVideoDriver* driver);
+	VesselData* GetGlobalConfig(std::string configName, video::IVideoDriver* driver);
+	video::ITexture *GetGlobalImg(std::string imgName, video::IVideoDriver* driver);
 
 private:
-	VesselData* LoadVesselData(string configFileName, video::IVideoDriver* driver);
+	VesselData* LoadVesselData(std::string configFileName, video::IVideoDriver* driver);
 
-	map<string, OrbiterMesh*> meshMap;		//stores all loaded meshes
-	map<string, VesselData*> cfgMap;		//stores all loaded configs
-	map<string, video::ITexture*> imgMap;	//stores all loaded images
+	std::mutex meshMutex, configMutex, imgMutex;	//stores mutexes for safe multithreading
+
+	std::map<std::string, OrbiterMesh*> meshMap;		//stores all loaded meshes
+	std::map<std::string, VesselData*> cfgMap;		//stores all loaded configs
+	std::map<std::string, video::ITexture*> imgMap;	//stores all loaded images
 };

@@ -28,15 +28,24 @@ DataManager::~DataManager()
 OrbiterMesh* DataManager::GetGlobalMesh(string meshName, video::IVideoDriver* driver)
 //returns pointer to the requsted mesh. Loads mesh if it doesn't exist yet. returns NULL if mesh could not be created
 {
+	//prevent race condition
+	meshMutex.lock();
 	map<string, OrbiterMesh*>::iterator pos = meshMap.find(meshName);
-	if (pos == meshMap.end()) 
+	bool temp = (pos == meshMap.end());	//split this check here so we can unlock the mutex ASAP
+	meshMutex.unlock();
+
+	if (temp) 
 	//meshName not found in the map, load mesh from file
 	{
 		OrbiterMesh *newMesh = new OrbiterMesh;
 		if (newMesh->setupMesh(string(Helpers::workingDirectory + "\\Meshes\\" + meshName + ".msh"), driver))
 		//mesh loaded succesfully, enter in map and return pointer
 		{
+			//lock to prevent race condition
+			meshMutex.lock();
 			meshMap[meshName] = newMesh;
+			meshMutex.unlock();
+
 			return newMesh;
 		}
 		else
@@ -58,15 +67,21 @@ OrbiterMesh* DataManager::GetGlobalMesh(string meshName, video::IVideoDriver* dr
 VesselData* DataManager::GetGlobalConfig(string cfgName, video::IVideoDriver* driver)
 //returns pointer to the requsted VesselData. Loads VesselData if it doesn't exist yet. returns NULL if cfg could not be found
 {
+	configMutex.lock();
 	map<string, VesselData*>::iterator pos = cfgMap.find(cfgName);
-	if (pos == cfgMap.end())
+	bool temp = (pos == cfgMap.end());	//again, put this here so we can unlock ASAP
+	configMutex.unlock();
+
+	if (temp)
 		//cfg not found in the map, load from file
 	{
 		VesselData *newVessel = LoadVesselData(cfgName, driver);
 		if (newVessel != NULL)
 			//cfg loaded succesfully, enter in map and return pointer
 		{
+			configMutex.lock();
 			cfgMap[cfgName] = newVessel;
+			configMutex.unlock();
 		}
 		else
 		{
@@ -85,8 +100,12 @@ VesselData* DataManager::GetGlobalConfig(string cfgName, video::IVideoDriver* dr
 video::ITexture *DataManager::GetGlobalImg(string imgName, video::IVideoDriver* driver)
 //returns pointer to an image, loads it from file if image is requested for the first time
 {
+	imgMutex.lock();
 	map<string, video::ITexture*>::iterator pos = imgMap.find(imgName);
-	if (pos == imgMap.end())
+	bool temp = (pos == imgMap.end());	//put check hear so we can unlock the mutex ASAP
+	imgMutex.unlock();
+
+	if (temp)
 	//image Name not found in the map, load mesh from file
 	{
 	
@@ -97,8 +116,12 @@ video::ITexture *DataManager::GetGlobalImg(string imgName, video::IVideoDriver* 
 		//image loaded succesfully, enter in map and return pointer
 		{
 			video::ITexture *newTex = driver->addTexture("tbxtex", img);
+
+			imgMutex.lock();
 			imgMap[imgName] = newTex;
 			img->drop();
+			imgMutex.unlock();
+
 			return newTex;
 		}
 		else
