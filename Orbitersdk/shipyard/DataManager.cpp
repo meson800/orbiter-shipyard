@@ -130,8 +130,12 @@ ToolboxData* DataManager::GetGlobalToolboxData(std::string configName, video::IV
 		}
 
 		if (toolboxData->toolboxImage != NULL)
-			//data loaded succesfully, enter in map and return pointer
+			//data loaded succesfully, background load data, enter in map and return pointer
 		{
+			std::thread backgroundLoadThread = std::thread(&DataManager::GetGlobalConfig, this, configName, driver);
+			//detach the thread to continue background loading
+			backgroundLoadThread.detach();
+
 			toolboxMutex.lock();
 			toolboxMap[configName] = toolboxData;
 			toolboxMutex.unlock();
