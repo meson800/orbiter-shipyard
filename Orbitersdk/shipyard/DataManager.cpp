@@ -96,6 +96,59 @@ VesselData* DataManager::GetGlobalConfig(string cfgName, video::IVideoDriver* dr
 	}
 }
 
+ToolboxData* DataManager::GetGlobalToolboxData(std::string configName, video::IVideoDriver* driver)
+//returns pointer to requested ToolboxData
+{
+	toolboxMutex.lock();
+	map<string, ToolboxData*>::iterator pos = toolboxMap.find(configName);
+	bool temp = (pos == toolboxMap.end());	//again, put this here so we can unlock ASAP
+	toolboxMutex.unlock();
+
+	if (temp)
+		//data not found in the map, load from file
+	{
+		//create new toolbox data
+		ToolboxData* toolboxData = new ToolboxData;
+		//set the config file path
+		toolboxData->configFileName = configName;
+
+		//get ready to read file
+		vector<string> tokens;
+		string completeCfgPath = Helpers::workingDirectory + "\\config\\vessels\\" + configName;
+		ifstream configFile = ifstream(completeCfgPath.c_str());
+		if (!configFile) return NULL;
+		//now just look for the imagebmp
+
+		while (Helpers::readLine(configFile, tokens))
+		{
+			if (tokens[0].compare("imagebmp") == 0)
+				//check for scened image file
+			{
+				toolboxData->toolboxImage = GetGlobalImg(tokens[1], driver);
+			}
+			tokens.clear();
+		}
+
+		if (toolboxData->toolboxImage != NULL)
+			//data loaded succesfully, enter in map and return pointer
+		{
+			toolboxMutex.lock();
+			toolboxMap[configName] = toolboxData;
+			toolboxMutex.unlock();
+		}
+		else
+		{
+			Helpers::writeToLog(std::string("\n ERROR: could not load cfg while loading toolbox data: " + configName));
+		}
+		return toolboxData;
+	}
+	else
+		//data found in map, return pointer
+	{
+		return pos->second;
+	}
+}
+
 
 video::ITexture *DataManager::GetGlobalImg(string imgName, video::IVideoDriver* driver)
 //returns pointer to an image, loads it from file if image is requested for the first time
