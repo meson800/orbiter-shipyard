@@ -102,6 +102,7 @@ void Shipyard::loop()
 //			device->postEventFromUser(EMIE_MMOUSE_PRESSED_DOWN);
 		}
 
+		Helpers::videoDriverMutex.lock();
 		driver->beginScene(true, true, video::SColor(0, 100, 100, 100));
 
 		smgr->drawAll();
@@ -109,6 +110,7 @@ void Shipyard::loop()
 		guiEnv->drawAll();
 
 		driver->endScene();
+		Helpers::videoDriverMutex.unlock();
 
 		//checking toolboxes for vessels to be created
 		for (UINT i = 0; i < toolboxes.size(); ++i)

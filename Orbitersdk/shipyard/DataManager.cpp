@@ -176,12 +176,16 @@ video::ITexture *DataManager::GetGlobalImg(string imgName, video::IVideoDriver* 
 	{
 	
 		string completeImgPath = Helpers::workingDirectory + "\\" + imgName;
+		Helpers::videoDriverMutex.lock();
 		IImage *img = driver->createImageFromFile(completeImgPath.data());
+		Helpers::videoDriverMutex.unlock();
 		
 		if (img != NULL)
 		//image loaded succesfully, enter in map and return pointer
 		{
+			Helpers::videoDriverMutex.lock();
 			video::ITexture *newTex = driver->addTexture("tbxtex", img);
+			Helpers::videoDriverMutex.unlock();
 
 			imgMutex.lock();
 			imgMap[imgName] = newTex;

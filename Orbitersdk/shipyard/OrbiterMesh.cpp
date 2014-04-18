@@ -26,7 +26,9 @@ bool OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 	//push the default material
 	materials.push_back(video::SMaterial());
 	//push the default texture
+	Helpers::videoDriverMutex.lock();
 	textures.push_back(driver->addTexture(core::dimension2d<u32>(1, 1),"empty_texture"));
+	Helpers::videoDriverMutex.unlock();
 
 	vector<string> tokens;
 	//start reading the meshgroup
