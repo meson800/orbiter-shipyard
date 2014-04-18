@@ -82,6 +82,7 @@ VesselData* DataManager::GetGlobalConfig(string cfgName, video::IVideoDriver* dr
 			configMutex.lock();
 			cfgMap[cfgName] = newVessel;
 			configMutex.unlock();
+			Helpers::writeToLog(std::string("\n Loaded vessel config:" + cfgName));
 		}
 		else
 		{
@@ -121,7 +122,14 @@ ToolboxData* DataManager::GetGlobalToolboxData(std::string configName, video::IV
 
 		while (Helpers::readLine(configFile, tokens))
 		{
-			if (tokens[0].compare("imagebmp") == 0)
+			//check to see if there are any tokens
+			if (tokens.size() == 0)
+				continue;
+
+			//put it in lowercase to start
+			transform(tokens[0].begin(), tokens[0].end(), tokens[0].begin(), ::tolower);
+
+			if (tokens[0].compare("imagebmp") == 0 && tokens.size() >= 2)
 				//check for scened image file
 			{
 				toolboxData->toolboxImage = GetGlobalImg(tokens[1], driver);
@@ -139,6 +147,7 @@ ToolboxData* DataManager::GetGlobalToolboxData(std::string configName, video::IV
 			toolboxMutex.lock();
 			toolboxMap[configName] = toolboxData;
 			toolboxMutex.unlock();
+			Helpers::writeToLog(std::string("\n Loaded toolbox data:" + configName));
 		}
 		else
 		{

@@ -116,9 +116,9 @@ void CGUIToolBox::draw()
 
 	for (UINT i = firstEntry; i < entries.size() && i < lastEntry; i++)
 	{
-		if (entries[i]->vesselImg != NULL)
+		if (entries[i]->toolboxImage != NULL)
 		{
-			driver->draw2DImage(entries[i]->vesselImg, vector2d<s32>(AbsoluteRect.UpperLeftCorner.X + imgDrawPos, AbsoluteRect.UpperLeftCorner.Y + 2));
+			driver->draw2DImage(entries[i]->toolboxImage, vector2d<s32>(AbsoluteRect.UpperLeftCorner.X + imgDrawPos, AbsoluteRect.UpperLeftCorner.Y + 2));
 			imgDrawPos += (imgWidth);
 		}
 	}
@@ -128,7 +128,7 @@ void CGUIToolBox::draw()
 }
 
 
-bool CGUIToolBox::addElement(VesselData *newElement)
+bool CGUIToolBox::addElement(ToolboxData *newElement)
 //adds a ToolBox Entry from the passed VesselData. Returns false if pointer is NULL
 {
 	rightClickedElement = -1;
@@ -147,12 +147,12 @@ bool CGUIToolBox::addElement(VesselData *newElement)
 }
 
 
-VesselData *CGUIToolBox::checkCreateVessel()
+ToolboxData *CGUIToolBox::checkCreateVessel()
 {
 	if (vesselToCreate != NULL)
 	//function automatically resets after it's been checked
 	{
-		VesselData* retVessel = vesselToCreate;
+		ToolboxData* retVessel = vesselToCreate;
 		vesselToCreate = NULL;
 		return retVessel;
 	}
@@ -188,7 +188,7 @@ void CGUIToolBox::saveToolBox(std::string subfolder)
 	ofstream toolboxFile = ofstream(toolboxPath.c_str(), ios::out);
 	for (UINT i = 0; i < entries.size(); ++i)
 	{
-		toolboxFile << entries[i]->className << "\n";
+		toolboxFile << entries[i]->configFileName << "\n";
 	}
 	toolboxFile.close();
 }

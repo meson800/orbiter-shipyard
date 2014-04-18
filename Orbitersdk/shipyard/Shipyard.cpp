@@ -113,13 +113,17 @@ void Shipyard::loop()
 		//checking toolboxes for vessels to be created
 		for (UINT i = 0; i < toolboxes.size(); ++i)
 		{
-			VesselData *createVessel = toolboxes[i]->checkCreateVessel();
-			if (createVessel != NULL)
+			ToolboxData* toolboxData = toolboxes[i]->checkCreateVessel();
+			if (toolboxData != NULL)
 			{
-				vessels.push_back(new VesselSceneNode(createVessel, smgr->getRootSceneNode(), smgr, VESSEL_ID));
-				//if this is the first vessel, center the camera
-				if (vessels.size() == 1)
-					centerCamera();
+				VesselData *createVessel = dataManager.GetGlobalConfig(toolboxData->configFileName, driver);
+				if (createVessel != NULL)
+				{
+					vessels.push_back(new VesselSceneNode(createVessel, smgr->getRootSceneNode(), smgr, VESSEL_ID));
+					//if this is the first vessel, center the camera
+					if (vessels.size() == 1)
+						centerCamera();
+				}
 			}
 
 		}
@@ -176,7 +180,7 @@ bool Shipyard::OnEvent(const SEvent& event)
 			std::string fullfilename = std::string(uniString.begin(), uniString.end());
 			std::string filename = fullfilename.substr(Helpers::workingDirectory.length() + 16);
 			//create a new toolbox entry
-			toolboxes[UINT(toolBoxList->getSelected())]->addElement(dataManager.GetGlobalConfig(filename, device->getVideoDriver()));
+			toolboxes[UINT(toolBoxList->getSelected())]->addElement(dataManager.GetGlobalToolboxData(filename, device->getVideoDriver()));
 			//reopen file dialog to make multiple selections easier
 			guiEnv->addFileOpenDialog(L"Select Config File", true, 0, -1);
 			break;
@@ -400,7 +404,7 @@ bool Shipyard::loadToolBoxes()
 			while (getline(tbxFile, line))
 			//loading the toolbox entries
 			{
-				toolboxes[toolboxes.size() - 1]->addElement(dataManager.GetGlobalConfig(line, device->getVideoDriver()));
+				toolboxes[toolboxes.size() - 1]->addElement(dataManager.GetGlobalToolboxData(line, device->getVideoDriver()));
 			}
 			tbxFile.close();
 		}

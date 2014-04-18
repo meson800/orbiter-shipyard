@@ -28,15 +28,15 @@ public:
 	virtual const irr::c8* getTypeName() const   { return "toolbox"; }
 	virtual bool OnEvent(const SEvent& event);
 
-	virtual bool addElement(VesselData *newElement);				//creates a toolbox entry from a VesselData pointer
+	virtual bool addElement(ToolboxData *newElement);				//creates a toolbox entry from a VesselData pointer
 	void removeCurrentElement();								//removes the element that was right clicked last
 
 	virtual void draw();
-	VesselData *checkCreateVessel();										//if called, returns pointer to vesseldata to be created. NULL if no vessel is scheduled for creation. Returns to NULL after calling.
+	ToolboxData *checkCreateVessel();										//if called, returns pointer to vesseldata to be created. NULL if no vessel is scheduled for creation. Returns to NULL after calling.
 	std::string getName();
 	void saveToolBox(std::string subfolder);
 private:
-	vector<VesselData*> entries;
+	vector<ToolboxData*> entries;
 //	IGUIElement* maneuverGUI;
 
 	gui::IGUIScrollBar* ScrollBar;
@@ -46,7 +46,7 @@ private:
 	int scrollPos;
 
 	UINT GetEntryUnderCursor(int x);										//returns the index of the entry over which the cursor currently hovers
-	VesselData *vesselToCreate;
+	ToolboxData *vesselToCreate;
 	UINT rightClickedElement;												//stores the element that was right clicked last
 	std::string name;
 };
