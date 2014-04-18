@@ -1,6 +1,7 @@
 #include "Helpers.h"
 
 std::string Helpers::workingDirectory = "";
+std::mutex Helpers::videoDriverMutex;
 bool Helpers::readLine(ifstream& file, std::vector<std::string>& tokens, const string &delimiters)
 {
 	std::string line;
@@ -47,10 +48,12 @@ double Helpers::stringToDouble(const string& inputString)
 video::ITexture* Helpers::readDDS(string path, string name, video::IVideoDriver* driver) 
 {
 
+	videoDriverMutex.lock();
 	//get the DDS
 	irrutils::DdsImage ddsImage = irrutils::DdsImage(path.c_str(), driver);
 	video::IImage* image = ddsImage.getImage();
 	video::ITexture* texture = driver->addTexture(name.c_str(), image);
+	videoDriverMutex.unlock();
 	texture->grab();
 	return texture;
 }
@@ -65,10 +68,5 @@ void Helpers::writeToLog(std::string &logMsg, bool close)
 {
 	static ofstream logFile = ofstream("./StackEditor/StackEditor.log", ios::out);
 	logFile << logMsg;
-
-	if (close)
-	{
-		logFile << "end log";
-		logFile.close();
-	}
+	logFile.close();
 }
