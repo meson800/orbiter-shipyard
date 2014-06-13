@@ -10,6 +10,7 @@ class VesselStack
 public:
 	VesselStack(VesselSceneNode* startingVessel);
 	void rotateStack(core::vector3df relativeRot);
+	void rotateStack(core::quaternion relativeRot);
 	void setMoveReference(core::vector3df refPos);
 	void moveStackReferenced(core::vector3df movePos);
 	void moveStackRelative(core::vector3df movePos);

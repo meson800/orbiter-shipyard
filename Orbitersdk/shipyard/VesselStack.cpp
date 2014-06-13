@@ -26,19 +26,17 @@ VesselSceneNode* VesselStack::getVessel(int index)
 
 void VesselStack::rotateStack(core::vector3df relativeRot)
 {
-	//apply this rotation to each of the parent nodes
-	core::quaternion x, y, z, finalRot;
-	x.fromAngleAxis(relativeRot.X * core::DEGTORAD, core::vector3df(1, 0, 0));
-	y.fromAngleAxis(relativeRot.Y * core::DEGTORAD, core::vector3df(0, 1, 0));
-	z.fromAngleAxis(relativeRot.Z * core::DEGTORAD, core::vector3df(0, 0, 1));
-	finalRot = x * y * z;
+	rotateStack(core::quaternion(relativeRot * core::DEGTORAD));
+}
 
-	//now use the force, erm, quaternoins to rotate each node in the stack to avoid gimbal lock
+void VesselStack::rotateStack(core::quaternion relativeRot)
+{
+	//use the force, erm, quaternoins to rotate each node in the stack to avoid gimbal lock
 	for (unsigned int i = 0; i < nodes.size(); i++)
 	{
 		core::quaternion thisNodeRotation = core::quaternion(nodes[i]->getRotation() * core::DEGTORAD);
 		//rotate this sucker
-		thisNodeRotation = thisNodeRotation * finalRot;
+		thisNodeRotation = thisNodeRotation * relativeRot;
 		//set the rotation
 		core::vector3df eulerRotation;
 		thisNodeRotation.toEuler(eulerRotation);
@@ -56,7 +54,7 @@ void VesselStack::rotateStack(core::vector3df relativeRot)
 	{
 		nodes[i]->updateAbsolutePosition();
 		core::vector3df relativePos = nodes[i]->getAbsolutePosition() - center;
-		core::vector3df rotatedPos = finalRot * relativePos;
+		core::vector3df rotatedPos = relativeRot * relativePos;
 		nodes[i]->setPosition(nodes[i]->getPosition() + (rotatedPos - relativePos));
 	}
 }
