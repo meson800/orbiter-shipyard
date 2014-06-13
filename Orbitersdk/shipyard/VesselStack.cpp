@@ -142,13 +142,9 @@ void VesselStack::checkForSnapping(std::vector<VesselSceneNode*>& vessels, bool 
 	}
 }
 
-void snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort)
+void VesselStack::snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort)
 {
 	//First, we need to find the rotation which would allow us to get into position.
-
-	//update both absolute positions
-	ourPort.parent->updateAbsolutePosition();
-	theirPort.parent->updateAbsolutePosition();
 
 	//this is the first rotation
 	core::quaternion initialAlignRotation;
@@ -159,9 +155,28 @@ void snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort)
 	core::vector3df otherPortDirection = theirPort.parent->returnRotatedVector(theirPort.approachDirection);
 	//get our first quaternion
 	initialAlignRotation.rotationFromTo(ourPortDirection, otherPortDirection);
+	
+	if (!(initialAlignRotation.W == 0 || (initialAlignRotation.X == 0 && initialAlignRotation.Y == 0 && initialAlignRotation.Z == 0)))
+		rotateStack(initialAlignRotation);
 
-	//if (!(initialAlignRotation.W == 0 || (initialAlignRotation.X == 0 && initialAlignRotation.Y == 0 && initialAlignRotation.Z == 0)))
-	//	setRotation(getRotation() + rotationInEuler);
+	//Now, rotate to line up reference vectors
+	core::quaternion refDirectionRotation;
+	//find the quaternoin
+	refDirectionRotation.rotationFromTo(ourPort.parent->returnRotatedVector(ourPort.referenceDirection),
+		theirPort.parent->returnRotatedVector(theirPort.referenceDirection));
+
+	if (!(refDirectionRotation.W == 0 || (refDirectionRotation.X == 0 && refDirectionRotation.Y == 0 && refDirectionRotation.Z == 0)))
+		rotateStack(refDirectionRotation);
+
+	//update both absolute positions
+	ourPort.parent->updateAbsolutePosition();
+	theirPort.parent->updateAbsolutePosition();
+
+	//Now, move the stack into position
+	core::vector3df difference = (theirPort.parent->getAbsolutePosition() + theirPort.parent->returnRotatedVector(theirPort.position))
+		- (ourPort.parent->getAbsolutePosition() + ourPort.parent->returnRotatedVector(ourPort.position));
+
+	moveStackRelative(difference);
 
 }
 
