@@ -20,6 +20,7 @@ public:
 private:
 	//recursive helper to init the stack
 	void createStackHelper(VesselSceneNode* startingVessel, OrbiterDockingPort* fromPort);
+	void snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort);
 
 	std::vector<core::vector3df> previousPositions;
 	core::vector3df moveReference;

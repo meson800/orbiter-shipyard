@@ -144,6 +144,29 @@ void VesselStack::checkForSnapping(std::vector<VesselSceneNode*>& vessels, bool 
 	}
 }
 
+void snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort)
+{
+	//First, we need to find the rotation which would allow us to get into position.
+
+	//update both absolute positions
+	ourPort.parent->updateAbsolutePosition();
+	theirPort.parent->updateAbsolutePosition();
+
+	//this is the first rotation
+	core::quaternion initialAlignRotation;
+
+	//get the rotated port direction, times -1 to reverse it so it will match with the other port
+	core::vector3df ourPortDirection = -1 * ourPort.parent->returnRotatedVector(ourPort.approachDirection);
+	//get the other rotated port vector
+	core::vector3df otherPortDirection = theirPort.parent->returnRotatedVector(theirPort.approachDirection);
+	//get our first quaternion
+	initialAlignRotation.rotationFromTo(ourPortDirection, otherPortDirection);
+
+	//if (!(initialAlignRotation.W == 0 || (initialAlignRotation.X == 0 && initialAlignRotation.Y == 0 && initialAlignRotation.Z == 0)))
+	//	setRotation(getRotation() + rotationInEuler);
+
+}
+
 //recursive function to init a vessel stack
 void VesselStack::createStackHelper(VesselSceneNode* startingVessel, OrbiterDockingPort* fromPort)
 {
