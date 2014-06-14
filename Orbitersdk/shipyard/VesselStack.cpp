@@ -123,16 +123,16 @@ void VesselStack::checkForSnapping(std::vector<VesselSceneNode*>& vessels, bool 
 						for (unsigned int k = 0; k < vessels[j]->dockingPorts.size(); k++)
 						{
 							//check if it is not docked, and they are within a certain distance
-							if (!vessels[j]->dockingPorts[k].docked &&
+							if (!(vessels[j]->dockingPorts[k].docked) &&
 								((nodes[nodeNum]->getAbsolutePosition() + nodes[nodeNum]->returnRotatedVector(nodes[nodeNum]->dockingPorts[i].position)) -
 								(vessels[j]->getAbsolutePosition() + vessels[j]->returnRotatedVector(vessels[j]->dockingPorts[k].position))
 								).getLengthSQ() < 16)
 							{
 								//snap it if dock=false, dock if dock=true
 								if (!dock)
-									snap(nodes[nodeNum]->dockingPorts[i], vessels[j]->dockingPorts[k]);
+									snap(nodes[nodeNum]->dockingPorts[i], vessels[j]->dockingPorts[k],false);
 								else
-									nodes[nodeNum]->dock(nodes[nodeNum]->dockingPorts[i], vessels[j]->dockingPorts[k]);
+									snap(nodes[nodeNum]->dockingPorts[i], vessels[j]->dockingPorts[k], true);
 							}
 
 						}
@@ -143,7 +143,7 @@ void VesselStack::checkForSnapping(std::vector<VesselSceneNode*>& vessels, bool 
 	}
 }
 
-void VesselStack::snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort)
+void VesselStack::snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort, bool shouldDock)
 {
 	//First, we need to find the rotation which would allow us to get into position.
 
@@ -156,7 +156,7 @@ void VesselStack::snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPor
 	core::vector3df otherPortDirection = theirPort.parent->returnRotatedVector(theirPort.approachDirection);
 	//get our first quaternion
 	initialAlignRotation.rotationFromTo(ourPortDirection, otherPortDirection);
-	
+
 	if (!(initialAlignRotation.W == 0 || (initialAlignRotation.X == 0 && initialAlignRotation.Y == 0 && initialAlignRotation.Z == 0)))
 		rotateStack(initialAlignRotation);
 
@@ -178,8 +178,18 @@ void VesselStack::snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPor
 		- (ourPort.parent->getAbsolutePosition() + ourPort.parent->returnRotatedVector(ourPort.position));
 
 
-	//THIS MOVES IT RELATIVE TO THE STARTING POSITION!!!
 	moveStackRelative(difference);
+
+	//now, dock if we should
+	if (shouldDock)
+	{
+		//set both docked flags
+		ourPort.docked = true;
+		theirPort.docked = true;
+		//set dockedTo pointers
+		ourPort.dockedTo = &theirPort;
+		theirPort.dockedTo = &ourPort;
+	}
 
 }
 
