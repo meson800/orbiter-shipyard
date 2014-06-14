@@ -69,6 +69,8 @@ int main()
 	
 
 	Shipyard shipyard = Shipyard();
+	//setup the shipyard
+	Helpers::mainShipyard = &shipyard;
 
 	IrrlichtDevice *device = createDevice(video::EDT_DIRECT3D9, windowRes, 32, false, false, false, &shipyard);
 	if (!device)
