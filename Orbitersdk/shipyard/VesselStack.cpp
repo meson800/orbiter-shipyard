@@ -73,10 +73,8 @@ void VesselStack::setMoveReference(core::vector3df refPos)
 
 void VesselStack::moveStackRelative(core::vector3df movePos)
 {
-	//set reference to a null position, and just run the normal referenced move
-	//NOTE: this destroys the reference, don't use this in the middle of using moveStackReferenced
-	setMoveReference(core::vector3df());
-	moveStackReferenced(movePos);
+	//add the move pos to the move reference, then just use normal move stack referenced
+	moveStackReferenced(movePos + currentStackLocation);
 }
 
 void VesselStack::moveStackReferenced(core::vector3df movePos)
@@ -98,6 +96,9 @@ void VesselStack::moveStackReferenced(core::vector3df movePos)
 	{
 		nodes[i]->setPosition(previousPositions[i] + (movePos - moveReference));
 	}
+
+	//set current location, in "move-referenced" local coords
+	currentStackLocation = movePos;
 
 }
 
@@ -129,7 +130,7 @@ void VesselStack::checkForSnapping(std::vector<VesselSceneNode*>& vessels, bool 
 							{
 								//snap it if dock=false, dock if dock=true
 								if (!dock)
-									nodes[nodeNum]->snap(nodes[nodeNum]->dockingPorts[i], vessels[j]->dockingPorts[k]);
+									snap(nodes[nodeNum]->dockingPorts[i], vessels[j]->dockingPorts[k]);
 								else
 									nodes[nodeNum]->dock(nodes[nodeNum]->dockingPorts[i], vessels[j]->dockingPorts[k]);
 							}
@@ -176,6 +177,8 @@ void VesselStack::snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPor
 	core::vector3df difference = (theirPort.parent->getAbsolutePosition() + theirPort.parent->returnRotatedVector(theirPort.position))
 		- (ourPort.parent->getAbsolutePosition() + ourPort.parent->returnRotatedVector(ourPort.position));
 
+
+	//THIS MOVES IT RELATIVE TO THE STARTING POSITION!!!
 	moveStackRelative(difference);
 
 }

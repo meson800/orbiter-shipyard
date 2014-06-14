@@ -24,6 +24,6 @@ private:
 	void snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort);
 
 	std::vector<core::vector3df> previousPositions;
-	core::vector3df moveReference;
+	core::vector3df moveReference, currentStackLocation;
 	std::vector<VesselSceneNode*> nodes;
 };
