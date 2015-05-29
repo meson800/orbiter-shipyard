@@ -9,13 +9,13 @@ DataManager::DataManager()
 
 DataManager::~DataManager()
 {
-	for (map<string, OrbiterMesh*>::iterator pos = meshMap.begin(); pos != meshMap.end(); ++pos)
+	for (std::map<std::string, OrbiterMesh*>::iterator pos = meshMap.begin(); pos != meshMap.end(); ++pos)
 	{
 		delete pos->second;
 	}
 	meshMap.clear();
 
-	for (map<string, VesselData*>::iterator pos = cfgMap.begin(); pos != cfgMap.end(); ++pos)
+	for (std::map<std::string, VesselData*>::iterator pos = cfgMap.begin(); pos != cfgMap.end(); ++pos)
 	{
 		delete pos->second;
 	}

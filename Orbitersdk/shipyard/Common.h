@@ -7,6 +7,8 @@
 #include <map>
 
 using namespace irr;
+using namespace scene;
 using namespace std;
 
 typedef unsigned int UINT;
+

@@ -70,3 +70,22 @@ void Helpers::writeToLog(std::string &logMsg, bool close)
 	logFile << logMsg;
 	logFile.close();
 }
+
+double Helpers::min(double v1, double v2)
+{
+	if (v1 <= v2)
+	{
+		return v1;
+	}
+	return v2;
+}
+
+double Helpers::max(double v1, double v2)
+{
+	if (v1 >= v2)
+	{
+		return v1;
+	}
+	return v2;
+}
+

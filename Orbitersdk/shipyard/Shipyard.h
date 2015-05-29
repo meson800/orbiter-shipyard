@@ -7,7 +7,8 @@
 #include "resource.h"
 #include "VesselSceneNode.h"
 #include "VesselStack.h"
-#include "CSceneNodeAnimatorCameraCustom.h"
+//#include "CSceneNodeAnimatorCameraCustom.h"
+#include "ShipyardCamera.h"
 #include "DataManager.h"
 #include "SE_ToolBox.h"
 
@@ -33,16 +34,18 @@ private:
 	std::string tbxSet;
 	gui::IGUIEnvironment* guiEnv;
 	std::vector<VesselSceneNode*> vessels;
+	std::map<ISceneNode*, VesselSceneNode*> dockportmap;					//maps dockport nodes to vessels for performance when checking for mouse/dockport overlap
 	bool isKeyDown[KEY_KEY_CODES_COUNT];
 	bool isOpenDialogOpen;
 	IrrlichtDevice * device;
-	scene::ICameraSceneNode* camera;
-	VesselStack * selectedVesselStack;
+	//scene::ICameraSceneNode* camera;
+	ShipyardCamera* camera;
+	VesselStack* selectedVesselStack;
 	scene::ISceneCollisionManager* collisionManager;
 	scene::ISceneManager* smgr;
 	DataManager dataManager;
-
-	bool cursorOnGui;				//registers when the cursor is over a GUI element, so events can be passed on
+	void addVessel(VesselData* vesseldata);										//adds a new vessel to the scene
+	bool cursorOnGui;															//registers when the cursor is over a GUI element, so events can be passed on
 	vector<CGUIToolBox*> toolboxes;
 	IGUIListBox *toolBoxList;
 

@@ -26,4 +26,6 @@ public:
 	static void removeExtraSpaces(std::string& str);
 	static void writeToLog(std::string &logMsg, bool close = false);
 	static std::mutex videoDriverMutex;
+	static double min(double v1, double v2);
+	static double max(double v1, double v2);
 };

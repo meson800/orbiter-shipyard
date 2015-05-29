@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="CSceneNodeAnimatorCameraCustom.cpp">
-      <Filter>C++ Files</Filter>
-    </ClCompile>
     <ClCompile Include="DataManager.cpp">
       <Filter>C++ Files</Filter>
     </ClCompile>
@@ -28,6 +25,9 @@
     <ClCompile Include="Shipyard.cpp">
       <Filter>C++ Files</Filter>
     </ClCompile>
+    <ClCompile Include="ShipyardCamera.cpp">
+      <Filter>C++ Files</Filter>
+    </ClCompile>
     <ClCompile Include="VesselSceneNode.cpp">
       <Filter>C++ Files</Filter>
     </ClCompile>
@@ -37,9 +37,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CSceneNodeAnimatorCameraCustom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DataManager.h">
@@ -76,6 +73,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Shipyard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShipyardCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VesselSceneNode.h">
