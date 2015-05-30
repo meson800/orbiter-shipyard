@@ -65,9 +65,14 @@ void Helpers::removeExtraSpaces(std::string& str)
 	str.erase(new_end, str.end());
 }
 
-void Helpers::writeToLog(std::string &logMsg, bool close)
+void Helpers::writeToLog(std::string &logMsg, bool clear)
 {
-	static std::ofstream logFile = std::ofstream("./StackEditor/StackEditor.log", ios::out);
+	std::ios_base::openmode mode = ios::app;
+	if (clear == true)
+	{
+		mode = ios::out;
+	}
+	std::ofstream logFile = std::ofstream("./StackEditor/StackEditor.log", mode);
 	logFile << logMsg;
 	logFile.close();
 }

@@ -20,7 +20,7 @@ int main()
 	std::string cfgPath("./StackEditor/StackEditor.cfg");
 	ifstream configFile = ifstream(cfgPath.c_str());
 
-	Helpers::writeToLog(std::string("Initialising StackEditor..."));
+	Helpers::writeToLog(std::string("Initialising StackEditor..."), true);
 	if (configFile)
 	{
 		vector<std::string> tokens;

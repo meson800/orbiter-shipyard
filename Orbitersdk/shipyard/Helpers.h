@@ -27,6 +27,6 @@ public:
 	static video::ITexture* readDDS(std::string path, std::string name, video::IVideoDriver* driver);
 	static bool BothAreSpaces(char lhs, char rhs) { return (lhs == rhs) && (lhs == ' '); }
 	static void removeExtraSpaces(std::string& str);
-	static void writeToLog(std::string &logMsg, bool close = false);
+	static void writeToLog(std::string &logMsg, bool clear = false);
 	static std::mutex videoDriverMutex;
 };
