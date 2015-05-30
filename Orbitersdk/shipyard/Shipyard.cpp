@@ -320,6 +320,8 @@ bool Shipyard::OnEvent(const SEvent& event)
 		case EMIE_RMOUSE_LEFT_UP:
 			//tell the camera that the rotation has stopped. it'll probably go and throw up now...
 			camera->StopRotation();
+			//set the move reference again so the selected stack doesn't teleport into infinity like before
+			selectedVesselStack->setMoveReference(returnMouseRelativePos());
 			break;
 		case EMIE_RMOUSE_PRESSED_DOWN:
 			//make the camera rotate around the current target
@@ -394,8 +396,8 @@ bool Shipyard::OnEvent(const SEvent& event)
 			break;
 		}
 		case EMIE_MOUSE_MOVED:
-			//see if we have a node
-			if (selectedVesselStack != 0)
+			//see if we have a node AND the camera isn't rotating or translating
+			if (selectedVesselStack != 0 && !camera->IsActionInProgress())
 			{
 				//move the stack
 				selectedVesselStack->moveStackReferenced(returnMouseRelativePos());
