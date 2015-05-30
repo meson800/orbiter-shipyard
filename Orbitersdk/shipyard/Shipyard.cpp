@@ -15,7 +15,7 @@ Shipyard::Shipyard()
 Shipyard::~Shipyard()
 {
 	saveToolBoxes();
-	Helpers::writeToLog(std::string("\n Terminating StackEditor..."), true);
+	Helpers::writeToLog(std::string("\n Terminating StackEditor..."));
 }
 
 void Shipyard::setupDevice(IrrlichtDevice * _device, std::string toolboxSet)

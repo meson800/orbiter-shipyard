@@ -1,8 +1,9 @@
 #include "Helpers.h"
 
 std::string Helpers::workingDirectory = "";
+Shipyard* Helpers::mainShipyard = 0;
 std::mutex Helpers::videoDriverMutex;
-bool Helpers::readLine(ifstream& file, std::vector<std::string>& tokens, const string &delimiters)
+bool Helpers::readLine(ifstream& file, std::vector<std::string>& tokens, const std::string &delimiters)
 {
 	std::string line;
 
@@ -10,17 +11,17 @@ bool Helpers::readLine(ifstream& file, std::vector<std::string>& tokens, const s
 	if (!getline(file, line))
 		return false;
 	//cut everything beyond a ';'
-	if (line.find_first_of(';') != string::npos)
-		line.erase(line.find_first_of(';'), string::npos);
+	if (line.find_first_of(';') != std::string::npos)
+		line.erase(line.find_first_of(';'), std::string::npos);
 	//remove extra spaces
 	removeExtraSpaces(line);
 
 	// Skipping delimiters at the beginning
-	string::size_type lastPos = line.find_first_not_of(delimiters, 0);
+	std::string::size_type lastPos = line.find_first_not_of(delimiters, 0);
 	// Find first "non-delimiter".
-	string::size_type pos = line.find_first_of(delimiters, lastPos);
+	std::string::size_type pos = line.find_first_of(delimiters, lastPos);
 
-	while (pos != string::npos || lastPos != string::npos) 
+	while (pos != std::string::npos || lastPos != std::string::npos)
 	{
 		// Found a token, add it to the vector.
 		tokens.push_back(line.substr(lastPos, pos - lastPos));
@@ -32,20 +33,20 @@ bool Helpers::readLine(ifstream& file, std::vector<std::string>& tokens, const s
 	return true;
 }
 
-int Helpers::stringToInt(const string& inputString)
+int Helpers::stringToInt(const std::string& inputString)
 {
 	int num;
-	istringstream(inputString) >> num;
+	std::istringstream(inputString) >> num;
 	return num;
 }
-double Helpers::stringToDouble(const string& inputString)
+double Helpers::stringToDouble(const std::string& inputString)
 {
 	double num;
-	istringstream(inputString) >> num;
+	std::istringstream(inputString) >> num;
 	return num;
 }
 
-video::ITexture* Helpers::readDDS(string path, string name, video::IVideoDriver* driver) 
+video::ITexture* Helpers::readDDS(std::string path, std::string name, video::IVideoDriver* driver)
 {
 
 	videoDriverMutex.lock();
@@ -64,9 +65,14 @@ void Helpers::removeExtraSpaces(std::string& str)
 	str.erase(new_end, str.end());
 }
 
-void Helpers::writeToLog(std::string &logMsg, bool close)
+void Helpers::writeToLog(std::string &logMsg, bool clear)
 {
-	static ofstream logFile = ofstream("./StackEditor/StackEditor.log", ios::out);
+	std::ios_base::openmode mode = ios::app;
+	if (clear == true)
+	{
+		mode = ios::out;
+	}
+	std::ofstream logFile = std::ofstream("./StackEditor/StackEditor.log", mode);
 	logFile << logMsg;
 	logFile.close();
 }

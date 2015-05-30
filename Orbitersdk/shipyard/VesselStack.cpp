@@ -26,19 +26,17 @@ VesselSceneNode* VesselStack::getVessel(int index)
 
 void VesselStack::rotateStack(core::vector3df relativeRot)
 {
-	//apply this rotation to each of the parent nodes
-	core::quaternion x, y, z, finalRot;
-	x.fromAngleAxis(relativeRot.X * core::DEGTORAD, core::vector3df(1, 0, 0));
-	y.fromAngleAxis(relativeRot.Y * core::DEGTORAD, core::vector3df(0, 1, 0));
-	z.fromAngleAxis(relativeRot.Z * core::DEGTORAD, core::vector3df(0, 0, 1));
-	finalRot = x * y * z;
+	rotateStack(core::quaternion(relativeRot * core::DEGTORAD));
+}
 
-	//now use the force, erm, quaternoins to rotate each node in the stack to avoid gimbal lock
+void VesselStack::rotateStack(core::quaternion relativeRot)
+{
+	//use the force, erm, quaternoins to rotate each node in the stack to avoid gimbal lock
 	for (unsigned int i = 0; i < nodes.size(); i++)
 	{
 		core::quaternion thisNodeRotation = core::quaternion(nodes[i]->getRotation() * core::DEGTORAD);
 		//rotate this sucker
-		thisNodeRotation = thisNodeRotation * finalRot;
+		thisNodeRotation = thisNodeRotation * relativeRot;
 		//set the rotation
 		core::vector3df eulerRotation;
 		thisNodeRotation.toEuler(eulerRotation);
@@ -56,7 +54,7 @@ void VesselStack::rotateStack(core::vector3df relativeRot)
 	{
 		nodes[i]->updateAbsolutePosition();
 		core::vector3df relativePos = nodes[i]->getAbsolutePosition() - center;
-		core::vector3df rotatedPos = finalRot * relativePos;
+		core::vector3df rotatedPos = relativeRot * relativePos;
 		nodes[i]->setPosition(nodes[i]->getPosition() + (rotatedPos - relativePos));
 	}
 }
@@ -75,10 +73,8 @@ void VesselStack::setMoveReference(core::vector3df refPos)
 
 void VesselStack::moveStackRelative(core::vector3df movePos)
 {
-	//set reference to a null position, and just run the normal referenced move
-	//NOTE: this destroys the reference, don't use this in the middle of using moveStackReferenced
-	setMoveReference(core::vector3df());
-	moveStackReferenced(movePos);
+	//add the move pos to the move reference, then just use normal move stack referenced
+	moveStackReferenced(movePos + currentStackLocation);
 }
 
 void VesselStack::moveStackReferenced(core::vector3df movePos)
@@ -100,6 +96,9 @@ void VesselStack::moveStackReferenced(core::vector3df movePos)
 	{
 		nodes[i]->setPosition(previousPositions[i] + (movePos - moveReference));
 	}
+
+	//set current location, in "move-referenced" local coords
+	currentStackLocation = movePos;
 
 }
 
@@ -124,7 +123,7 @@ void VesselStack::checkForSnapping(VesselSceneNode* vessel, ISceneNode* dockport
 						for (unsigned int k = 0; k < vessels[j]->dockingPorts.size(); k++)
 						{
 							//check if it is not docked, and they are within a certain distance
-							if (!vessels[j]->dockingPorts[k].docked &&
+							if (!(vessels[j]->dockingPorts[k].docked) &&
 								((nodes[nodeNum]->getAbsolutePosition() + nodes[nodeNum]->returnRotatedVector(nodes[nodeNum]->dockingPorts[i].position)) -
 								(vessels[j]->getAbsolutePosition() + vessels[j]->returnRotatedVector(vessels[j]->dockingPorts[k].position))
 								).getLengthSQ() < 16)
@@ -132,9 +131,8 @@ void VesselStack::checkForSnapping(VesselSceneNode* vessel, ISceneNode* dockport
 								//snap it if dock=false, dock if dock=true
 								if (!dock)
 									snapStack(nodeNum, i, vessels[j]->dockingPorts[k]);
-									//nodes[nodeNum]->snap(nodes[nodeNum]->dockingPorts[i], vessels[j]->dockingPorts[k]);
 								else
-									nodes[nodeNum]->dock(nodes[nodeNum]->dockingPorts[i], vessels[j]->dockingPorts[k]);
+									snap(nodes[nodeNum]->dockingPorts[i], vessels[j]->dockingPorts[k], true);
 							}
 
 						}
@@ -235,7 +233,6 @@ void VesselStack::snapStack(int srcvesselidx, int srcdockportidx, OrbiterDocking
 		snapped_in_last_pass = snapped_in_this_pass;
 	}
 }
-
 
 //recursive function to init a vessel stack
 void VesselStack::createStackHelper(VesselSceneNode* startingVessel, OrbiterDockingPort* fromPort)

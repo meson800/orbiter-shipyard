@@ -20,7 +20,7 @@ int main()
 	std::string cfgPath("./StackEditor/StackEditor.cfg");
 	ifstream configFile = ifstream(cfgPath.c_str());
 
-	Helpers::writeToLog(std::string("Initialising StackEditor..."));
+	Helpers::writeToLog(std::string("Initialising StackEditor..."), true);
 	if (configFile)
 	{
 		vector<std::string> tokens;
@@ -69,6 +69,8 @@ int main()
 	
 
 	Shipyard shipyard = Shipyard();
+	//setup the shipyard
+	Helpers::mainShipyard = &shipyard;
 
 	IrrlichtDevice *device = createDevice(video::EDT_DIRECT3D9, windowRes, 32, false, false, false, &shipyard);
 	if (!device)

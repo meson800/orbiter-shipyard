@@ -10,6 +10,7 @@ class VesselStack
 public:
 	VesselStack(VesselSceneNode* startingVessel);
 	void rotateStack(core::vector3df relativeRot);
+	void rotateStack(core::quaternion relativeRot);
 	void setMoveReference(core::vector3df refPos);
 	void moveStackReferenced(core::vector3df movePos);
 	void moveStackRelative(core::vector3df movePos);
@@ -23,7 +24,7 @@ private:
 	void createStackHelper(VesselSceneNode* startingVessel, OrbiterDockingPort* fromPort);
 	void snapStack(int srcvesselidx, int srcdockportidx, OrbiterDockingPort& tgtport);
 	std::vector<core::vector3df> previousPositions;
-	core::vector3df moveReference;
+	core::vector3df moveReference, currentStackLocation;
 	std::vector<VesselSceneNode*> nodes;
 	std::vector<ISceneNode*> dockportnodes;
 };
