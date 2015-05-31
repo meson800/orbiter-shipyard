@@ -170,12 +170,15 @@ void VesselStack::checkForSnapping(VesselSceneNode* vessel, ISceneNode* dockport
 			if (!v->dockingPorts[j].docked)
 			{
 				//get the distance between the ports
-				float dist = dockportnode->getAbsolutePosition().getDistanceFrom(v->dockingPorts[j].helperNode->getAbsolutePosition());
-				if (dist <= closestdist)
+				v->dockingPorts[j].portNode->updateAbsolutePosition();
+
+				float dist = dockportnode->getAbsolutePosition().getDistanceFrom(v->dockingPorts[j].portNode->getAbsolutePosition());
+				if (dist < closestdist)
 					//this one's closer, mark it as the closest so far
 				{
-					closestvessel = i;
+ 					closestvessel = i;
 					closestport = j;
+					closestdist = dist;
 				}
 			}
 		}

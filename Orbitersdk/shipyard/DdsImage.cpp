@@ -39,8 +39,8 @@ bool DdsImage::decodePixels( IImage *destination )
 {
     uint8_t *dest = ( uint8_t * ) destination->lock();
     uint8_t *src = ( uint8_t * ) m_RawBytes + 128;
-
-    if( m_DdsHeader->PF.FourCC == DDS_FOURCC_DXT1 )
+	ff_d
+	if (m_DdsHeader->PF.FourCC == DDS_FOURCC_DXT1)
         ff_decode_dxt1( src, dest, m_DdsHeader->Width, m_DdsHeader->Height, m_DdsHeader->Width * 4 );
     else if( m_DdsHeader->PF.FourCC == DDS_FOURCC_DXT3 )
         ff_decode_dxt3( src, dest, m_DdsHeader->Width, m_DdsHeader->Height, m_DdsHeader->Width * 4 );

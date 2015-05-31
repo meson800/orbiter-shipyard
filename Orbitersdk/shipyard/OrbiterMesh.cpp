@@ -15,8 +15,8 @@ bool OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 
 	int groupCounter = 0;
 	bool noNormal = false;
-	int materialCounter = 0;
-	int textureCounter = 0;
+	int materialCounter = 1;			//a default material will be added in any case right below
+	int textureCounter = 0;				//a default texture will be added in any case right below
 	int meshGroupCounter = 0;
 	int vertexCounter = 0;
 	int triangleCounter = 0;
@@ -105,7 +105,7 @@ bool OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 				//now see if there are texture coords
 				if (tokens.size() < 7)
 				{
-					//inset empty texture coords
+					//insert empty texture coords
 					for (int i = 0; i < 2; i++)
 						tokens.push_back("0");
 				}
@@ -212,7 +212,7 @@ bool OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 					stage++;
 				break;
 			}
-
+			break;
 		case 2:
 			//now we are loading textures
 			if (strcmp(tokens[0].c_str(), "TEXTURES") == 0)
