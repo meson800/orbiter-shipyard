@@ -50,6 +50,18 @@
                       (uint64_t)((const uint8_t*)(x))[0])
 #endif
 
+
+/* Added by Benedict Häfeli, 2015
+ * read uncompressed .dds files
+ * @param *src source buffer, has to be aligned on a 4-byte boundary
+ * @param *dst destination buffer
+ * @param w width of output image
+ * @param h height of output image
+ */
+
+void ff_read_uncompressed(const uint8_t *src, uint8_t *dst,
+	const unsigned int w, const unsigned int h);
+
 /**
  * Decode DXT1 encoded data to RGB32
  * @param *src source buffer, has to be aligned on a 4-byte boundary

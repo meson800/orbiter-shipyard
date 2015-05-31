@@ -188,9 +188,13 @@ core::vector3df VesselSceneNode::returnRotatedVector(const core::vector3df& vec)
 void VesselSceneNode::snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort)
 {
 
-	
+	//experimental rotation code. it works, except when it doesn't
+	//in explicit, the vessel does not seem to rotate correctly if it is already aligned with the target docking port, but in reverse. It will then also snap in reverse.
+	//I'm not sure if there's a gimbal lock problem going on here or what...
+
 	ISceneNode* ourNode = ourPort.portNode;
 	ISceneNode* theirNode = theirPort.portNode;
+
 	theirNode->updateAbsolutePosition();
 	ourNode->updateAbsolutePosition();
 
@@ -207,18 +211,21 @@ void VesselSceneNode::snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& thei
 	//rotate their vectors to get absolute facing of theirPort
 	theirMatrix.rotateVect(theirDir);
 	theirMatrix.rotateVect(theirRot);
-	
 
-
-	//build rotation matrix to rotate from our port to theirs
+	//build rotation matrix to rotate from the ORIGIN of our port to their ports current alignement
 	core::matrix4 ourPortToTheirPort;
-
 	ourPortToTheirPort.buildCameraLookAtMatrixLH(core::vector3df(0,0,0), theirDir, theirRot).makeInverse();
 
-	//missing rotation from our node to our port. current results consistent but not yet as intended
+	//get the inverse of our ports rotation relative to the vessel
+	core::matrix4 ourVesselToOurPort = ourNode->getRelativeTransformation();
+	ourVesselToOurPort.makeInverse();
+	//get the total rotation from our scenenode to their port
+	core::matrix4 ourVesselToTheirPort = ourPortToTheirPort * ourVesselToOurPort;
 
 	//apply the whole brouhaha
-	setRotation(ourPortToTheirPort.getRotationDegrees());
+	setRotation(ourVesselToTheirPort.getRotationDegrees());
+
+
 
 /*	//ok, this gets complicated
 	//update our absolute position

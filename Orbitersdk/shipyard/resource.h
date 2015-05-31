@@ -5,7 +5,7 @@ enum
 {
 	VESSEL_ID = 1 << 0,
 	DOCKPORT_ID = 1 << 1,
-	HELPER_ID = 2 << 1
+	HELPER_ID = 1 << 2
 };
 
 /*enum NodeId

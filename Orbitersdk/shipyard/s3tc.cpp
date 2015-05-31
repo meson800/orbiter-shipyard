@@ -70,6 +70,22 @@ static inline void dxt1_decode_pixels(const uint8_t *s, uint32_t *d,
     }
 }
 
+
+void ff_read_uncompressed(const uint8_t *src, uint8_t *dst,
+	const unsigned int w, const unsigned int h) 
+{
+	uint32_t *d = (uint32_t *)dst;
+	uint32_t *s = (uint32_t *)src;
+
+	for (unsigned int by = 0; by < h; by++)
+	{
+		for (unsigned int bx = 0; bx < w; bx++, s++, d++)
+		{
+			*d = *s;
+		}
+	}
+}
+
 void ff_decode_dxt1(const uint8_t *s, uint8_t *dst,
                     const unsigned int w, const unsigned int h,
                     const unsigned int stride) {
