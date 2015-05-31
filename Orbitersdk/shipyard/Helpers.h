@@ -8,6 +8,7 @@
 #include <mutex>
 #include <algorithm>
 #include <irrlicht.h>
+#include <sstream>
 
 #include "DdsImage.h"
 
@@ -28,6 +29,7 @@ public:
 	static bool BothAreSpaces(char lhs, char rhs) { return (lhs == rhs) && (lhs == ' '); }
 	static void removeExtraSpaces(std::string& str);
 	static void writeToLog(std::string &logMsg, bool clear = false);
+	static void writeVectorToLog(const std::string& vectorName, irr::core::vector3df vec);
 	static std::mutex videoDriverMutex;
 	static double min(double v1, double v2);
 	static double max(double v1, double v2);

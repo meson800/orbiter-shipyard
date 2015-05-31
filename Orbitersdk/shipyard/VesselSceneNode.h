@@ -22,6 +22,7 @@ public:
 	VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id);
 	virtual void OnRegisterSceneNode();
 	virtual void render();
+	virtual void drawDockingPortLines(video::IVideoDriver* driver);
 	virtual const core::aabbox3d<f32>& getBoundingBox() const;
 	virtual u32 getMaterialCount();
 	virtual video::SMaterial& getMaterial(u32 i);

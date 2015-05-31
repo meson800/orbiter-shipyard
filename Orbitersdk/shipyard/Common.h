@@ -1,3 +1,6 @@
+#ifndef SHIPYARD_COMMON
+#define SHIPYARD_COMMON
+
 #include <irrlicht.h>
 #include <vector>
 #include <string>
@@ -12,3 +15,10 @@ using namespace std;
 
 typedef unsigned int UINT;
 
+#ifdef _DEBUG
+#define DEBUG 1
+#else
+#define DEBUG 0
+#endif
+
+#endif
