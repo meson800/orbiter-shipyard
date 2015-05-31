@@ -117,6 +117,23 @@ void VesselSceneNode::render()
 			vesselMesh->meshGroups[i].vertices.size(), vesselMesh->meshGroups[i].triangleList.data(),
 			vesselMesh->meshGroups[i].triangleList.size() / 3, video::EVT_STANDARD, scene::EPT_TRIANGLES,
 			video::EIT_32BIT);
+		if (DEBUG)
+		{
+			drawDockingPortLines(driver);
+		}
+	}
+}
+
+void VesselSceneNode::drawDockingPortLines(video::IVideoDriver* driver)
+{
+	for (unsigned int i = 0; i < dockingPorts.size(); i++)
+	{
+		core::vector3df position = dockingPorts[i].position;
+		//draw ddocking direction
+		driver->setMaterial(video::SMaterial());
+		driver->draw3DLine(position, (5 * dockingPorts[i].approachDirection) + position, video::SColor(255, 255, 0, 0));
+		//and draw up vector (up vector is smaller)
+		driver->draw3DLine(dockingPorts[i].position, (3 * dockingPorts[i].referenceDirection) + position, video::SColor(255, 0, 255, 0));
 	}
 }
 
