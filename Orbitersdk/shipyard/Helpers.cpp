@@ -77,6 +77,13 @@ void Helpers::writeToLog(std::string &logMsg, bool clear)
 	logFile.close();
 }
 
+void Helpers::writeVectorToLog(const std::string& vecName, irr::core::vector3df vec)
+{
+	std::ofstream logFile = std::ofstream("./StackEditor/StackEditor.log", ios::app);
+	logFile << vecName << "-X: " << vec.X << " Y: " << vec.Y << " Z: " << vec.Z << "\n";
+	logFile.close();
+}
+
 double Helpers::min(double v1, double v2)
 {
 	if (v1 <= v2)
