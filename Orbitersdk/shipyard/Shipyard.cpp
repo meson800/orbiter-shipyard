@@ -321,7 +321,8 @@ bool Shipyard::OnEvent(const SEvent& event)
 			//tell the camera that the rotation has stopped. it'll probably go and throw up now...
 			camera->StopRotation();
 			//set the move reference again so the selected stack doesn't teleport into infinity like before
-			selectedVesselStack->setMoveReference(returnMouseRelativePos());
+			if (selectedVesselStack != 0)
+				selectedVesselStack->setMoveReference(returnMouseRelativePos());
 			break;
 		case EMIE_RMOUSE_PRESSED_DOWN:
 			//make the camera rotate around the current target
