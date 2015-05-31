@@ -69,30 +69,19 @@ void VesselSceneNode::setupDockingPortNodes()
 		dockingPorts[i].portNode = smgr->addSphereSceneNode((f32)1.4, 16, this, DOCKPORT_ID, dockingPorts[i].position);
 		dockingPorts[i].portNode->getMaterial(0).AmbientColor.set(255, 255, 255, 0);
 		dockingPorts[i].portNode->getMaterial(0).EmissiveColor.set(150, 150, 150, 150);
-		//debug
-		if (i == 1)
-		{
-			dockingPorts[i].portNode->getMaterial(0).EmissiveColor.set(150, 255, 0, 0);
-		}
-
 		dockingPorts[i].portNode->setVisible(false);
 
 		//rotate portNode so it has the actual orientation of the dockport (direction and up)
 		core::matrix4 matrix;
 		//it's not a camera, but basically the same thing... except in reverse.
-/*		matrix.buildCameraLookAtMatrixLH(core::vector3df(0, 0, 0), dockingPorts[i].approachDirection, dockingPorts[i].referenceDirection).makeInverse();
-		dockingPorts[i].portNode->setRotation(matrix.getRotationDegrees());*/
+		matrix.buildCameraLookAtMatrixLH(core::vector3df(0, 0, 0), dockingPorts[i].approachDirection, dockingPorts[i].referenceDirection).makeInverse();
+		dockingPorts[i].portNode->setRotation(matrix.getRotationDegrees());
 
 		//the helper node is used to avoid collision conflicts when checking for visual overlap between the mousecursor and docking nodes
 		//in short, the currently selected stack turns on the helper nodes to avoid stealing the overlap event from other vessels
 		dockingPorts[i].helperNode = smgr->addSphereSceneNode((f32)1.4, 16, this, HELPER_ID, dockingPorts[i].position);
 		dockingPorts[i].helperNode->getMaterial(0).AmbientColor.set(255, 255, 255, 0);
 		dockingPorts[i].helperNode->getMaterial(0).EmissiveColor.set(150, 150, 150, 150);
-		//debug
-		if (i == 1)
-		{
-			dockingPorts[i].helperNode->getMaterial(0).EmissiveColor.set(150, 255, 0, 0);
-		}
 		dockingPorts[i].helperNode->setVisible(false);
 	}
 
@@ -199,59 +188,48 @@ core::vector3df VesselSceneNode::returnRotatedVector(const core::vector3df& vec)
 
 void VesselSceneNode::snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort)
 {
-	//The overall rotation matrix depends on two things
-	//Rotating our node so the docking port matches Irrlicht's "standard" coordinates
-	//and then using another lookat matrix to rotate it towards the other docking port.
 
-	//To do the first step, aligning our docking port with standard coordinates, we use
-	//the inverse of the look-at matrix to our docking ports local coords
+	ISceneNode* ourNode = ourPort.portNode;
+	ISceneNode* theirNode = theirPort.portNode;
 
-	//To do the second step, generate a look-at matrix to the other port's global coordinates
-	//Then just multiply!
-	//Final Matrix = (otherLookAt) * (ourLookAt)^-1
-
-	//We need to get the global vectors of both for the other look at
-	//the target docking port approach vector and the up vector
-
-	//Start by getting the other port's local->global coordinate matrix
-	ISceneNode* theirNode = theirPort.parent;
 	theirNode->updateAbsolutePosition();
-	core::matrix4 theirLocalToGlobalMat = theirNode->getAbsoluteTransformation();
+	ourNode->updateAbsolutePosition();
 
-	//Transform target docking port vectors from local to global coordinates
-	core::vector3df targetInverseDir = -1 * theirPort.approachDirection;
-	theirLocalToGlobalMat.rotateVect(targetInverseDir);
-	core::vector3df targetUpDir = theirPort.referenceDirection;
-	theirLocalToGlobalMat.rotateVect(targetUpDir);
+	//absolute rotation of the target port
+	core::matrix4 theirMatrix = theirNode->getAbsoluteTransformation();
 
-	//debug out snap vectors
-	//Helpers::writeVectorToLog("Global Inverse Direction", targetInverseDir);
-	//Helpers::writeVectorToLog("Global Target Up", targetUpDir);
+	//Origin up and facing (inversed) of the target port
+	core::vector3df theirDir = core::vector3df(0, 0, -1);
+	core::vector3df theirRot = core::vector3df(0, 1, 0);
 
-	//Create the rotation matrix to have our port "look at" 
-	core::matrix4 otherLookat;
-	otherLookat.buildCameraLookAtMatrixLH(core::vector3df(0, 0, 0), targetInverseDir, targetUpDir);
+	//get absolute inversed facing and up direction of the target port
+	theirMatrix.rotateVect(theirDir);
+	theirMatrix.rotateVect(theirRot);
+	theirDir.normalize();
+	theirRot.normalize();
 
+	//build rotation matrix to rotate from the ORIGIN of the source port to their ports current alignement
+	core::matrix4 ourPortToTheirPort;
+	ourPortToTheirPort.buildCameraLookAtMatrixLH(core::vector3df(0, 0, 0), theirDir, theirRot).makeInverse();
 
+	//get source port rotation relative to its vessel
+	core::matrix4 ourVesselToOurPort = ourNode->getRelativeTransformation();
 
-	//Calculate our look at matrix
-	core::matrix4 ourLookat;
-	ourLookat.buildCameraLookAtMatrixLH(core::vector3df(0, 0, 0), ourPort.approachDirection, ourPort.referenceDirection);
-	core::matrix4 ourInverseLookat;
-	ourLookat.getInverse(ourInverseLookat);
+	//multiply the rotation from our vessel origin to our port and from our port origin to the target to get the total transformation for the vessel
+	core::matrix4 ourVesselToTheirPort = ourPortToTheirPort * ourVesselToOurPort;
 
-	//Final Matrix = (otherLookAt) * (ourLookAt)^-1
-	core::matrix4 rotationMatrix = otherLookat * ourInverseLookat;
+	//apply the whole brouhaha
+	setRotation(ourVesselToTheirPort.getRotationDegrees());
 
-	setRotation(rotationMatrix.getRotationDegrees());
+	//we MUST update positions for getAbsolutePosition to reflect the rotation we just did.
+	//also, we MUST update the position of the parent before the child, or the child still won't reflect the changes
+	//we also MUST update the child seperately, it doesn't get updated by the parent
+	updateAbsolutePosition();
+	ourNode->updateAbsolutePosition();
 
-	//update port node locations
-	ourPort.portNode->updateAbsolutePosition();
-	theirPort.portNode->updateAbsolutePosition();
-
-	//place the module so the docking ports touch
-	core::vector3df pos = ourPort.portNode->getAbsolutePosition() - getAbsolutePosition();
-	setPosition(theirPort.portNode->getAbsolutePosition() - pos);
+	//position the vessel so the docking ports touch
+	core::vector3df pos = ourNode->getAbsolutePosition() - getAbsolutePosition();
+	setPosition(theirNode->getAbsolutePosition() - pos);
 }
 
 void VesselSceneNode::dock(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort)
