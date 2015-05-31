@@ -80,8 +80,8 @@ void VesselSceneNode::setupDockingPortNodes()
 		//rotate portNode so it has the actual orientation of the dockport (direction and up)
 		core::matrix4 matrix;
 		//it's not a camera, but basically the same thing... except in reverse.
-		matrix.buildCameraLookAtMatrixLH(core::vector3df(0, 0, 0), dockingPorts[i].approachDirection, dockingPorts[i].referenceDirection).makeInverse();
-		dockingPorts[i].portNode->setRotation(matrix.getRotationDegrees());
+/*		matrix.buildCameraLookAtMatrixLH(core::vector3df(0, 0, 0), dockingPorts[i].approachDirection, dockingPorts[i].referenceDirection).makeInverse();
+		dockingPorts[i].portNode->setRotation(matrix.getRotationDegrees());*/
 
 		//the helper node is used to avoid collision conflicts when checking for visual overlap between the mousecursor and docking nodes
 		//in short, the currently selected stack turns on the helper nodes to avoid stealing the overlap event from other vessels

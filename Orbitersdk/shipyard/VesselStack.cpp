@@ -176,7 +176,7 @@ void VesselStack::checkForSnapping(VesselSceneNode* vessel, ISceneNode* dockport
 				if (dist < closestdist)
 					//this one's closer, mark it as the closest so far
 				{
-
+					closestvessel = i;
 					closestport = j;
 					closestdist = dist;
 				}
