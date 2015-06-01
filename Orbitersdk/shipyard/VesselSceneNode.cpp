@@ -77,6 +77,13 @@ void VesselSceneNode::setupDockingPortNodes()
 		matrix.buildCameraLookAtMatrixLH(core::vector3df(0, 0, 0), dockingPorts[i].approachDirection, dockingPorts[i].referenceDirection).makeInverse();
 		dockingPorts[i].portNode->setRotation(matrix.getRotationDegrees());
 
+		//debug
+		core::vector3df bugmedir = core::vector3df(0, 0, 1);
+		core::vector3df bugmerot = core::vector3df(0, 1, 0);
+		matrix.rotateVect(bugmedir);
+		matrix.rotateVect(bugmerot);
+		//\debug
+
 		//the helper node is used to avoid collision conflicts when checking for visual overlap between the mousecursor and docking nodes
 		//in short, the currently selected stack turns on the helper nodes to avoid stealing the overlap event from other vessels
 		dockingPorts[i].helperNode = smgr->addSphereSceneNode((f32)1.4, 16, this, HELPER_ID, dockingPorts[i].position);
@@ -212,8 +219,9 @@ void VesselSceneNode::snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& thei
 	core::matrix4 ourPortToTheirPort;
 	ourPortToTheirPort.buildCameraLookAtMatrixLH(core::vector3df(0, 0, 0), theirDir, theirRot).makeInverse();
 
-	//get source port rotation relative to its vessel
+	//get inverted source port rotation relative to its vessel
 	core::matrix4 ourVesselToOurPort = ourNode->getRelativeTransformation();
+	ourVesselToOurPort.makeInverse();
 
 	//multiply the rotation from our vessel origin to our port and from our port origin to the target to get the total transformation for the vessel
 	core::matrix4 ourVesselToTheirPort = ourPortToTheirPort * ourVesselToOurPort;
