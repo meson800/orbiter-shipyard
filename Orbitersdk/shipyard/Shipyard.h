@@ -11,6 +11,8 @@
 #include "ShipyardCamera.h"
 #include "DataManager.h"
 #include "SE_ToolBox.h"
+#include "SE_PhotoStudio.h"
+
 
 #define cameraRotateSpeed = .1;
 
@@ -53,4 +55,5 @@ private:
 	void saveToolBoxes();
 
 	void switchToolBox();
+	SE_PhotoStudio *photostudio;
 };

@@ -1,6 +1,7 @@
 #include "GuiIdentifiers.h"
 #include "SE_ToolBox.h"
 
+
 CGUIToolBox::CGUIToolBox(std::string _name, core::rect<s32> rectangle, irr::gui::IGUIEnvironment* environment, irr::gui::IGUIElement* parent)
 : IGUIElement((irr::gui::EGUI_ELEMENT_TYPE)MGUIET_TOOLBOX, environment, parent, -1, rectangle)
 {
@@ -200,3 +201,4 @@ UINT CGUIToolBox::GetEntryUnderCursor(int x)
 	int effectiveCursorPos = scrollPos + x;		//position of the cursor on the toolbox overall (not just visible part)
 	return effectiveCursorPos / imgWidth;		//calculating index of entry at this position
 }
+

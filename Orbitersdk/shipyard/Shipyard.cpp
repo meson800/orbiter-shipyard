@@ -2,6 +2,7 @@
 #include "GuiIdentifiers.h"
 #include "windows.h"
 
+
 Shipyard::Shipyard()
 {
 	for (u32 i = 0; i<KEY_KEY_CODES_COUNT; ++i)
@@ -25,6 +26,9 @@ void Shipyard::setupDevice(IrrlichtDevice * _device, std::string toolboxSet)
 	collisionManager = smgr->getSceneCollisionManager();
 	guiEnv = device->getGUIEnvironment();
 	tbxSet = toolboxSet;
+
+	//debug: initialising photostudio
+	photostudio = new SE_PhotoStudio(device);
 
 	//initialising GUI skin to something nicer and loading a bigger font.
 	//well, loading the font, anyways. They messed around with the color identifiers since the last irrlicht version, it'll take a while to set the skin up properly :/
@@ -139,6 +143,9 @@ void Shipyard::loop()
 
 void Shipyard::addVessel(VesselData* vesseldata)
 {
+	//photostudio debug
+	photostudio->makePicture(vesseldata);
+
 	//add the vessel
 	VesselSceneNode* newvessel = new VesselSceneNode(vesseldata, smgr->getRootSceneNode(), smgr, VESSEL_ID);
 	vessels.push_back(newvessel);

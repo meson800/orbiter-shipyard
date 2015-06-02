@@ -16,7 +16,7 @@ bool OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 	int groupCounter = 0;
 	bool noNormal = false;
 	int materialCounter = 1;			//a default material will be added in any case right below
-	int textureCounter = 0;				//a default texture will be added in any case right below
+	int textureCounter = 0;				
 	int meshGroupCounter = 0;
 	int vertexCounter = 0;
 	int triangleCounter = 0;
@@ -115,7 +115,6 @@ bool OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 					Helpers::stringToDouble(tokens[2]), Helpers::stringToDouble(tokens[3]),
 					Helpers::stringToDouble(tokens[4]), Helpers::stringToDouble(tokens[5]),
 					video::SColor(255,255,255,255), Helpers::stringToDouble(tokens[6]), Helpers::stringToDouble(tokens[7])));
-				
 				vertexCounter--;
 				break;
 			}
@@ -272,3 +271,6 @@ void OrbiterMesh::setupNormals(int meshGroup)
 	for (int i = 0; i < meshGroups[meshGroup].vertices.size(); i++)
 		meshGroups[meshGroup].vertices[i].Normal = meshGroups[meshGroup].vertices[i].Normal.normalize();
 }
+
+
+
