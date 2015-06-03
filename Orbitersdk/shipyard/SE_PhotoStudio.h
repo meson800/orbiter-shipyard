@@ -1,5 +1,6 @@
 #pragma once
-using namespace irr::core;
+#include "Common.h"
+#include "DataManager.h"
 
 //class used to create images of meshes
 class SE_PhotoStudio
@@ -8,18 +9,19 @@ public:
 	SE_PhotoStudio(IrrlichtDevice *device);
 	~SE_PhotoStudio();
 
-	void makePicture(VesselData *vesseldata, bool scene_prepared = false);
+	ITexture *makePicture(VesselData *vesseldata, std::string imagename, bool scene_prepared = false);
 
 private:
 	ISceneManager *smgr;
 	IVideoDriver *driver;
+	gui::IGUIEnvironment *gui;
 	ICameraSceneNode *studioCam;
-	vector3df camRotation;
+	core::vector3df camRotation;
 	float camFOV;
 	video::ITexture *canvas;
 	int imgSize;
 
 	void setupStudioCam(VesselSceneNode *model);
-	void dumpCanvasToDisk(std::string filename);
+	ITexture *dumpCanvasToDisk(std::string filename);
 };
 

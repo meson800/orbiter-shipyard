@@ -55,5 +55,4 @@ private:
 	void saveToolBoxes();
 
 	void switchToolBox();
-	SE_PhotoStudio *photostudio;
 };

@@ -1,3 +1,4 @@
+#include "SE_PhotoStudio.h"
 #include "DataManager.h"
 
 
@@ -22,8 +23,14 @@ DataManager::~DataManager()
 	cfgMap.clear();
 
 	imgMap.clear();			//Irrlicht will drop the textures itself
+	delete photostudio;
 }
 
+void DataManager::Initialise(IrrlichtDevice *device)
+{
+	//set up the photostudio for when we have to take pictures of meshes
+	photostudio = new SE_PhotoStudio(device);
+}
 
 OrbiterMesh* DataManager::GetGlobalMesh(string meshName, video::IVideoDriver* driver)
 //returns pointer to the requsted mesh. Loads mesh if it doesn't exist yet. returns NULL if mesh could not be created
@@ -118,7 +125,7 @@ ToolboxData* DataManager::GetGlobalToolboxData(std::string configName, video::IV
 		string completeCfgPath = Helpers::workingDirectory + "\\config\\vessels\\" + configName;
 		ifstream configFile = ifstream(completeCfgPath.c_str());
 		if (!configFile) return NULL;
-		//now just look for the imagebmp
+		//now look for the image. it's name will be derived from the meshname
 
 		while (Helpers::readLine(configFile, tokens))
 		{
@@ -129,10 +136,11 @@ ToolboxData* DataManager::GetGlobalToolboxData(std::string configName, video::IV
 			//put it in lowercase to start
 			transform(tokens[0].begin(), tokens[0].end(), tokens[0].begin(), ::tolower);
 
-			if (tokens[0].compare("imagebmp") == 0 && tokens.size() >= 2)
+			if (tokens[0].compare("meshname") == 0 && tokens.size() >= 2)
 				//check for scened image file
 			{
-				toolboxData->toolboxImage = GetGlobalImg(tokens[1], driver);
+				std::string imgname = Helpers::meshNameToImageName(tokens[1]);
+				toolboxData->toolboxImage = GetGlobalImg(imgname, configName, driver);
 			}
 			tokens.clear();
 		}
@@ -163,11 +171,11 @@ ToolboxData* DataManager::GetGlobalToolboxData(std::string configName, video::IV
 }
 
 
-video::ITexture *DataManager::GetGlobalImg(string imgName, video::IVideoDriver* driver)
+video::ITexture *DataManager::GetGlobalImg(string imgname, string configname, video::IVideoDriver* driver)
 //returns pointer to an image, loads it from file if image is requested for the first time
 {
 	imgMutex.lock();
-	map<string, video::ITexture*>::iterator pos = imgMap.find(imgName);
+	map<string, video::ITexture*>::iterator pos = imgMap.find(imgname);
 	bool temp = (pos == imgMap.end());	//put check hear so we can unlock the mutex ASAP
 	imgMutex.unlock();
 
@@ -175,28 +183,39 @@ video::ITexture *DataManager::GetGlobalImg(string imgName, video::IVideoDriver* 
 	//image Name not found in the map, load mesh from file
 	{
 	
-		string completeImgPath = Helpers::workingDirectory + "\\" + imgName;
+		string completeImgPath = Helpers::workingDirectory + "\\StackEditor\\Images\\" + imgname;
 		Helpers::videoDriverMutex.lock();
 		IImage *img = driver->createImageFromFile(completeImgPath.data());
 		Helpers::videoDriverMutex.unlock();
 		
+		ITexture *newTex = NULL;
+
 		if (img != NULL)
-		//image loaded succesfully, enter in map and return pointer
+			//image loaded succesfully, enter in map and return pointer
 		{
 			Helpers::videoDriverMutex.lock();
-			video::ITexture *newTex = driver->addTexture("tbxtex", img);
-			Helpers::videoDriverMutex.unlock();
-
-			imgMutex.lock();
-			imgMap[imgName] = newTex;
+			newTex = driver->addTexture("tbxtex", img);
 			img->drop();
-			imgMutex.unlock();
+			Helpers::videoDriverMutex.unlock();
+		}
+		else
+		//image doesn't exist, need to create it
+		{
+			newTex = photostudio->makePicture(GetGlobalConfig(configname, driver), imgname);
+		}
 
+		if (newTex != NULL)
+		//register the texture in the data manager for future retrieval and return it
+		{
+			imgMutex.lock();
+			imgMap[imgname] = newTex;
+			imgMutex.unlock();
 			return newTex;
 		}
 		else
-		//image not found
+		//something went wrong, dump to log
 		{
+			Helpers::writeToLog("\n ERROR: unable to find or create image: " + imgname);
 			return NULL;
 		}
 	}
@@ -274,11 +293,11 @@ VesselData *DataManager::LoadVesselData(string configFileName, video::IVideoDriv
 		}
 
 
-		if (tokens[0].compare("imagebmp") == 0)
+/*		if (tokens[0].compare("imagebmp") == 0)
 		//check for scened image file
 		{
 			newVessel->vesselImg = GetGlobalImg(tokens[1], driver);
-		}
+		}*/
 
 		//clear tokens
 		tokens.clear();

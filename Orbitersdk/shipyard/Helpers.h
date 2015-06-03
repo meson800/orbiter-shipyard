@@ -33,4 +33,5 @@ public:
 	static std::mutex videoDriverMutex;
 	static double min(double v1, double v2);
 	static double max(double v1, double v2);
+	static std::string meshNameToImageName(std::string meshname);
 };

@@ -102,3 +102,19 @@ double Helpers::max(double v1, double v2)
 	return v2;
 }
 
+//takes the name of the mesh as noted in the config file and returns the name of the GUI image for that mesh
+//basically, replaces all "/" or "\\" with _ and appends ".bmp"
+std::string Helpers::meshNameToImageName(std::string meshname)
+{
+	std::string imagename = "";
+	std::string::size_type pos = meshname.find_first_of("/\\", 0);
+	std::string::size_type lastpos = meshname.find_first_not_of("/\\", 0);
+	while (pos != std::string::npos)
+	{
+		imagename = imagename + meshname.substr(lastpos, pos - lastpos) + "_";
+		lastpos = meshname.find_first_not_of("/\\", pos);
+		pos = meshname.find_first_of("/\\", lastpos);
+	}
+	imagename = imagename + meshname.substr(lastpos, meshname.length()) + ".bmp";
+	return imagename;
+}

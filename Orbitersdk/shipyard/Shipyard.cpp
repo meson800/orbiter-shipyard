@@ -27,8 +27,7 @@ void Shipyard::setupDevice(IrrlichtDevice * _device, std::string toolboxSet)
 	guiEnv = device->getGUIEnvironment();
 	tbxSet = toolboxSet;
 
-	//debug: initialising photostudio
-	photostudio = new SE_PhotoStudio(device);
+	dataManager.Initialise(device);
 
 	//initialising GUI skin to something nicer and loading a bigger font.
 	//well, loading the font, anyways. They messed around with the color identifiers since the last irrlicht version, it'll take a while to set the skin up properly :/
@@ -53,7 +52,7 @@ void Shipyard::setupDevice(IrrlichtDevice * _device, std::string toolboxSet)
 	core::dimension2d<u32> dim = device->getVideoDriver()->getScreenSize();
 
 	//initialisng listbox to show available toolboxes
-	toolBoxList = guiEnv->addListBox(rect<s32>(0, 0, 100, dim.Height - 210), 0, TOOLBOXLIST, true);
+	toolBoxList = guiEnv->addListBox(rect<s32>(0, 0, 100, dim.Height - 130), 0, TOOLBOXLIST, true);
 	toolBoxList->setName("Toolboxes");
 
 	loadToolBoxes();
@@ -62,7 +61,7 @@ void Shipyard::setupDevice(IrrlichtDevice * _device, std::string toolboxSet)
 	//adding an empty toolbox in case there are none defined, since you can't even add toolboxes if there is none
 	{
 		Helpers::writeToLog(std::string("\n WARNING: No toolboxes loaded, initialising default..."));
-		toolboxes.push_back(new CGUIToolBox("empty toolbox", rect<s32>(0, dim.Height - 210, dim.Width, dim.Height), guiEnv, NULL));
+		toolboxes.push_back(new CGUIToolBox("empty toolbox", rect<s32>(0, dim.Height - 130, dim.Width, dim.Height), guiEnv, NULL));
 		guiEnv->getRootGUIElement()->addChild(toolboxes[toolboxes.size() - 1]);
 		toolBoxList->addItem(L"empty toolbox");
 	}
@@ -143,9 +142,6 @@ void Shipyard::loop()
 
 void Shipyard::addVessel(VesselData* vesseldata)
 {
-	//photostudio debug
-	photostudio->makePicture(vesseldata);
-
 	//add the vessel
 	VesselSceneNode* newvessel = new VesselSceneNode(vesseldata, smgr->getRootSceneNode(), smgr, VESSEL_ID);
 	vessels.push_back(newvessel);
@@ -464,7 +460,7 @@ bool Shipyard::loadToolBoxes()
 			Helpers::writeToLog(std::string("\n Loading " + std::string(foundFile.cFileName) + "..."));
 
 			std::string toolboxName(foundFile.cFileName);
-			toolboxes.push_back(new CGUIToolBox(toolboxName.substr(0, toolboxName.size() - 4), rect<s32>(0, dim.Height - 210, dim.Width, dim.Height), guiEnv, NULL));
+			toolboxes.push_back(new CGUIToolBox(toolboxName.substr(0, toolboxName.size() - 4), rect<s32>(0, dim.Height - 130, dim.Width, dim.Height), guiEnv, NULL));
 			guiEnv->getRootGUIElement()->addChild(toolboxes[toolboxes.size() - 1]);
 
 			//adding the toolbox to the toolbox list

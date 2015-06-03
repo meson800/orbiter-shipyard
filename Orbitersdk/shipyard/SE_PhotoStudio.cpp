@@ -9,14 +9,14 @@ SE_PhotoStudio::SE_PhotoStudio(IrrlichtDevice *device)
 	//create our own scenemanager and keep a pointer to the driver
 	smgr = device->getSceneManager()->createNewSceneManager();
 	driver = device->getVideoDriver();
-
+	gui = device->getGUIEnvironment();
 	//set default camera rotation and field of view(handpicked for decent results, but can be changed)
-	camRotation = vector3df(-27, -26, 0);
+	camRotation = core::vector3df(-27, -26, 0);
 	camFOV = 30;
 	imgSize = 128;
 
-	//lighting level. might need some more fiddling
-	smgr->setAmbientLight(video::SColor(0, 150, 150, 150));
+	//lighting level. might take some more fiddling
+	smgr->setAmbientLight(video::SColor(0, 180, 180, 180));
 	//create the render target
 	canvas = driver->addRenderTargetTexture(core::dimension2d<u32>(imgSize, imgSize), "RTT1");
 }
@@ -25,21 +25,23 @@ SE_PhotoStudio::SE_PhotoStudio(IrrlichtDevice *device)
 SE_PhotoStudio::~SE_PhotoStudio()
 {
 	//remove the camera from the scene
-	studioCam->drop();
+	smgr->drop();
+	canvas->drop();
 }
 
 
 //makes a picture of a single VesselSceneNode
 // vesseldata: the VesselData of the vessel to make a picture from
 // scene_prepared: send true if the render target has already been set
-void SE_PhotoStudio::makePicture(VesselData *vesseldata, bool scene_prepared)
+ITexture *SE_PhotoStudio::makePicture(VesselData *vesseldata, string imagename, bool scene_prepared)
 {
 	Helpers::videoDriverMutex.lock();
-	//set up the scene
-	if (!scene_prepared)
-	{
-		driver->setRenderTarget(canvas);
-	}
+	//pop up a message that images are being created
+	gui::IGUIWindow *msg = gui->addMessageBox(L"", L"StackEditor is loading some meshes for the first time and has to create images for them.\n Please be patient. This procedure will not be repeated at further startups.",
+												true, 0);
+	msg->draw();
+	//switch the render target to our canvas		
+	driver->setRenderTarget(canvas);
 
 	//call in the model
 	VesselSceneNode *model = new VesselSceneNode(vesseldata, smgr->getRootSceneNode(), smgr, -1);
@@ -51,19 +53,18 @@ void SE_PhotoStudio::makePicture(VesselData *vesseldata, bool scene_prepared)
 	driver->endScene();
 
 	//develop the picture
-	dumpCanvasToDisk(vesseldata->className);
+	ITexture *rettex = dumpCanvasToDisk(imagename);
 	//the model may leave now
 	model->remove();
 	
-	//if the scene was prepared by somebody else, then it will also be restored by somebody else
-	if (!scene_prepared)
-	{
-		driver->setRenderTarget(0, true, true, 0);
-	}
+	//switch back to default render target
+	driver->setRenderTarget(0, true, true, 0);
 
 	Helpers::videoDriverMutex.unlock();
-
-
+	//remove the message
+	gui->removeFocus(msg);
+	msg->remove();
+	return rettex;
 }
 
 
@@ -83,8 +84,8 @@ void SE_PhotoStudio::setupStudioCam(VesselSceneNode *model)
 	core::vector3df extent = model->getBoundingBox().getExtent();
 	//calculate how high and wide the model will be in two dimensional projection when viewed from the camera.
 	//this isn't entirely accurate as it doesn't take actual perceptive distortion into account, leading to the image being slightly off-center.
-	f32 requiredwidth = extent.X * cos(abs(camRotation.Y) * core::DEGTORAD) + extent.Z * sin(abs(camRotation.Y) * DEGTORAD);
-	f32 requiredheight = extent.Y * cos(abs(camRotation.X) * core::DEGTORAD) + extent.X * sin(abs(camRotation.X) * DEGTORAD);
+	f32 requiredwidth = extent.X * cos(abs(camRotation.Y) * core::DEGTORAD) + extent.Z * sin(abs(camRotation.Y) * core::DEGTORAD);
+	f32 requiredheight = extent.Y * cos(abs(camRotation.X) * core::DEGTORAD) + extent.X * sin(abs(camRotation.X) * core::DEGTORAD);
 	//since our images are quadratic, we're only really interested in the larger of the two. we also enlarge it a bit to have a bit of a border
 	f32 largestdim = Helpers::max(requiredwidth, requiredheight) * 1.2;
 
@@ -96,14 +97,14 @@ void SE_PhotoStudio::setupStudioCam(VesselSceneNode *model)
 	pos.rotateYZBy(camRotation.X);
 	studioCam->setPosition(pos);
 
-	studioCam->setTarget(vector3df(0, 0, 0));
-//	smgr->setActiveCamera(studioCam);
+	studioCam->setTarget(core::vector3df(0, 0, 0));
 }
 
-//writes the contents of canvas to an image
-void SE_PhotoStudio::dumpCanvasToDisk(std::string filename)
+
+//writes the contents of canvas to an image and immediately returns the data as a new texture
+ITexture *SE_PhotoStudio::dumpCanvasToDisk(std::string filename)
 {
-	std::string completefilename = Helpers::workingDirectory + "/StackEditor/Images/" + "test" + ".bmp";
+	std::string completefilename = Helpers::workingDirectory + "/StackEditor/Images/" + filename;
 
 	//create an IImage from the texture data
 	video::IImage * image = driver->createImageFromData(
@@ -111,9 +112,12 @@ void SE_PhotoStudio::dumpCanvasToDisk(std::string filename)
 		canvas->getSize(),
 		canvas->lock(),
 		true, false);			//image gets pointer to texture data without copying. drop the image before unlocking the texture!
-
+	//write the image to file
 	driver->writeImageToFile(image, completefilename.c_str());
+	//copy the image to a new texture so we don't need to load the file immediately
+	ITexture *rettex = driver->addTexture("tbxtex", image);
 	image->drop();
 	canvas->unlock();
+	return rettex;
 }
 

@@ -8,7 +8,7 @@ CGUIToolBox::CGUIToolBox(std::string _name, core::rect<s32> rectangle, irr::gui:
 	
 	name = _name;
 	width = rectangle.getWidth();
-	imgWidth = 164;
+	imgWidth = 130;
 	scrollPos = 0;
 	
 	IGUISkin* skin = Environment->getSkin();
