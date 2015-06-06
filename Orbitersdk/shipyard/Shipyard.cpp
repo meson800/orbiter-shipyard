@@ -35,19 +35,23 @@ void Shipyard::setupDevice(IrrlichtDevice * _device, std::string toolboxSet)
 
 	gui::IGUISkin* Skin = guiEnv->getSkin();
 	Skin->setFont(font);
-/*	Skin->setColor(EGDC_3D_FACE, video::SColor(255, 43, 44, 131));
-	Skin->setColor(EGDC_HIGH_LIGHT, video::SColor(255, 207, 183, 52));
-	Skin->setColor(EGDC_HIGH_LIGHT_TEXT, video::SColor(255, 4, 5, 76));
+
+	//interface option 1 - somewhat dark, I don't like it much.
+/*	scenebgcolor = video::SColor(0, 9, 26, 24);
+	Skin->setColor(EGDC_3D_FACE, video::SColor(50, 0, 0, 0));
+	Skin->setColor(EGDC_3D_HIGH_LIGHT, video::SColor(50, 0, 0, 0));
+	Skin->setColor(EGDC_BUTTON_TEXT, video::SColor(255, 169, 231, 246));
+	Skin->setColor(EGDC_HIGH_LIGHT_TEXT, video::SColor(255, 255, 238, 238));
+	Skin->setColor(EGDC_HIGH_LIGHT, video::SColor(10, 169, 231, 246));*/
+	
+	//interface option 2, somewhat inspired by homeworld 2. pretty easy on the eyes if the images are generated with the right background color (regenerate images if image background is black!)
+	scenebgcolor = video::SColor(0, 3, 20, 35);
+	Skin->setColor(EGDC_3D_FACE, video::SColor(200, 13, 161, 247));
+	Skin->setColor(EGDC_3D_HIGH_LIGHT, video::SColor(200, 13, 161, 247));
 	Skin->setColor(EGDC_BUTTON_TEXT, video::SColor(255, 255, 255, 255));
-	Skin->setColor(EGDC_3D_SHADOW, video::SColor(255, 43, 44, 131));
-	Skin->setColor(EGDC_3D_HIGH_LIGHT, video::SColor(255, 43, 44, 131));
-	Skin->setColor(EGDC_3D_LIGHT, video::SColor(255, 43, 44, 131));
-	Skin->setColor(EGDC_TOOLTIP, video::SColor(255, 4, 5, 76));
-	Skin->setColor(EGDC_TOOLTIP_BACKGROUND, video::SColor(255, 207, 183, 52));
-	Skin->setColor(EGDC_SCROLLBAR, video::SColor(179, 207, 183, 52));
-	//Skin->setColor(EGDC_WINDOW, video::SColor(255, 4, 5, 76));
-	Skin->setColor(EGDC_EDITABLE, video::SColor(255, 207, 183, 52));
-	Skin->setColor(EGDC_FOCUSED_EDITABLE, video::SColor(255, 43, 44, 131));*/
+	Skin->setColor(EGDC_HIGH_LIGHT_TEXT, video::SColor(255, 255, 222, 185)); 
+	Skin->setColor(EGDC_HIGH_LIGHT, video::SColor(200, 0, 33, 70));
+	Skin->setColor(EGDC_SCROLLBAR, video::SColor(100, 0, 0, 0));
 
 	core::dimension2d<u32> dim = device->getVideoDriver()->getScreenSize();
 
@@ -81,8 +85,8 @@ void Shipyard::loop()
 	video::IVideoDriver* driver = device->getVideoDriver();
 	
 	//add the camera
-	camera = new ShipyardCamera(vector3d<f32>(0, 0, 0), 10, smgr->addCameraSceneNode());
-	
+	camera = new ShipyardCamera(vector3d<f32>(0, 0, 0), 30, smgr->addCameraSceneNode());
+
 /*		camera = smgr->addCameraSceneNode();
 	if (camera)
 	{
@@ -91,8 +95,12 @@ void Shipyard::loop()
 		camera->addAnimator(anm);
 		anm->drop();
 	}*/
-
+	
 	smgr->setAmbientLight(SColor(150,150,150,150));
+	scene::ILightSceneNode *light = smgr->addLightSceneNode(0, core::vector3df(200, 282, 200),
+		video::SColorf(0.3f, 0.3f, 0.3f));
+	light->setRadius(2000);
+
 
 	//register our VesselSceneNode - just staticly at the moment, but will do it later
 	//vessels.push_back(new VesselSceneNode("C:\\Other Stuff\\Orbiter\\shipyard\\Config\\Vessels\\ProjectAlpha_ISS.cfg", 
@@ -108,7 +116,7 @@ void Shipyard::loop()
 		}
 
 		Helpers::videoDriverMutex.lock();
-		driver->beginScene(true, true, video::SColor(0, 100, 100, 100));
+		driver->beginScene(true, true, scenebgcolor);
 		
 		smgr->drawAll();
 
@@ -257,10 +265,12 @@ bool Shipyard::OnEvent(const SEvent& event)
 		case gui::EGET_ELEMENT_HOVERED:
 			if (!camera->IsActionInProgress())
 			{
+				guiEnv->setFocus(event.GUIEvent.Caller);
 				cursorOnGui = true;
 			}
 			break;
 		case gui::EGET_ELEMENT_LEFT:
+			guiEnv->removeFocus(event.GUIEvent.Caller);
 			cursorOnGui = false;
 			break;
 		}

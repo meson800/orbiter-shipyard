@@ -9,7 +9,7 @@ public:
 	SE_PhotoStudio(IrrlichtDevice *device);
 	~SE_PhotoStudio();
 
-	ITexture *makePicture(VesselData *vesseldata, std::string imagename, bool scene_prepared = false);
+	ITexture *makePicture(VesselData *vesseldata, std::string imagename);
 
 private:
 	ISceneManager *smgr;

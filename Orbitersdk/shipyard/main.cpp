@@ -73,6 +73,7 @@ int main()
 	Helpers::mainShipyard = &shipyard;
 
 	IrrlichtDevice *device = createDevice(video::EDT_DIRECT3D9, windowRes, 32, false, false, false, &shipyard);
+	
 	if (!device)
 		return 1;
 

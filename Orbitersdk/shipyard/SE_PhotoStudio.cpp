@@ -15,8 +15,12 @@ SE_PhotoStudio::SE_PhotoStudio(IrrlichtDevice *device)
 	camFOV = 30;
 	imgSize = 128;
 
-	//lighting level. might take some more fiddling
+	//ambient lighting level. might take some more fiddling
 	smgr->setAmbientLight(video::SColor(0, 180, 180, 180));
+	//add a white light so specular reflection can do its thing.
+	smgr->addLightSceneNode(0, core::vector3df(0, 50, 50),
+		video::SColorf(0.45f, 0.45f, 0.45f));
+
 	//create the render target
 	canvas = driver->addRenderTargetTexture(core::dimension2d<u32>(imgSize, imgSize), "RTT1");
 }
@@ -33,11 +37,11 @@ SE_PhotoStudio::~SE_PhotoStudio()
 //makes a picture of a single VesselSceneNode
 // vesseldata: the VesselData of the vessel to make a picture from
 // scene_prepared: send true if the render target has already been set
-ITexture *SE_PhotoStudio::makePicture(VesselData *vesseldata, string imagename, bool scene_prepared)
+ITexture *SE_PhotoStudio::makePicture(VesselData *vesseldata, string imagename)
 {
 	Helpers::videoDriverMutex.lock();
 	//pop up a message that images are being created
-	gui::IGUIWindow *msg = gui->addMessageBox(L"", L"StackEditor is loading some meshes for the first time and has to create images for them.\n Please be patient. This procedure will not be repeated at further startups.",
+	gui::IGUIWindow *msg = gui->addMessageBox(L"", L"StackEditor is loading some meshes for the first time and has to create images for them.\n \n Please be patient. This procedure will not be repeated at further startups.",
 												true, 0);
 	msg->draw();
 	//switch the render target to our canvas		
@@ -48,7 +52,7 @@ ITexture *SE_PhotoStudio::makePicture(VesselData *vesseldata, string imagename, 
 //	model->setMaterialFlag(video::EMF_LIGHTING, true);
 	setupStudioCam(model);
 	//do the shoot
-	driver->beginScene();
+	driver->beginScene(true, true, SColor(255, 0, 33, 70));
 	smgr->drawAll();
 	driver->endScene();
 

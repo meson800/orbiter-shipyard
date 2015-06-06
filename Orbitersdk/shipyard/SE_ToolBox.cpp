@@ -26,8 +26,6 @@ CGUIToolBox::CGUIToolBox(std::string _name, core::rect<s32> rectangle, irr::gui:
 
 	vesselToCreate = NULL;
 	rightClickedElement = -1;
-
-	//setVisible(false);
 }
 
 
@@ -56,25 +54,18 @@ bool CGUIToolBox::OnEvent(const SEvent& event)
 			break;
 		}
 	case EET_MOUSE_INPUT_EVENT:
-		if (event.MouseInput.Event == EMIE_LMOUSE_PRESSED_DOWN || event.MouseInput.Event == EMIE_RMOUSE_PRESSED_DOWN)
-		{
-			if (Environment->hasFocus(this) &&
-				!AbsoluteClippingRect.isPointInside(core::position2d<s32>(event.MouseInput.X, event.MouseInput.Y)))
-			{
-				Environment->removeFocus(this);
-				return false;
-			}
-
-			Environment->setFocus(this);
-		}
 		if (event.MouseInput.Event == EMIE_LMOUSE_DOUBLE_CLICK)
 		{
-			UINT entryToCreate = GetEntryUnderCursor(event.MouseInput.X);
-			if (entryToCreate < entries.size())
+			//due to a quirk of irrlicht, doubleclicks get handled as a separate event even if the individual clicks already produced an event
+			//this makes it neccessary to check if the cursor is over the scrollbar, otherwise fast-clicking on the bar will produce doubleclick events
+			if (!ScrollBar->isVisible() || event.MouseInput.Y < ScrollBar->getAbsoluteClippingRect().UpperLeftCorner.Y)
 			{
-				vesselToCreate = entries[entryToCreate];
+				UINT entryToCreate = GetEntryUnderCursor(event.MouseInput.X);
+				if (entryToCreate < entries.size())
+				{
+					vesselToCreate = entries[entryToCreate];
+				}
 			}
-
 		}
 		else if (event.MouseInput.Event == EMIE_RMOUSE_PRESSED_DOWN)
 		//create context menu for editting toolbox
@@ -100,20 +91,20 @@ void CGUIToolBox::draw()
 	if (ScrollBar->isVisible())
 	{
 		scrollPos = double(ScrollBar->getPos()) / 100 * ((entries.size() * imgWidth) - AbsoluteRect.getWidth());
-		bool bugme = true;
 	}
 
 	IGUISkin* skin = Environment->getSkin();
 	video::IVideoDriver* driver = Environment->getVideoDriver();
-
+	
+	//draw background
 	driver->draw2DRectangle(skin->getColor(EGDC_3D_FACE), AbsoluteRect);
 
 	//drawing vessel images
-	//first partly visible entry
+	//first partly visible entry (because of scrollposition)
 	UINT firstEntry = scrollPos / imgWidth;
 	//last partly visible entry
 	UINT lastEntry = firstEntry + (AbsoluteRect.getWidth() / imgWidth + 1);
-	int imgDrawPos = firstEntry * imgWidth - scrollPos;
+	int imgDrawPos = 2 + firstEntry * imgWidth - scrollPos;
 
 	for (UINT i = firstEntry; i < entries.size() && i < lastEntry; i++)
 	{
