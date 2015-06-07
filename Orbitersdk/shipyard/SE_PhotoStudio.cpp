@@ -47,8 +47,10 @@ ITexture *SE_PhotoStudio::makePicture(VesselData *vesseldata, string imagename)
 	//switch the render target to our canvas		
 	driver->setRenderTarget(canvas);
 
-	//call in the model
+	//call in the model and place it in the center
 	VesselSceneNode *model = new VesselSceneNode(vesseldata, smgr->getRootSceneNode(), smgr, -1);
+	model->setPosition(model->getBoundingBox().getCenter() * -1);
+
 	setupStudioCam(model);
 	//do the shoot
 	driver->beginScene(true, true, SColor(255, 0, 33, 70));
