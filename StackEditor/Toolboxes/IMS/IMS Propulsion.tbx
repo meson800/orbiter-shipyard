@@ -6,7 +6,6 @@ ims/propulsion/brcs3_methane_rcs_engine.cfg
 ims/propulsion/brcs4_methane_rcs_engine.cfg
 ims/propulsion/gascorentr_closedcycle.cfg
 ims/propulsion/hpe_hyper_engine.cfg
-ims/propulsion/j-2xim_rocket_engine.cfg
 ims/propulsion/nerva.cfg
 ims/propulsion/vasimr_10mw.cfg
 ims/propulsion/vasimr_4mw.cfg

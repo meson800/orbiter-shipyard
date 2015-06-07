@@ -175,7 +175,7 @@ bool OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 
 				//insert standard shininess if it doesn't exist
 				if (tokens.size() == 16)
-					tokens.insert(tokens.begin() + 12, "20");
+					tokens.insert(tokens.begin() + 12, "0");
 
 				//orbiter format
 				//0		1	2	3		Diffuse colour(RGBA)
@@ -196,8 +196,8 @@ bool OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 				materials[materialCounter].SpecularColor.setGreen(Helpers::stringToDouble(tokens[9]) * 255);
 				materials[materialCounter].SpecularColor.setBlue(Helpers::stringToDouble(tokens[10]) * 255);
 				materials[materialCounter].SpecularColor.setAlpha(Helpers::stringToDouble(tokens[11]) * 255);
-				//set specular power-"shineness"
-				materials[materialCounter].Shininess = Helpers::stringToDouble(tokens[12]);
+				//set specular power-"shineness". Modified from the orbiter value because the irrlicht shader interprets it differently
+				materials[materialCounter].Shininess = Helpers::min(128, Helpers::stringToDouble(tokens[12]) * 2);
 
 				materials[materialCounter].EmissiveColor.setRed(Helpers::stringToDouble(tokens[13]) * 255);
 				materials[materialCounter].EmissiveColor.setGreen(Helpers::stringToDouble(tokens[14]) * 255);

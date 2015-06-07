@@ -38,4 +38,5 @@ private:
 	scene::ISceneManager* smgr;
 	OrbiterMesh *vesselMesh;
 	VesselData *vesselData;
+	void setupDockingPortNode(IMeshSceneNode *node);
 };

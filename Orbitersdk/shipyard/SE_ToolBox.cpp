@@ -57,7 +57,7 @@ bool CGUIToolBox::OnEvent(const SEvent& event)
 		if (event.MouseInput.Event == EMIE_LMOUSE_DOUBLE_CLICK)
 		{
 			//due to a quirk of irrlicht, doubleclicks get handled as a separate event even if the individual clicks already produced an event
-			//this makes it neccessary to check if the cursor is over the scrollbar, otherwise fast-clicking on the bar will produce doubleclick events
+			//this makes it neccessary to check if the cursor is over the scrollbar, otherwise fast-clicking on the bar will spawn vessels
 			if (!ScrollBar->isVisible() || event.MouseInput.Y < ScrollBar->getAbsoluteClippingRect().UpperLeftCorner.Y)
 			{
 				UINT entryToCreate = GetEntryUnderCursor(event.MouseInput.X);
@@ -74,6 +74,7 @@ bool CGUIToolBox::OnEvent(const SEvent& event)
 			mnu->addItem(L"add vessel");
 			mnu->addItem(L"remove vessel");
 			mnu->addItem(L"create new toolbox");
+			mnu->addItem(L"delete toolbox");
 			rightClickedElement = GetEntryUnderCursor(event.MouseInput.X);
 		}
 	}
@@ -183,6 +184,13 @@ void CGUIToolBox::saveToolBox(std::string subfolder)
 		toolboxFile << entries[i]->configFileName << "\n";
 	}
 	toolboxFile.close();
+}
+
+//delete the toolbox file from harddisk
+void CGUIToolBox::deleteToolBoxFromDisk(std::string subfolder)
+{
+	std::string toolboxPath = std::string(Helpers::workingDirectory + "/StackEditor/Toolboxes/" + subfolder + name + ".tbx");
+	std::remove((const char*)toolboxPath.c_str());
 }
 
 

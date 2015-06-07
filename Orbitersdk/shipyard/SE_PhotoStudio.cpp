@@ -18,7 +18,7 @@ SE_PhotoStudio::SE_PhotoStudio(IrrlichtDevice *device)
 	//ambient lighting level. might take some more fiddling
 	smgr->setAmbientLight(video::SColor(0, 180, 180, 180));
 	//add a white light so specular reflection can do its thing.
-	smgr->addLightSceneNode(0, core::vector3df(0, 50, 50),
+	studioLight = smgr->addLightSceneNode(0, core::vector3df(0, 0, 0),
 		video::SColorf(0.45f, 0.45f, 0.45f));
 
 	//create the render target
@@ -49,7 +49,6 @@ ITexture *SE_PhotoStudio::makePicture(VesselData *vesseldata, string imagename)
 
 	//call in the model
 	VesselSceneNode *model = new VesselSceneNode(vesseldata, smgr->getRootSceneNode(), smgr, -1);
-//	model->setMaterialFlag(video::EMF_LIGHTING, true);
 	setupStudioCam(model);
 	//do the shoot
 	driver->beginScene(true, true, SColor(255, 0, 33, 70));
@@ -72,7 +71,7 @@ ITexture *SE_PhotoStudio::makePicture(VesselData *vesseldata, string imagename)
 }
 
 
-//sets up the camera for the photoshoot
+//sets up the camera and light for the photoshoot
 void SE_PhotoStudio::setupStudioCam(VesselSceneNode *model)
 {
 	if (studioCam == NULL)
@@ -102,6 +101,10 @@ void SE_PhotoStudio::setupStudioCam(VesselSceneNode *model)
 	studioCam->setPosition(pos);
 
 	studioCam->setTarget(core::vector3df(0, 0, 0));
+
+	//calculate a position for the light. It wil be set at a position 200 in front of the vessel, shining down on 0,0,0 at a 45 degree angle
+	studioLight->setPosition(core::vector3df(0, extent.Z + 200, extent.Z + 200));
+	studioLight->setRadius(studioLight->getAbsolutePosition().getLength() * 2);
 }
 
 

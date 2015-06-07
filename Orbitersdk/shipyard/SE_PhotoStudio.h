@@ -17,6 +17,7 @@ private:
 	gui::IGUIEnvironment *gui;
 	ICameraSceneNode *studioCam;
 	core::vector3df camRotation;
+	scene::ILightSceneNode *studioLight;
 	float camFOV;
 	video::ITexture *canvas;
 	int imgSize;

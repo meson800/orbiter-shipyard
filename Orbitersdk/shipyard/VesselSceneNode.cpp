@@ -67,9 +67,7 @@ void VesselSceneNode::setupDockingPortNodes()
 		dockingPorts[i].docked = false;
 
 		dockingPorts[i].portNode = smgr->addSphereSceneNode((f32)1.4, 16, this, DOCKPORT_ID, dockingPorts[i].position);
-		dockingPorts[i].portNode->getMaterial(0).AmbientColor.set(255, 255, 255, 0);
-		dockingPorts[i].portNode->getMaterial(0).EmissiveColor.set(150, 150, 150, 150);
-		dockingPorts[i].portNode->setVisible(false);
+		setupDockingPortNode(dockingPorts[i].portNode);
 
 		//rotate portNode so it has the actual orientation of the dockport (direction and up)
 		core::matrix4 matrix;
@@ -80,11 +78,26 @@ void VesselSceneNode::setupDockingPortNodes()
 		//the helper node is used to avoid collision conflicts when checking for visual overlap between the mousecursor and docking nodes
 		//in short, the currently selected stack turns on the helper nodes to avoid stealing the overlap event from other vessels
 		dockingPorts[i].helperNode = smgr->addSphereSceneNode((f32)1.4, 16, this, HELPER_ID, dockingPorts[i].position);
-		dockingPorts[i].helperNode->getMaterial(0).AmbientColor.set(255, 255, 255, 0);
-		dockingPorts[i].helperNode->getMaterial(0).EmissiveColor.set(150, 150, 150, 150);
-		dockingPorts[i].helperNode->setVisible(false);
+		setupDockingPortNode(dockingPorts[i].helperNode);
+	}
+}
+
+void VesselSceneNode::setupDockingPortNode(IMeshSceneNode *node)
+{
+	//deactivate lighting so we don't get reflections on the nodes and make them transparent
+	node->setMaterialFlag(EMF_LIGHTING, false);
+	node->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
+
+	//now that we don't have lighting, we have to set vertex color directly to have any effect
+	S3DVertex *vertices = (S3DVertex*)(node->getMesh()->getMeshBuffer(0)->getVertices());
+	UINT vertexcount = node->getMesh()->getMeshBuffer(0)->getVertexCount();
+	SColor vertexcolor = SColor(255, 13, 161, 247);
+	for (UINT i = 0; i < vertexcount; ++i)
+	{
+		vertices[i].Color = vertexcolor;
 	}
 
+	node->setVisible(false);
 }
 
 void VesselSceneNode::OnRegisterSceneNode()

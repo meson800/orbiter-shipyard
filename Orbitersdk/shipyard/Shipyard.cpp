@@ -11,6 +11,7 @@ Shipyard::Shipyard()
 	isOpenDialogOpen = false;
 	selectedVesselStack = 0;
 	cursorOnGui = false;
+	device = NULL;
 }
 
 Shipyard::~Shipyard()
@@ -52,15 +53,20 @@ void Shipyard::setupDevice(IrrlichtDevice * _device, std::string toolboxSet)
 	Skin->setColor(EGDC_HIGH_LIGHT_TEXT, video::SColor(255, 255, 222, 185)); 
 	Skin->setColor(EGDC_HIGH_LIGHT, video::SColor(200, 0, 33, 70));
 	Skin->setColor(EGDC_SCROLLBAR, video::SColor(100, 0, 0, 0));
-
+	Skin->setColor(EGDC_EDITABLE, video::SColor(255, 13, 161, 247));
+	Skin->setColor(EGDC_FOCUSED_EDITABLE, video::SColor(255, 13, 161, 247));
 	core::dimension2d<u32> dim = device->getVideoDriver()->getScreenSize();
 
 	//initialisng listbox to show available toolboxes
 	toolBoxList = guiEnv->addListBox(rect<s32>(0, 0, 100, dim.Height - 130), 0, TOOLBOXLIST, true);
 	toolBoxList->setName("Toolboxes");
 
-	loadToolBoxes();
-
+	bool haderrors = loadToolBoxes();
+	if (haderrors)
+	//pop a message to tell the user that some of the entries didn't load
+	{
+		guiEnv->addMessageBox(L"oops...", L"one or more toolbox entries failed to load! \n see StackEditor.log in your Orbiter/StackEditor directory for details.");
+	}
 	if (toolboxes.size() == 0)
 	//adding an empty toolbox in case there are none defined, since you can't even add toolboxes if there is none
 	{
@@ -69,7 +75,8 @@ void Shipyard::setupDevice(IrrlichtDevice * _device, std::string toolboxSet)
 		guiEnv->getRootGUIElement()->addChild(toolboxes[toolboxes.size() - 1]);
 		toolBoxList->addItem(L"empty toolbox");
 	}
-	toolBoxList->setSelected(0);
+	activetoolbox = 0;
+	toolBoxList->setSelected(activetoolbox);
 	switchToolBox();
 	
 	Helpers::writeToLog(std::string("\n Initialisation complete..."));
@@ -98,7 +105,7 @@ void Shipyard::loop()
 	
 	smgr->setAmbientLight(SColor(150,150,150,150));
 	scene::ILightSceneNode *light = smgr->addLightSceneNode(0, core::vector3df(200, 282, 200),
-		video::SColorf(0.3f, 0.3f, 0.3f));
+		video::SColorf(0.2f, 0.2f, 0.2f));
 	light->setRadius(2000);
 
 
@@ -194,6 +201,13 @@ core::aabbox3d<f32> Shipyard::returnOverallBoundingBox()
 bool Shipyard::OnEvent(const SEvent& event)
 {
 	
+	//EGET_LISTBOX_CHANGED seems to fire unreliably, so we have to check it ourselves
+	//also, some events fire before setupShipyard() is called, so we have to make sure that it has already been initialised
+	if (device && activetoolbox != toolBoxList->getSelected())
+	{
+		switchToolBox();
+	}
+
 	switch (event.EventType)
 	{
 	case EET_GUI_EVENT:
@@ -212,14 +226,15 @@ bool Shipyard::OnEvent(const SEvent& event)
 			guiEnv->addFileOpenDialog(L"Select Config File", true, 0, -1);
 			break;
 		}
-		case gui::EGET_LISTBOX_CHANGED:
+/*		case gui::EGET_LISTBOX_CHANGED:
 		{
 			switchToolBox();
 			break;
-		}
+		}*/
 		case gui::EGET_MESSAGEBOX_OK:
 		{
 			if (event.GUIEvent.Caller->getID() == TBXNAMEMSG)
+			//a name for a new toolbox has been entered, create it
 			{
 				core::dimension2d<u32> dim = device->getVideoDriver()->getScreenSize();
 				IGUIEditBox *toolboxName = (gui::IGUIEditBox*)event.GUIEvent.Caller->getElementFromId(TBXNAMEENTRY, true);
@@ -227,16 +242,32 @@ bool Shipyard::OnEvent(const SEvent& event)
 
 				if (strName != "")
 				{
-					toolboxes.push_back(new CGUIToolBox(strName, rect<s32>(0, dim.Height - 210, dim.Width, dim.Height), guiEnv, NULL));
+					toolboxes.push_back(new CGUIToolBox(strName, rect<s32>(0, dim.Height - 130, dim.Width, dim.Height), guiEnv, NULL));
 					toolBoxList->addItem(toolboxName->getText());
 					guiEnv->getRootGUIElement()->addChild(toolboxes[toolboxes.size() - 1]);
 					switchToolBox();
 				}
 			}
+			else if (event.GUIEvent.Caller->getID() == TBXDELETE)
+			//delete the active toolbox
+			{
+				CGUIToolBox *doomed = toolboxes[activetoolbox];
+				//remove the toolbox all lists
+				toolBoxList->removeItem(activetoolbox);
+				toolboxes.erase(toolboxes.begin() + activetoolbox);
+				//reset the toolbox list and the active toolbox
+				activetoolbox = 0;
+				toolBoxList->setSelected(activetoolbox);
+				switchToolBox();
+				//delete the toolbox file from the harddrive and drop it from the GUI
+				doomed->deleteToolBoxFromDisk(tbxSet + "/");
+				doomed->remove();
+			}
 			break;
 		}
 		case gui::EGET_MENU_ITEM_SELECTED:
 			if (event.GUIEvent.Caller->getID() == TOOLBOXCONTEXT)
+			//toolbox context menu
 			{
 				s32 menuItem = ((gui::IGUIContextMenu*)event.GUIEvent.Caller)->getSelectedItem();
 				if (menuItem == 0)
@@ -251,10 +282,25 @@ bool Shipyard::OnEvent(const SEvent& event)
 				if (menuItem == 2)
 				//spawn a naming dialog
 				{
-//					selectedNode = 0;
 					IGUIWindow *msgBx = guiEnv->addMessageBox(L"toolbox name", L"please enter a name for your toolbox", true, EMBF_OK | EMBF_CANCEL, 0, TBXNAMEMSG);
 					msgBx->setMinSize(dimension2du(300, 150));
 					guiEnv->addEditBox(L"toolbox name", rect<s32>(20, 100, 280, 130), true, msgBx, TBXNAMEENTRY);
+				}
+				if (menuItem == 3)
+				//pop a confirmation message for deletion
+				{
+					if (toolBoxList->getItemCount() > 1)
+					{
+						IGUIWindow *msgBx = guiEnv->addMessageBox(L"confirm or deny", 
+							L"this will permanently delete the currently active toolbox. \n Are you sure?", 
+							true, EMBF_OK | EMBF_CANCEL, 0, TBXDELETE);
+					}
+					else
+					//there's only one toolbox left. If we delete that, there will be mayhem.
+					{
+						IGUIWindow *msgBx = guiEnv->addMessageBox(L"I'm afraid I can't do that, Dave...", 
+							L"There is only one toolbox left, and Stackeditor needs at least one to function properly! \n \n If you really need to delete this toolbox, create an empty one first.");
+					}
 				}
 			}
 			break;
@@ -440,6 +486,7 @@ bool Shipyard::OnEvent(const SEvent& event)
 
 bool Shipyard::loadToolBoxes()
 //loads all tbx files from the Toolbox directory
+//returns false if any of the toolbox entries failed to load. The rest will be loaded none the less.
 {
 	core::dimension2d<u32> dim = device->getVideoDriver()->getScreenSize();
 	std::string tbxPath = std::string(Helpers::workingDirectory + "/StackEditor/Toolboxes/" + tbxSet + "/");
@@ -458,9 +505,10 @@ bool Shipyard::loadToolBoxes()
 	if (foundFile.cFileName[0] == 0)
 	{
 		Helpers::writeToLog(std::string("\n ERROR: could not open directory: /StackEditor/Toolboxes/" + tbxSet + " or no files in directory"));
-		searchFiles = false;
+		return false;
 	}
 
+	bool haderrors = false;
 	//searching all tbx files in the directory
 	while (searchFiles)
 	{
@@ -482,7 +530,11 @@ bool Shipyard::loadToolBoxes()
 			while (getline(tbxFile, line))
 			//loading the toolbox entries
 			{
-				toolboxes[toolboxes.size() - 1]->addElement(dataManager.GetGlobalToolboxData(line, device->getVideoDriver()));
+				bool success = toolboxes[toolboxes.size() - 1]->addElement(dataManager.GetGlobalToolboxData(line, device->getVideoDriver()));
+				if (!success)
+				{
+					haderrors = true;
+				}
 			}
 			tbxFile.close();
 		}
@@ -490,7 +542,7 @@ bool Shipyard::loadToolBoxes()
 	}
 	FindClose(searchFileHndl);
 
-	return false;
+	return !haderrors;			
 }
 
 
@@ -506,10 +558,10 @@ void Shipyard::saveToolBoxes()
 
 void Shipyard::switchToolBox()
 {
-	int selBox = toolBoxList->getSelected();
+	activetoolbox = toolBoxList->getSelected();
 	for (UINT i = 0; i < toolboxes.size(); ++i)
 	{
-		if (i == selBox)
+		if (i == activetoolbox)
 		{
 			toolboxes[i]->setVisible(true);
 			toolboxes[i]->bringToFront(toolboxes[i]);

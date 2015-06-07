@@ -80,11 +80,11 @@ VesselData* DataManager::GetGlobalConfig(string cfgName, video::IVideoDriver* dr
 	configMutex.unlock();
 
 	if (temp)
-		//cfg not found in the map, load from file
+	//cfg not found in the map, load from file
 	{
 		VesselData *newVessel = LoadVesselData(cfgName, driver);
 		if (newVessel != NULL)
-			//cfg loaded succesfully, enter in map and return pointer
+		//cfg loaded succesfully, enter in map and return pointer
 		{
 			configMutex.lock();
 			cfgMap[cfgName] = newVessel;
@@ -98,7 +98,7 @@ VesselData* DataManager::GetGlobalConfig(string cfgName, video::IVideoDriver* dr
 		return newVessel;
 	}
 	else
-		//cfg found in map, return pointer
+	//cfg found in map, return pointer
 	{
 		return pos->second;
 	}
@@ -113,7 +113,7 @@ ToolboxData* DataManager::GetGlobalToolboxData(std::string configName, video::IV
 	toolboxMutex.unlock();
 
 	if (temp)
-		//data not found in the map, load from file
+	//data not found in the map, load from file
 	{
 		//create new toolbox data
 		ToolboxData* toolboxData = new ToolboxData;
@@ -125,7 +125,7 @@ ToolboxData* DataManager::GetGlobalToolboxData(std::string configName, video::IV
 		string completeCfgPath = Helpers::workingDirectory + "\\config\\vessels\\" + configName;
 		ifstream configFile = ifstream(completeCfgPath.c_str());
 		if (!configFile) return NULL;
-		//now look for the image. it's name will be derived from the meshname
+		//now look for the image. its name will be derived from the meshname
 
 		while (Helpers::readLine(configFile, tokens))
 		{
@@ -137,7 +137,7 @@ ToolboxData* DataManager::GetGlobalToolboxData(std::string configName, video::IV
 			transform(tokens[0].begin(), tokens[0].end(), tokens[0].begin(), ::tolower);
 
 			if (tokens[0].compare("meshname") == 0 && tokens.size() >= 2)
-				//check for scened image file
+			//check for image file
 			{
 				std::string imgname = Helpers::meshNameToImageName(tokens[1]);
 				toolboxData->toolboxImage = GetGlobalImg(imgname, configName, driver);
@@ -146,7 +146,7 @@ ToolboxData* DataManager::GetGlobalToolboxData(std::string configName, video::IV
 		}
 
 		if (toolboxData->toolboxImage != NULL)
-			//data loaded succesfully, background load data, enter in map and return pointer
+		//data loaded succesfully, background load data, enter in map and return pointer
 		{
 			std::thread backgroundLoadThread = std::thread(&DataManager::GetGlobalConfig, this, configName, driver);
 			//detach the thread to continue background loading
@@ -160,6 +160,8 @@ ToolboxData* DataManager::GetGlobalToolboxData(std::string configName, video::IV
 		else
 		{
 			Helpers::writeToLog(std::string("\n ERROR: could not load cfg while loading toolbox data: " + configName));
+			delete toolboxData;
+			toolboxData = NULL;
 		}
 		return toolboxData;
 	}
@@ -191,7 +193,7 @@ video::ITexture *DataManager::GetGlobalImg(string imgname, string configname, vi
 		ITexture *newTex = NULL;
 
 		if (img != NULL)
-			//image loaded succesfully, enter in map and return pointer
+		//image loaded succesfully, enter in map and return pointer
 		{
 			Helpers::videoDriverMutex.lock();
 			newTex = driver->addTexture("tbxtex", img);
@@ -201,7 +203,11 @@ video::ITexture *DataManager::GetGlobalImg(string imgname, string configname, vi
 		else
 		//image doesn't exist, need to create it
 		{
-			newTex = photostudio->makePicture(GetGlobalConfig(configname, driver), imgname);
+			VesselData *data = GetGlobalConfig(configname, driver);
+			if (data)
+			{
+				newTex = photostudio->makePicture(data, imgname);
+			}
 		}
 
 		if (newTex != NULL)
@@ -289,15 +295,11 @@ VesselData *DataManager::LoadVesselData(string configFileName, video::IVideoDriv
 			//load the mesh!
 		{
 			newVessel->vesselMesh = GetGlobalMesh(tokens[1], driver);
-			meshDefined = true;
+			if (newVessel->vesselMesh != NULL)
+			{
+				meshDefined = true;
+			}
 		}
-
-
-/*		if (tokens[0].compare("imagebmp") == 0)
-		//check for scened image file
-		{
-			newVessel->vesselImg = GetGlobalImg(tokens[1], driver);
-		}*/
 
 		//clear tokens
 		tokens.clear();
@@ -306,10 +308,14 @@ VesselData *DataManager::LoadVesselData(string configFileName, video::IVideoDriv
 	if (!meshDefined)
 	{
 		Helpers::writeToLog(std::string("\n WARNING: no mesh defined in " + configFileName));
+		delete newVessel;
+		newVessel = NULL;
 	}
-	if (!portsDefined)
+	if (newVessel && !portsDefined)
 	{
 		Helpers::writeToLog(std::string("\n WARNING: no docking ports defined in " + configFileName));
+		delete newVessel;
+		newVessel = NULL;
 	}
 	return newVessel;
 }

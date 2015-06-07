@@ -50,6 +50,7 @@ private:
 	bool cursorOnGui;															//registers when the cursor is over a GUI element, so events can be passed on
 	vector<CGUIToolBox*> toolboxes;
 	IGUIListBox *toolBoxList;
+	int activetoolbox;
 	SColor scenebgcolor;
 	bool loadToolBoxes();
 	void saveToolBoxes();

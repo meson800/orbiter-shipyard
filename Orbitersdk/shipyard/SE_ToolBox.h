@@ -35,6 +35,7 @@ public:
 	ToolboxData *checkCreateVessel();										//if called, returns pointer to vesseldata to be created. NULL if no vessel is scheduled for creation. Returns to NULL after calling.
 	std::string getName();
 	void saveToolBox(std::string subfolder);
+	void deleteToolBoxFromDisk(std::string subfolder);
 
 private:
 	vector<ToolboxData*> entries;
