@@ -14,7 +14,7 @@ struct ToolboxData
 //so we can speed up initial loading through background loading
 {
 	std::string configFileName;
-	video::ITexture* toolboxImage;
+	video::ITexture* toolboxImage = NULL;
 };
 
 struct VesselData

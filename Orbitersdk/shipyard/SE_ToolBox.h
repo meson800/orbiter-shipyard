@@ -36,6 +36,7 @@ public:
 	std::string getName();
 	void saveToolBox(std::string subfolder);
 	void deleteToolBoxFromDisk(std::string subfolder);
+	void finishedLoading();
 
 private:
 	vector<ToolboxData*> entries;
@@ -51,5 +52,6 @@ private:
 	ToolboxData *vesselToCreate;
 	UINT rightClickedElement;												//stores the element that was right clicked last
 	std::string name;
+	bool hasbeenedited;
 
 };

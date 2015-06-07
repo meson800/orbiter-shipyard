@@ -89,7 +89,7 @@ VesselData* DataManager::GetGlobalConfig(string cfgName, video::IVideoDriver* dr
 			configMutex.lock();
 			cfgMap[cfgName] = newVessel;
 			configMutex.unlock();
-			Helpers::writeToLog(std::string("\n Loaded vessel config:" + cfgName));
+			//Helpers::writeToLog(std::string("\n Loaded vessel config:" + cfgName));
 		}
 		else
 		{
@@ -155,7 +155,7 @@ ToolboxData* DataManager::GetGlobalToolboxData(std::string configName, video::IV
 			toolboxMutex.lock();
 			toolboxMap[configName] = toolboxData;
 			toolboxMutex.unlock();
-			Helpers::writeToLog(std::string("\n Loaded toolbox data:" + configName));
+			//Helpers::writeToLog(std::string("\n Loaded toolbox data:" + configName));
 		}
 		else
 		{

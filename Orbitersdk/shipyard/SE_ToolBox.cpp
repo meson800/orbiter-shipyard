@@ -26,6 +26,7 @@ CGUIToolBox::CGUIToolBox(std::string _name, core::rect<s32> rectangle, irr::gui:
 
 	vesselToCreate = NULL;
 	rightClickedElement = -1;
+	hasbeenedited = false;
 }
 
 
@@ -133,7 +134,7 @@ bool CGUIToolBox::addElement(ToolboxData *newElement)
 			ScrollBar->setVisible(true);
 			ScrollBar->setEnabled(true);
 		}
-
+		hasbeenedited = true;
 		return true;
 	}
 	return false;
@@ -159,6 +160,7 @@ void CGUIToolBox::removeCurrentElement()
 	if (rightClickedElement != -1)
 	{
 		entries.erase(entries.begin() + rightClickedElement);
+		hasbeenedited = true;
 	}
 	rightClickedElement = -1;
 
@@ -177,13 +179,19 @@ std::string CGUIToolBox::getName()
 
 void CGUIToolBox::saveToolBox(std::string subfolder)
 {
-	std::string toolboxPath = std::string(Helpers::workingDirectory + "/StackEditor/Toolboxes/" + subfolder + name + ".tbx");
-	ofstream toolboxFile = ofstream(toolboxPath.c_str(), ios::out);
-	for (UINT i = 0; i < entries.size(); ++i)
+	//only save the toolbox if it has been edited. Otherwise modules that could not be loaded will be removed 
+	//from the toolbox after first load, which is not desirable as it would complicate fixing the problem
+	//which is undesirable
+	if (hasbeenedited)
 	{
-		toolboxFile << entries[i]->configFileName << "\n";
+		std::string toolboxPath = std::string(Helpers::workingDirectory + "/StackEditor/Toolboxes/" + subfolder + name + ".tbx");
+		ofstream toolboxFile = ofstream(toolboxPath.c_str(), ios::out);
+		for (UINT i = 0; i < entries.size(); ++i)
+		{
+			toolboxFile << entries[i]->configFileName << "\n";
+		}
+		toolboxFile.close();
 	}
-	toolboxFile.close();
 }
 
 //delete the toolbox file from harddisk
@@ -201,3 +209,8 @@ UINT CGUIToolBox::GetEntryUnderCursor(int x)
 	return effectiveCursorPos / imgWidth;		//calculating index of entry at this position
 }
 
+void CGUIToolBox::finishedLoading()
+//tells the toolbox that it has finished loading. Otherwise the loading itself would count as editing.
+{
+	hasbeenedited = false;
+}

@@ -61,11 +61,11 @@ void Shipyard::setupDevice(IrrlichtDevice * _device, std::string toolboxSet)
 	toolBoxList = guiEnv->addListBox(rect<s32>(0, 0, 100, dim.Height - 130), 0, TOOLBOXLIST, true);
 	toolBoxList->setName("Toolboxes");
 
-	bool haderrors = loadToolBoxes();
-	if (haderrors)
+	bool hadnoerrors = loadToolBoxes();
+	if (!hadnoerrors)
 	//pop a message to tell the user that some of the entries didn't load
 	{
-		guiEnv->addMessageBox(L"oops...", L"one or more toolbox entries failed to load! \n see StackEditor.log in your Orbiter/StackEditor directory for details.");
+		guiEnv->addMessageBox(L"oops...", L"one or more toolbox entries failed to load! \nsee StackEditor.log in your Orbiter/StackEditor directory for details.");
 	}
 	if (toolboxes.size() == 0)
 	//adding an empty toolbox in case there are none defined, since you can't even add toolboxes if there is none
@@ -202,7 +202,7 @@ bool Shipyard::OnEvent(const SEvent& event)
 {
 	
 	//EGET_LISTBOX_CHANGED seems to fire unreliably, so we have to check it ourselves
-	//also, some events fire before setupShipyard() is called, so we have to make sure that it has already been initialised
+	//also, some events fire before setupDevice() is called, so we have to make sure that it has already been initialised
 	if (device && activetoolbox != toolBoxList->getSelected())
 	{
 		switchToolBox();
@@ -221,16 +221,19 @@ bool Shipyard::OnEvent(const SEvent& event)
 			std::string fullfilename = std::string(uniString.begin(), uniString.end());
 			std::string filename = fullfilename.substr(Helpers::workingDirectory.length() + 16);
 			//create a new toolbox entry
-			toolboxes[UINT(toolBoxList->getSelected())]->addElement(dataManager.GetGlobalToolboxData(filename, device->getVideoDriver()));
-			//reopen file dialog to make multiple selections easier
-			guiEnv->addFileOpenDialog(L"Select Config File", true, 0, -1);
+			bool success = toolboxes[UINT(toolBoxList->getSelected())]->addElement(dataManager.GetGlobalToolboxData(filename, device->getVideoDriver()));
+			if (!success)
+			//pop a message that the vessel could not be loaded
+			{
+				guiEnv->addMessageBox(L"oops...", L"This vessel can't be loaded by StackEditor! \nThis is most likely because the config file doesn't specify docking ports, doesn't specify a mesh or specifies a mesh that doesn't exist.");
+			}
+			else
+			{
+				//reopen file dialog to make multiple selections easier
+				guiEnv->addFileOpenDialog(L"Select Config File", true, 0, -1);
+			}
 			break;
 		}
-/*		case gui::EGET_LISTBOX_CHANGED:
-		{
-			switchToolBox();
-			break;
-		}*/
 		case gui::EGET_MESSAGEBOX_OK:
 		{
 			if (event.GUIEvent.Caller->getID() == TBXNAMEMSG)
@@ -537,6 +540,7 @@ bool Shipyard::loadToolBoxes()
 				}
 			}
 			tbxFile.close();
+			toolboxes[toolboxes.size() - 1]->finishedLoading();
 		}
 		searchFiles = FindNextFile(searchFileHndl, &foundFile);
 	}
