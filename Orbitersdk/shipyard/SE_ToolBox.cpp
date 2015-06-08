@@ -41,7 +41,7 @@ CGUIToolBox::~CGUIToolBox(void)
 
 bool CGUIToolBox::OnEvent(const SEvent& event)
 {
-	if (!isEnabled())
+	if (!isEnabled() || !Environment->hasFocus(this))
 		return IGUIElement::OnEvent(event);
 
 	switch (event.EventType)
@@ -146,13 +146,12 @@ ToolboxData *CGUIToolBox::checkCreateVessel()
 	if (vesselToCreate != NULL)
 	//function automatically resets after it's been checked
 	{
-		ToolboxData* retVessel = vesselToCreate;
+		ToolboxData *createvessel = vesselToCreate;
 		vesselToCreate = NULL;
-		return retVessel;
+		return createvessel;
 	}
 	return NULL;
 }
-
 
 void CGUIToolBox::removeCurrentElement()
 //removes the element from the toolbox that was right-clicked last

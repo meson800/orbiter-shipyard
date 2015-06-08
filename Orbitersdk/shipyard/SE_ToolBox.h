@@ -53,5 +53,4 @@ private:
 	UINT rightClickedElement;												//stores the element that was right clicked last
 	std::string name;
 	bool hasbeenedited;
-
 };

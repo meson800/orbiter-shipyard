@@ -12,6 +12,7 @@ Shipyard::Shipyard()
 	selectedVesselStack = 0;
 	cursorOnGui = false;
 	device = NULL;
+	lastSpawnedVessel = NULL;
 }
 
 Shipyard::~Shipyard()
@@ -92,7 +93,7 @@ void Shipyard::loop()
 	video::IVideoDriver* driver = device->getVideoDriver();
 	
 	//add the camera
-	camera = new ShipyardCamera(vector3d<f32>(0, 0, 0), 30, smgr->addCameraSceneNode());
+	camera = new ShipyardCamera(vector3d<f32>(0, 0, 0), 30, device, smgr->addCameraSceneNode());
 
 /*		camera = smgr->addCameraSceneNode();
 	if (camera)
@@ -132,19 +133,15 @@ void Shipyard::loop()
 		driver->endScene();
 		Helpers::videoDriverMutex.unlock();
 
-		//checking toolboxes for vessels to be created
-		for (UINT i = 0; i < toolboxes.size(); ++i)
+		//checking toolbox for vessels to be created
+		ToolboxData* toolboxData = toolboxes[activetoolbox]->checkCreateVessel();
+		if (toolboxData != NULL)
 		{
-			ToolboxData* toolboxData = toolboxes[i]->checkCreateVessel();
-			if (toolboxData != NULL)
+			VesselData *createVessel = dataManager.GetGlobalConfig(toolboxData->configFileName, driver);
+			if (createVessel != NULL)
 			{
-				VesselData *createVessel = dataManager.GetGlobalConfig(toolboxData->configFileName, driver);
-				if (createVessel != NULL)
-				{
-					addVessel(createVessel);
-				}
+				addVessel(createVessel);
 			}
-
 		}
 	}
 	//drop all vessels
@@ -160,15 +157,32 @@ void Shipyard::addVessel(VesselData* vesseldata)
 	//add the vessel
 	VesselSceneNode* newvessel = new VesselSceneNode(vesseldata, smgr->getRootSceneNode(), smgr, VESSEL_ID);
 	vessels.push_back(newvessel);
-	//map dockport nodes to map
+	//map dockport nodes for fast vessel identification
 	for (vector<OrbiterDockingPort>::iterator i = newvessel->dockingPorts.begin(); i != newvessel->dockingPorts.end(); ++i)
 	{
 		dockportmap.insert(make_pair((*i).portNode, newvessel));
 	}
 
-	//if this is the first vessel, center the camera
-	if (vessels.size() == 1)
-		centerCamera();
+	//move the newly created vessel to the mousecursor and make it selected
+	moveVesselToCursor(newvessel);
+	selectedVesselStack = new VesselStack(newvessel);
+	setupSelectedStack();
+
+	lastSpawnedVessel = vesseldata;
+
+	//remove focus from the element so no vessels can be spawned while the current one is still being selected
+	guiEnv->removeFocus(toolboxes[activetoolbox]);
+	cursorOnGui = false;
+
+}
+
+void Shipyard::moveVesselToCursor(VesselSceneNode* vessel)
+//moves a VesselSceneNode to the mousecursor. used when a new vessel is created
+{
+	//estimating a radius based on the maximum extent of the vessel
+	vector3df extent = vessel->getBoundingBox().getExtent();
+	float radius = max(extent.X, max(extent.Y, extent.Z)) + 20;
+	vessel->setPosition(camera->getCursorPosAtRadius(radius));
 }
 
 core::vector3df Shipyard::returnMouseRelativePos()
@@ -312,7 +326,7 @@ bool Shipyard::OnEvent(const SEvent& event)
 			isOpenDialogOpen = false;
 			break;
 		case gui::EGET_ELEMENT_HOVERED:
-			if (!camera->IsActionInProgress())
+			if (!camera->IsActionInProgress() && selectedVesselStack == NULL)
 			{
 				guiEnv->setFocus(event.GUIEvent.Caller);
 				cursorOnGui = true;
@@ -427,35 +441,31 @@ bool Shipyard::OnEvent(const SEvent& event)
 				selectedVesselStack = 0;
 				return true;
 			}
-			//try to select a node
-			selectedVesselStack = 0;
-			scene::ISceneNode* selectedNode = collisionManager->getSceneNodeFromScreenCoordinatesBB(
-				device->getCursorControl()->getPosition(), VESSEL_ID, true);
-			if (selectedNode->getID() == VESSEL_ID)
+			else if (isKeyDown[EKEY_CODE::KEY_LSHIFT])
+			//spawn last created vessel
 			{
-				//it's a vessel!  Create the stack
-				selectedVesselStack = new VesselStack((VesselSceneNode*)selectedNode);
-				selectedNode = 0;
-			}
-			if (selectedVesselStack != 0)
-			{
-				//setup the move reference
-				selectedVesselStack->setMoveReference(returnMouseRelativePos());
-
-				//show empty docking ports
-				selectedVesselStack->changeDockingPortVisibility(true, false);
-				//show all the rest of the empty docking ports
-				for (unsigned int i = 0; i < vessels.size(); i++)
+				if (lastSpawnedVessel != NULL)
 				{
-					if (!selectedVesselStack->isVesselInStack(vessels[i]))
-					{
-						vessels[i]->changeDockingPortVisibility(true, false);
-					}
+					addVessel(lastSpawnedVessel);
 				}
+				return true;
 			}
-
-			//return true if we got a vessel stack
-			return (selectedVesselStack != 0);
+			else
+			{
+				//try to select a node
+				selectedVesselStack = 0;
+				scene::ISceneNode* selectedNode = collisionManager->getSceneNodeFromScreenCoordinatesBB(
+					device->getCursorControl()->getPosition(), VESSEL_ID, true);
+				if (selectedNode->getID() == VESSEL_ID)
+				{
+					//it's a vessel!  Create the stack
+					selectedVesselStack = new VesselStack((VesselSceneNode*)selectedNode);
+					selectedNode = 0;
+				}
+				setupSelectedStack();
+				//return true if we got a vessel stack
+				return (selectedVesselStack != 0);
+			}
 			break;
 		}
 		case EMIE_MOUSE_MOVED:
@@ -486,6 +496,27 @@ bool Shipyard::OnEvent(const SEvent& event)
 	return false;
 }
 
+
+void Shipyard::setupSelectedStack()
+//sets up move reference and ports for the selected vessel stack
+{
+	if (selectedVesselStack != 0)
+	{
+		//setup the move reference
+		selectedVesselStack->setMoveReference(returnMouseRelativePos());
+
+		//show empty docking ports
+		selectedVesselStack->changeDockingPortVisibility(true, false);
+		//show all the rest of the empty docking ports
+		for (unsigned int i = 0; i < vessels.size(); i++)
+		{
+			if (!selectedVesselStack->isVesselInStack(vessels[i]))
+			{
+				vessels[i]->changeDockingPortVisibility(true, false);
+			}
+		}
+	}
+}
 
 bool Shipyard::loadToolBoxes()
 //loads all tbx files from the Toolbox directory

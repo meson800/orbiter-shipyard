@@ -1,14 +1,15 @@
 #include "Common.h"
 #include "ShipyardCamera.h"
 
-ShipyardCamera::ShipyardCamera(core::vector3d<f32> pos, float radius, ICameraSceneNode* camera) 
+ShipyardCamera::ShipyardCamera(core::vector3d<f32> pos, float radius, IrrlichtDevice *device, ICameraSceneNode* camera) 
 	: mX(pos.X), mY(pos.Y), mZ(pos.Z), mR(radius), camera_(camera), sensitivity(0.5), 
 	Theta(180.f), Phi(90.f), minRad(10), maxRad(20000), rotation_in_progress_(false), translation_in_progress_(false)
 {
 	//the camera parent is also its target. When translating, only the parent will be moved, leaving camera placement to irrlicht
-	camera_->getParent()->setPosition(vector3d<f32>(0, 0, 0));
+//	camera_->getParent()->setPosition(vector3d<f32>(0, 0, 0));
 	camera_->setPosition(vector3d<f32>(mX + mR, mY, mZ));
 	camera_->setTarget(camera_->getParent()->getPosition());
+	device_ = device;
 }
 
 ShipyardCamera::~ShipyardCamera(void)
@@ -142,4 +143,28 @@ bool ShipyardCamera::IsActionInProgress()
 //returns true if the camera is currently translating or rotating
 {
 	return rotation_in_progress_ + translation_in_progress_;
+}
+
+matrix4 ShipyardCamera::getMatrix()
+{
+	return camera_->getAbsoluteTransformation();
+}
+
+vector3df ShipyardCamera::getCursorPosAtRadius(float radius)
+//returns the absolute 3d position of the point under the mousecursor at distance radius from the camera
+//Well, at approximately distance radius. We're checking against a plane here, not a sphere... anyways, it works decently enough.
+{
+	//get the view direction of the camera and calculate absolute position of radius in view direction
+	camera_->updateAbsolutePosition();
+	vector3df camdir = camera_->getTarget() - camera_->getAbsolutePosition();
+	vector3df pos = camdir.normalize();
+	pos *= radius;
+	pos = camera_->getAbsolutePosition() + pos;
+
+	//create a plane at pos facing the camera, check for mousecursor intersection, thanks for showing me how it's done in returnMouseRelativePos
+	core::plane3df plane = core::plane3df(pos, camera_->getTarget() - camera_->getAbsolutePosition());
+	core::line3df ray = device_->getSceneManager()->getSceneCollisionManager()->
+							getRayFromScreenCoordinates(device_->getCursorControl()->getPosition());
+	plane.getIntersectionWithLine(ray.start, ray.getVector(), pos);
+	return pos;
 }

@@ -32,7 +32,8 @@ private:
 	void centerCamera();
 
 	core::vector3df returnMouseRelativePos();
-	
+	void moveVesselToCursor(VesselSceneNode* vessel);
+
 	std::string tbxSet;
 	gui::IGUIEnvironment* guiEnv;
 	std::vector<VesselSceneNode*> vessels;
@@ -43,6 +44,7 @@ private:
 	//scene::ICameraSceneNode* camera;
 	ShipyardCamera* camera;
 	VesselStack* selectedVesselStack;
+	void setupSelectedStack();
 	scene::ISceneCollisionManager* collisionManager;
 	scene::ISceneManager* smgr;
 	DataManager dataManager;
@@ -54,6 +56,6 @@ private:
 	SColor scenebgcolor;
 	bool loadToolBoxes();
 	void saveToolBoxes();
-
+	VesselData *lastSpawnedVessel;
 	void switchToolBox();
 };
