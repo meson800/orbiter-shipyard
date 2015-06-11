@@ -244,6 +244,8 @@ void VesselSceneNode::snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& thei
 	//position the vessel so the docking ports touch
 	core::vector3df pos = ourNode->getAbsolutePosition() - getAbsolutePosition();
 	setPosition(theirNode->getAbsolutePosition() - pos);
+	//update the new position, in case there's a vessel being snapped to this right next
+	updateAbsolutePosition();				
 }
 
 void VesselSceneNode::dock(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort)

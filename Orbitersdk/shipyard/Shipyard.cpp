@@ -428,9 +428,9 @@ bool Shipyard::OnEvent(const SEvent& event)
 					selectedVesselStack->checkForSnapping(dockportmap.find(selectedNode)->second, selectedNode, true);
 				}
 
-				//de-show docking ports
+				//hide docking ports
 				selectedVesselStack->changeDockingPortVisibility(false, false);
-				//deshow all the rest of the empty docking ports
+				//hide all the rest of the empty docking ports
 				for (unsigned int i = 0; i < vessels.size(); i++)
 				{
 					if (!selectedVesselStack->isVesselInStack(vessels[i]))
@@ -484,7 +484,11 @@ bool Shipyard::OnEvent(const SEvent& event)
 				{
 					selectedVesselStack->checkForSnapping(dockportmap.find(selectedNode)->second, selectedNode);
 				}
-				//selectedVesselStack->checkForSnapping(vessels);
+				else if (selectedVesselStack->isSnaped())
+				//there's no dockport nearby, release the stack from snap and set up a new move reference
+				{
+					selectedVesselStack->unSnap(returnMouseRelativePos());
+				}
 			}
 			//update camera position
 			camera->UpdatePosition(event.MouseInput.X, event.MouseInput.Y, isKeyDown[EKEY_CODE::KEY_LCONTROL]);
