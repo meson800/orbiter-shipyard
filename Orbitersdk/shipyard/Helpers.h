@@ -9,11 +9,10 @@
 #include <algorithm>
 #include <irrlicht.h>
 #include <sstream>
-
 #include "DdsImage.h"
 
 //using namespace std;
-//using namespace irr;
+using namespace irr;
 
 class Shipyard;
 
@@ -34,4 +33,5 @@ public:
 	static double min(double v1, double v2);
 	static double max(double v1, double v2);
 	static std::string meshNameToImageName(std::string meshname);
+	static IrrlichtDevice *irrdevice;
 };

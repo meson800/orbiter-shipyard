@@ -27,6 +27,7 @@ CGUIToolBox::CGUIToolBox(std::string _name, core::rect<s32> rectangle, irr::gui:
 	vesselToCreate = NULL;
 	rightClickedElement = -1;
 	hasbeenedited = false;
+	lasthovered = -1;
 }
 
 
@@ -52,6 +53,15 @@ bool CGUIToolBox::OnEvent(const SEvent& event)
 		case gui::EGET_SCROLL_BAR_CHANGED:
 			if (event.GUIEvent.Caller == ScrollBar)
 				return true;
+		case gui::EGET_ELEMENT_FOCUS_LOST:
+			if (event.GUIEvent.Caller == this)
+			{
+				if (lasthovered != -1 && entries[lasthovered]->imsData != NULL)
+				{
+					entries[lasthovered]->imsData->setVisible(false);
+					lasthovered = -1;
+				}
+			}
 			break;
 		}
 	case EET_MOUSE_INPUT_EVENT:
@@ -77,6 +87,26 @@ bool CGUIToolBox::OnEvent(const SEvent& event)
 			mnu->addItem(L"create new toolbox");
 			mnu->addItem(L"delete toolbox");
 			rightClickedElement = GetEntryUnderCursor(event.MouseInput.X);
+		}
+		else if (event.MouseInput.Event == EMIE_MOUSE_MOVED)
+		{
+			int elementhovered = GetEntryUnderCursor(event.MouseInput.X);
+			if (elementhovered != lasthovered)
+			//new element hovered, update visible ims data
+			{
+				//hide old table
+				if (lasthovered != -1 && entries[lasthovered]->imsData != NULL)
+				{
+					entries[lasthovered]->imsData->setVisible(false);
+				}
+			
+				//show new table
+				if (elementhovered != -1 && entries[elementhovered]->imsData != NULL)
+				{
+					entries[elementhovered]->imsData->setVisible(true);
+				}
+			}
+			lasthovered = elementhovered;
 		}
 	}
 	return IGUIElement::OnEvent(event);
@@ -201,11 +231,17 @@ void CGUIToolBox::deleteToolBoxFromDisk(std::string subfolder)
 }
 
 
-UINT CGUIToolBox::GetEntryUnderCursor(int x)
+int CGUIToolBox::GetEntryUnderCursor(int x)
 //returns the index of the entry over which the cursor currently hovers. x is x-position of mouse cursor
+//returns -1 if there's nothing under the cursor
 {
 	int effectiveCursorPos = scrollPos + x;		//position of the cursor on the toolbox overall (not just visible part)
-	return effectiveCursorPos / imgWidth;		//calculating index of entry at this position
+	int idx = effectiveCursorPos / imgWidth;		//calculating index of entry at this position
+	if (idx >= entries.size())
+	{
+		idx = -1;
+	}
+	return idx;
 }
 
 void CGUIToolBox::finishedLoading()

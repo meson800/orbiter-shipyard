@@ -4,6 +4,7 @@
 #include <thread>
 
 #include "Common.h"
+#include "SE_ImsData.h"
 #include "OrbiterMesh.h"
 #include "OrbiterDockingPort.h"
 
@@ -15,6 +16,7 @@ struct ToolboxData
 {
 	std::string configFileName;
 	video::ITexture* toolboxImage = NULL;
+	ImsData *imsData = NULL;
 };
 
 struct VesselData
@@ -24,6 +26,7 @@ struct VesselData
 	vector<OrbiterDockingPort> dockingPorts;
 	ITexture *vesselImg;
 };
+
 
 
 

@@ -77,6 +77,7 @@ int main()
 	if (!device)
 		return 1;
 
+	Helpers::irrdevice = device;
 	Helpers::writeToLog(std::string("\n Irrlicht device ok..."));
 
 	//set caption

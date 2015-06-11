@@ -37,6 +37,9 @@
     <ClCompile Include="SE_PhotoStudio.cpp">
       <Filter>C++ Files</Filter>
     </ClCompile>
+    <ClCompile Include="SE_ImsData.cpp">
+      <Filter>C++ Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h">
@@ -88,6 +91,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SE_PhotoStudio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SE_ImsData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

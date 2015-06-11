@@ -12,7 +12,7 @@ public:
 	void StartRotation();		//called when the right mouse button is pressed
 	void StopTranslation();
 	void StartTranslation();
-	void UpdatePosition(float mouseX, float mouseY);
+	void UpdatePosition(float mouseX, float mouseY, bool cntrl = false);
 	void UpdateRadius(float wheel);
 	bool IsActionInProgress();
 	matrix4 getMatrix();

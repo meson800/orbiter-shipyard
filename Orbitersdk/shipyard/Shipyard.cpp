@@ -59,7 +59,7 @@ void Shipyard::setupDevice(IrrlichtDevice * _device, std::string toolboxSet)
 	core::dimension2d<u32> dim = device->getVideoDriver()->getScreenSize();
 
 	//initialisng listbox to show available toolboxes
-	toolBoxList = guiEnv->addListBox(rect<s32>(0, 0, 100, dim.Height - 130), 0, TOOLBOXLIST, true);
+	toolBoxList = guiEnv->addListBox(rect<s32>(0, 0, 120, dim.Height - 130), 0, TOOLBOXLIST, true);
 	toolBoxList->setName("Toolboxes");
 
 	bool hadnoerrors = loadToolBoxes();
@@ -79,6 +79,8 @@ void Shipyard::setupDevice(IrrlichtDevice * _device, std::string toolboxSet)
 	activetoolbox = 0;
 	toolBoxList->setSelected(activetoolbox);
 	switchToolBox();
+	rect<s32> tbxrect = toolBoxList[0].getAbsoluteClippingRect();
+
 	
 	Helpers::writeToLog(std::string("\n Initialisation complete..."));
 }
@@ -470,7 +472,7 @@ bool Shipyard::OnEvent(const SEvent& event)
 		}
 		case EMIE_MOUSE_MOVED:
 			//see if we have a node AND the camera isn't rotating or translating
-			if (selectedVesselStack != 0 && !camera->IsActionInProgress())
+			if (selectedVesselStack != 0 && !camera->IsActionInProgress() && !isKeyDown[EKEY_CODE::KEY_LCONTROL])
 			{
 				//move the stack
 				selectedVesselStack->moveStackReferenced(returnMouseRelativePos());
@@ -485,7 +487,7 @@ bool Shipyard::OnEvent(const SEvent& event)
 				//selectedVesselStack->checkForSnapping(vessels);
 			}
 			//update camera position
-			camera->UpdatePosition(event.MouseInput.X, event.MouseInput.Y);
+			camera->UpdatePosition(event.MouseInput.X, event.MouseInput.Y, isKeyDown[EKEY_CODE::KEY_LCONTROL]);
 			break;
 		case EMIE_MOUSE_WHEEL:
 			camera->UpdateRadius(event.MouseInput.Wheel);

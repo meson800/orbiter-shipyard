@@ -48,9 +48,10 @@ private:
 	int imgWidth;
 	int scrollPos;
 
-	UINT GetEntryUnderCursor(int x);										//returns the index of the entry over which the cursor currently hovers
+	int GetEntryUnderCursor(int x);										//returns the index of the entry over which the cursor currently hovers
 	ToolboxData *vesselToCreate;
 	UINT rightClickedElement;												//stores the element that was right clicked last
 	std::string name;
 	bool hasbeenedited;
+	int lasthovered;
 };

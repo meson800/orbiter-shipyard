@@ -26,13 +26,14 @@ void ShipyardCamera::StartRotation()
 	rotation_in_progress_ = true;
 }
 
-void ShipyardCamera::UpdatePosition(float mouseX, float mouseY)
+void ShipyardCamera::UpdatePosition(float mouseX, float mouseY, bool cntrl)
 {
+//	translation_in_progress_ = cntrl;
 	if (rotation_in_progress_ )
 	{
 		rotateCam(mouseX, mouseY);
 	}
-	if (translation_in_progress_)
+	if (translation_in_progress_ || cntrl)
 	{
 		translateCam(mouseX, mouseY);
 	}
