@@ -33,6 +33,8 @@ public:
 	core::vector3df returnRotatedVector(const core::vector3df& vec);
 
 	vector<OrbiterDockingPort> dockingPorts;
+	void saveToSession(ofstream &file);
+	bool loadFromSession(ifstream &file);
 
 private:
 	scene::ISceneManager* smgr;

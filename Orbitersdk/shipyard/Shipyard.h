@@ -28,6 +28,10 @@ public:
 	bool OnEvent(const SEvent & event);
 
 private:
+	bool processGuiEvent(const SEvent &event);
+	bool processKeyboardEvent(const SEvent &event);
+	bool processMouseEvent(const SEvent &event);
+
 	core::aabbox3d<f32> returnOverallBoundingBox();
 	void centerCamera();
 
@@ -48,7 +52,7 @@ private:
 	scene::ISceneCollisionManager* collisionManager;
 	scene::ISceneManager* smgr;
 	DataManager dataManager;
-	void addVessel(VesselData* vesseldata);										//adds a new vessel to the scene
+	void addVessel(VesselData* vesseldata, bool snaptocursor = true);										//adds a new vessel to the scene
 	bool cursorOnGui;															//registers when the cursor is over a GUI element, so events can be passed on
 	vector<CGUIToolBox*> toolboxes;
 	IGUIListBox *toolBoxList;
@@ -58,4 +62,9 @@ private:
 	void saveToolBoxes();
 	VesselData *lastSpawnedVessel;
 	void switchToolBox();
+
+	void saveSession(std::string filename);
+	bool loadSession(std::string path);
+	void clearSession();
+	std::string session;
 };

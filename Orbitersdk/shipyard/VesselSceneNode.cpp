@@ -257,3 +257,67 @@ void VesselSceneNode::dock(OrbiterDockingPort& ourPort, OrbiterDockingPort& thei
 	ourPort.dockedTo = &theirPort;
 	theirPort.dockedTo = &ourPort;
 }
+
+void VesselSceneNode::saveToSession(ofstream &file)
+//writes pos and rot of the vesselscenenode to a session file
+{
+	updateAbsolutePosition();		//just in case
+	file << "VESSEL_BEGIN\n" << "FILE =  " << vesselData->className << "\n";
+	core::vector3df pos = getAbsolutePosition();
+	core::vector3df rot = getRotation();
+	file << "POS = " << pos.X << " " << pos.Y << " " << pos.Z << "\n";
+	file << "ROT = " << rot.X << " " << rot.Y << " " << rot.Z << "\n";
+	file << "VESSEL_END\n";
+}
+
+bool VesselSceneNode::loadFromSession(ifstream &file)
+{
+	vector<string> tokens;
+	bool done = false;
+	while (!done)
+	{
+		done = !Helpers::readLine(file, tokens);
+		if (done)
+		//unexpected eof, write to log and abort
+		{
+			Helpers::writeToLog(string("ERROR: unexpected end of file while loading session"));
+			return false;
+		}
+		if (tokens.size() == 0)
+			continue;
+		if (tokens[0].compare("POS") == 0)
+		{
+			if (tokens.size() < 4)
+			//line doesn't contain enough values
+			{
+				Helpers::writeToLog(string("ERROR: invalid POS in session"));
+				return false;
+			}
+			core::vector3df pos = core::vector3df(Helpers::stringToDouble(tokens[1]),
+													Helpers::stringToDouble(tokens[2]),
+													Helpers::stringToDouble(tokens[3]));
+			setPosition(pos);
+			updateAbsolutePosition();
+		}
+		else if (tokens[0].compare("ROT") == 0)
+		{
+			if (tokens.size() < 4)
+			//line doesn't contain enough values
+			{
+				Helpers::writeToLog(string("ERROR: invalid ROT in session"));
+				return false;
+			}
+			core::vector3df rot = core::vector3df(Helpers::stringToDouble(tokens[1]),
+				Helpers::stringToDouble(tokens[2]),
+				Helpers::stringToDouble(tokens[3]));
+			setRotation(rot);
+			updateAbsolutePosition();
+		}
+		else if (tokens[0].compare("VESSEL_END") == 0)
+		{
+			done = true;
+		}
+		tokens.clear();
+	}
+	return true;
+}

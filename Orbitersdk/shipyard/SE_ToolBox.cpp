@@ -79,7 +79,7 @@ bool CGUIToolBox::OnEvent(const SEvent& event)
 			}
 		}
 		else if (event.MouseInput.Event == EMIE_RMOUSE_PRESSED_DOWN)
-		//create context menu for editting toolbox
+		//create context menu for editing toolbox
 		{
 			IGUIContextMenu *mnu = Environment->addContextMenu(rect<s32>(event.MouseInput.X, event.MouseInput.Y, event.MouseInput.X + 50, event.MouseInput.Y + 50), 0, TOOLBOXCONTEXT);
 			mnu->addItem(L"add vessel");

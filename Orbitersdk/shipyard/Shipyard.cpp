@@ -13,6 +13,7 @@ Shipyard::Shipyard()
 	cursorOnGui = false;
 	device = NULL;
 	lastSpawnedVessel = NULL;
+	session = "unnamed";
 }
 
 Shipyard::~Shipyard()
@@ -59,14 +60,18 @@ void Shipyard::setupDevice(IrrlichtDevice * _device, std::string toolboxSet)
 	core::dimension2d<u32> dim = device->getVideoDriver()->getScreenSize();
 
 	//initialisng listbox to show available toolboxes
-	toolBoxList = guiEnv->addListBox(rect<s32>(0, 0, 120, dim.Height - 130), 0, TOOLBOXLIST, true);
+	toolBoxList = guiEnv->addListBox(rect<s32>(0, 0, 120, dim.Height - 190), 0, TOOLBOXLIST, true);
 	toolBoxList->setName("Toolboxes");
+	//save and load buttons
+	guiEnv->addButton(rect<s32>(0, dim.Height - 190, 120, dim.Height - 170), 0, SAVESESSION, L"save");
+	guiEnv->addButton(rect<s32>(0, dim.Height - 170, 120, dim.Height - 150), 0, SAVESESSIONAS, L"save as");
+	guiEnv->addButton(rect<s32>(0, dim.Height - 150, 120, dim.Height - 130), 0, LOADSESSION, L"load");
 
 	bool hadnoerrors = loadToolBoxes();
 	if (!hadnoerrors)
 	//pop a message to tell the user that some of the entries didn't load
 	{
-		guiEnv->addMessageBox(L"oops...", L"one or more toolbox entries failed to load! \nsee StackEditor.log in your Orbiter/StackEditor directory for details.");
+		guiEnv->addMessageBox(L"He's dead, Jim!", L"one or more toolbox entries failed to load! \nsee StackEditor.log in your Orbiter/StackEditor directory for details.");
 	}
 	if (toolboxes.size() == 0)
 	//adding an empty toolbox in case there are none defined, since you can't even add toolboxes if there is none
@@ -97,24 +102,11 @@ void Shipyard::loop()
 	//add the camera
 	camera = new ShipyardCamera(vector3d<f32>(0, 0, 0), 30, device, smgr->addCameraSceneNode());
 
-/*		camera = smgr->addCameraSceneNode();
-	if (camera)
-	{
-		scene::ISceneNodeAnimator* anm = new scene::CSceneNodeAnimatorCameraCustom(device->getCursorControl());
-
-		camera->addAnimator(anm);
-		anm->drop();
-	}*/
-	
 	smgr->setAmbientLight(SColor(150,150,150,150));
 	scene::ILightSceneNode *light = smgr->addLightSceneNode(0, core::vector3df(200, 282, 200),
 		video::SColorf(0.2f, 0.2f, 0.2f));
 	light->setRadius(2000);
 
-
-	//register our VesselSceneNode - just staticly at the moment, but will do it later
-	//vessels.push_back(new VesselSceneNode("C:\\Other Stuff\\Orbiter\\shipyard\\Config\\Vessels\\ProjectAlpha_ISS.cfg", 
-	//	smgr->getRootSceneNode(), smgr, 72));
 
 	//start the loop
 	while (device->run())
@@ -154,7 +146,7 @@ void Shipyard::loop()
 	}
 }
 
-void Shipyard::addVessel(VesselData* vesseldata)
+void Shipyard::addVessel(VesselData* vesseldata, bool snaptocursor)
 {
 	//add the vessel
 	VesselSceneNode* newvessel = new VesselSceneNode(vesseldata, smgr->getRootSceneNode(), smgr, VESSEL_ID);
@@ -165,10 +157,13 @@ void Shipyard::addVessel(VesselData* vesseldata)
 		dockportmap.insert(make_pair((*i).portNode, newvessel));
 	}
 
-	//move the newly created vessel to the mousecursor and make it selected
-	moveVesselToCursor(newvessel);
-	selectedVesselStack = new VesselStack(newvessel);
-	setupSelectedStack();
+	if (snaptocursor)
+	{
+		//move the newly created vessel to the mousecursor and make it selected
+		moveVesselToCursor(newvessel);
+		selectedVesselStack = new VesselStack(newvessel);
+		setupSelectedStack();
+	}
 
 	lastSpawnedVessel = vesseldata;
 
@@ -219,37 +214,72 @@ bool Shipyard::OnEvent(const SEvent& event)
 	
 	//EGET_LISTBOX_CHANGED seems to fire unreliably, so we have to check it ourselves
 	//also, some events fire before setupDevice() is called, so we have to make sure that it has already been initialised
-	if (device && activetoolbox != toolBoxList->getSelected())
+	if (device)
 	{
-		switchToolBox();
+		if (activetoolbox != toolBoxList->getSelected())
+		{
+			switchToolBox();
+		}
 	}
+
 
 	switch (event.EventType)
 	{
 	case EET_GUI_EVENT:
-		switch (event.GUIEvent.EventType)
-		{
+		processGuiEvent(event);
+		break;
+	case EET_KEY_INPUT_EVENT:
+		processKeyboardEvent(event);
+		break;
+	case EET_MOUSE_INPUT_EVENT:
+		processMouseEvent(event);
+		break;
+	}
+	return false;
+}
+
+bool Shipyard::processGuiEvent(const SEvent &event)
+{
+	switch (event.GUIEvent.EventType)
+	{
+		//message boxes and file dialogs////////////////////////////////
+
 		case gui::EGET_FILE_SELECTED:
 		{
-			(gui::IGUIFileOpenDialog*)event.GUIEvent.Caller;
 			std::wstring uniString = std::wstring(((gui::IGUIFileOpenDialog*)event.GUIEvent.Caller)->getFileName());
-			
 			std::string fullfilename = std::string(uniString.begin(), uniString.end());
-			std::string filename = fullfilename.substr(Helpers::workingDirectory.length() + 16);
-			//create a new toolbox entry
-			bool success = toolboxes[UINT(toolBoxList->getSelected())]->addElement(dataManager.GetGlobalToolboxData(filename, device->getVideoDriver()));
-			if (!success)
-			//pop a message that the vessel could not be loaded
+
+			if (event.GUIEvent.Caller->getID() == TBXOPENFILE)
 			{
-				guiEnv->addMessageBox(L"oops...", L"This vessel can't be loaded by StackEditor! \nThis is most likely because the config file doesn't specify docking ports, doesn't specify a mesh or specifies a mesh that doesn't exist.");
+				std::string filename = fullfilename.substr(Helpers::workingDirectory.length() + 16);
+				//create a new toolbox entry
+				bool success = toolboxes[UINT(toolBoxList->getSelected())]->addElement(dataManager.GetGlobalToolboxData(filename, device->getVideoDriver()));
+				if (!success)
+				//pop a message that the vessel could not be loaded
+				{
+					guiEnv->addMessageBox(L"He's dead, Jim!", L"This vessel can't be loaded by StackEditor! \nThis is most likely because the config file doesn't specify docking ports, doesn't specify a mesh or specifies a mesh that doesn't exist.");
+				}
+				else
+				{
+					//reopen file dialog to make multiple selections easier
+					guiEnv->addFileOpenDialog(L"Select Config File", true, 0, -1);
+				}
 			}
-			else
+			else if (event.GUIEvent.Caller->getID() == SESSIONOPENFILE)
 			{
-				//reopen file dialog to make multiple selections easier
-				guiEnv->addFileOpenDialog(L"Select Config File", true, 0, -1);
+				if (loadSession(fullfilename))
+				{
+					//extract the actual session name from the file path
+					std::vector<std::string> tokens;
+					Helpers::tokenize(fullfilename, tokens, "/\\.");
+					session = tokens[tokens.size() - 2];
+					std::string newcaption = "Orbiter Shipyard - " + session;
+					device->setWindowCaption(std::wstring(newcaption.begin(), newcaption.end()).c_str());
+				}
 			}
-			break;
+			cursorOnGui = false;
 		}
+		break;
 		case gui::EGET_MESSAGEBOX_OK:
 		{
 			if (event.GUIEvent.Caller->getID() == TBXNAMEMSG)
@@ -282,8 +312,56 @@ bool Shipyard::OnEvent(const SEvent& event)
 				doomed->deleteToolBoxFromDisk(tbxSet + "/");
 				doomed->remove();
 			}
-			break;
+			else if (event.GUIEvent.Caller->getID() == NAMESESSION)
+			{
+				IGUIEditBox *sessionnamebox = (gui::IGUIEditBox*)event.GUIEvent.Caller->getElementFromId(SESSIONNAMEENTRY, true);
+				session = std::string(stringc(sessionnamebox->getText()).c_str());
+				saveSession(session);
+			}
+			else if (event.GUIEvent.Caller->getID() == SESSIONLOADCONFIRM)
+			{
+				IGUIFileOpenDialog *dlg = guiEnv->addFileOpenDialog(L"Select Config File", true, 0, SESSIONOPENFILE, false, "StackEditor/Sessions");
+			}
+			cursorOnGui = false;
 		}
+		break;
+		case gui::EGET_MESSAGEBOX_CANCEL:
+			cursorOnGui = false;
+		break;
+		case gui::EGET_FILE_CHOOSE_DIALOG_CANCELLED:
+			isOpenDialogOpen = false;
+			cursorOnGui = false;
+		break;
+
+
+		//permanent gui elements///////////////////////////////////////////////
+
+		case gui::EGET_BUTTON_CLICKED:
+			if (event.GUIEvent.Caller->getID() == LOADSESSION)
+			{
+				if (vessels.size() == 0)
+				//spawn open dialog
+				{
+					IGUIFileOpenDialog *dlg = guiEnv->addFileOpenDialog(L"Select Config File", true, 0, SESSIONOPENFILE, false, "StackEditor/Sessions");
+				}
+				else
+				//spawn confirmation message
+				{
+					IGUIWindow *msgBx = guiEnv->addMessageBox(L"Sir, are you absolutely sure? It does mean changing the bulb.", L"Any unsaved changes in this session will be lost. Proceed anyways?", true, EMBF_OK | EMBF_CANCEL, 0, SESSIONLOADCONFIRM);
+				}
+			}
+			else if (event.GUIEvent.Caller->getID() == SAVESESSIONAS || event.GUIEvent.Caller->getID() == SAVESESSION && session.compare("unnamed") == 0)
+			{
+			//spawn naming dialog
+				IGUIWindow *msgBx = guiEnv->addMessageBox(L"session name", L"please enter a name for this session", true, EMBF_OK | EMBF_CANCEL, 0, NAMESESSION);
+				msgBx->setMinSize(dimension2du(300, 150));
+				guiEnv->addEditBox(L"session name", rect<s32>(20, 100, 280, 130), true, msgBx, SESSIONNAMEENTRY);
+			}
+			else if (event.GUIEvent.Caller->getID() == SAVESESSION)
+			{
+				saveSession(session);
+			}
+			break;
 		case gui::EGET_MENU_ITEM_SELECTED:
 			if (event.GUIEvent.Caller->getID() == TOOLBOXCONTEXT)
 			//toolbox context menu
@@ -292,7 +370,7 @@ bool Shipyard::OnEvent(const SEvent& event)
 				if (menuItem == 0)
 				//open file dialog to add new element
 				{
-					IGUIFileOpenDialog *dlg = guiEnv->addFileOpenDialog(L"Select Config File", true, 0, -1, false, "config\\vessels");
+					IGUIFileOpenDialog *dlg = guiEnv->addFileOpenDialog(L"Select Config File", true, 0, TBXOPENFILE, false, "config\\vessels");
 				}
 				if (menuItem == 1)
 				{
@@ -310,198 +388,198 @@ bool Shipyard::OnEvent(const SEvent& event)
 				{
 					if (toolBoxList->getItemCount() > 1)
 					{
-						IGUIWindow *msgBx = guiEnv->addMessageBox(L"confirm or deny", 
-							L"this will permanently delete the currently active toolbox. \n Are you sure?", 
+						IGUIWindow *msgBx = guiEnv->addMessageBox(L"Sir, are you absolutely sure? It does mean changing the bulb.",
+							L"this will permanently delete the currently active toolbox. \n Are you sure?",
 							true, EMBF_OK | EMBF_CANCEL, 0, TBXDELETE);
 					}
 					else
 					//there's only one toolbox left. If we delete that, there will be mayhem.
 					{
-						IGUIWindow *msgBx = guiEnv->addMessageBox(L"I'm afraid I can't do that, Dave...", 
+						IGUIWindow *msgBx = guiEnv->addMessageBox(L"I'm afraid I can't do that, Dave...",
 							L"There is only one toolbox left, and Stackeditor needs at least one to function properly! \n \n If you really need to delete this toolbox, create an empty one first.");
 					}
 				}
 			}
-			break;
-		
-		case gui::EGET_FILE_CHOOSE_DIALOG_CANCELLED:
-			isOpenDialogOpen = false;
-			break;
+		break;
+
 		case gui::EGET_ELEMENT_HOVERED:
 			if (!camera->IsActionInProgress() && selectedVesselStack == NULL)
 			{
 				guiEnv->setFocus(event.GUIEvent.Caller);
 				cursorOnGui = true;
 			}
-			break;
+		break;
 		case gui::EGET_ELEMENT_LEFT:
 			guiEnv->removeFocus(event.GUIEvent.Caller);
 			cursorOnGui = false;
-			break;
-		}
-
-		break;
-	case EET_KEY_INPUT_EVENT:
-		//it's a key, store it
-		isKeyDown[event.KeyInput.Key] = event.KeyInput.PressedDown;
-
-		//see if it is the "c" key, to center the camera
-		if (event.KeyInput.Key == KEY_KEY_C)
-			centerCamera();
-
-		//if we are dragging a node, see if it is a rotation
-		if (selectedVesselStack != 0 && event.KeyInput.PressedDown)
-		{
-			bool didWeRotate = false;
-			switch (event.KeyInput.Key)
-			{
-			case KEY_KEY_A:
-				selectedVesselStack->rotateStack(core::vector3df(0, -90, 0));
-				didWeRotate = true;
-				break;
-			case KEY_KEY_D:
-				selectedVesselStack->rotateStack(core::vector3df(0, 90, 0));
-				didWeRotate = true;
-				break;
-			case KEY_KEY_S:
-				selectedVesselStack->rotateStack(core::vector3df(0, 0, -90));
-				didWeRotate = true;
-				break;
-			case KEY_KEY_W:
-				selectedVesselStack->rotateStack(core::vector3df(0, 0, 90));
-				didWeRotate = true;
-				break;
-			case KEY_KEY_Q:
-				selectedVesselStack->rotateStack(core::vector3df(-90, 0, 0));
-				didWeRotate = true;
-				break;
-			case KEY_KEY_E:
-				selectedVesselStack->rotateStack(core::vector3df(90, 0, 0));
-				didWeRotate = true;
-				break;
-			default:
-				break;
-			}
-			if (didWeRotate)
-			{
-				//reset the move reference, as we screwed up the initial positions
-				selectedVesselStack->setMoveReference(returnMouseRelativePos());
-			}
-		}
-		break;
-	case EET_MOUSE_INPUT_EVENT:
-		//return if cursor is over the GUI, so the GUI gets the event
-		if (cursorOnGui)
-			return false;
-		switch (event.MouseInput.Event)
-		{
-		case EMIE_RMOUSE_LEFT_UP:
-			//tell the camera that the rotation has stopped. it'll probably go and throw up now...
-			camera->StopRotation();
-			//set the move reference again so the selected stack doesn't teleport into infinity like before
-			if (selectedVesselStack != 0)
-				selectedVesselStack->setMoveReference(returnMouseRelativePos());
-			break;
-		case EMIE_RMOUSE_PRESSED_DOWN:
-			//make the camera rotate around the current target
-			camera->StartRotation();
-			break;
-		case EMIE_MMOUSE_LEFT_UP:
-			//tell the camera to stop translating
-			camera->StopTranslation();
-			break;
-		case EMIE_MMOUSE_PRESSED_DOWN:
-			//make the camera pan over the scene
-			camera->StartTranslation();
-			break;
-		case EMIE_LMOUSE_PRESSED_DOWN:
-		{
-			//if we have a selected node, deselect it
-			if (selectedVesselStack != 0)
-			{
-
-				//try docking this node
-				scene::ISceneNode* selectedNode = collisionManager->getSceneNodeFromScreenCoordinatesBB(
-					device->getCursorControl()->getPosition(), DOCKPORT_ID, true);
-				if (selectedNode->getID() == DOCKPORT_ID)
-				{
-					selectedVesselStack->checkForSnapping(dockportmap.find(selectedNode)->second, selectedNode, true);
-				}
-
-				//hide docking ports
-				selectedVesselStack->changeDockingPortVisibility(false, false);
-				//hide all the rest of the empty docking ports
-				for (unsigned int i = 0; i < vessels.size(); i++)
-				{
-					if (!selectedVesselStack->isVesselInStack(vessels[i]))
-					{
-						vessels[i]->changeDockingPortVisibility(false, false);
-					}
-				}
-
-				delete selectedVesselStack;
-				selectedVesselStack = 0;
-				return true;
-			}
-			else if (isKeyDown[EKEY_CODE::KEY_LSHIFT])
-			//spawn last created vessel
-			{
-				if (lastSpawnedVessel != NULL)
-				{
-					addVessel(lastSpawnedVessel);
-				}
-				return true;
-			}
-			else
-			{
-				//try to select a node
-				selectedVesselStack = 0;
-				scene::ISceneNode* selectedNode = collisionManager->getSceneNodeFromScreenCoordinatesBB(
-					device->getCursorControl()->getPosition(), VESSEL_ID, true);
-				if (selectedNode->getID() == VESSEL_ID)
-				{
-					//it's a vessel!  Create the stack
-					selectedVesselStack = new VesselStack((VesselSceneNode*)selectedNode);
-					selectedNode = 0;
-				}
-				setupSelectedStack();
-				//return true if we got a vessel stack
-				return (selectedVesselStack != 0);
-			}
-			break;
-		}
-		case EMIE_MOUSE_MOVED:
-			//see if we have a node AND the camera isn't rotating or translating
-			if (selectedVesselStack != 0 && !camera->IsActionInProgress() && !isKeyDown[EKEY_CODE::KEY_LCONTROL])
-			{
-				//move the stack
-				selectedVesselStack->moveStackReferenced(returnMouseRelativePos());
-
-				//try snapping
-				scene::ISceneNode* selectedNode = collisionManager->getSceneNodeFromScreenCoordinatesBB(
-					device->getCursorControl()->getPosition(), DOCKPORT_ID, true);
-				if (selectedNode->getID() == DOCKPORT_ID)
-				{
-					selectedVesselStack->checkForSnapping(dockportmap.find(selectedNode)->second, selectedNode);
-				}
-				else if (selectedVesselStack->isSnaped())
-				//there's no dockport nearby, release the stack from snap and set up a new move reference
-				{
-					selectedVesselStack->unSnap(returnMouseRelativePos());
-				}
-			}
-			//update camera position
-			camera->UpdatePosition(event.MouseInput.X, event.MouseInput.Y, isKeyDown[EKEY_CODE::KEY_LCONTROL]);
-			break;
-		case EMIE_MOUSE_WHEEL:
-			camera->UpdateRadius(event.MouseInput.Wheel);
-			break;
-		}
 		break;
 	}
 	return false;
 }
 
+bool Shipyard::processKeyboardEvent(const SEvent &event)
+{
+	//it's a key, store it
+	isKeyDown[event.KeyInput.Key] = event.KeyInput.PressedDown;
+
+	//see if it is the "c" key, to center the camera
+	if (event.KeyInput.Key == KEY_KEY_C)
+		centerCamera();
+
+	//if we are dragging a node, see if it is a rotation
+	if (selectedVesselStack != 0 && event.KeyInput.PressedDown)
+	{
+		bool didWeRotate = false;
+		switch (event.KeyInput.Key)
+		{
+		case KEY_KEY_A:
+			selectedVesselStack->rotateStack(core::vector3df(0, -90, 0));
+			didWeRotate = true;
+			break;
+		case KEY_KEY_D:
+			selectedVesselStack->rotateStack(core::vector3df(0, 90, 0));
+			didWeRotate = true;
+			break;
+		case KEY_KEY_S:
+			selectedVesselStack->rotateStack(core::vector3df(0, 0, -90));
+			didWeRotate = true;
+			break;
+		case KEY_KEY_W:
+			selectedVesselStack->rotateStack(core::vector3df(0, 0, 90));
+			didWeRotate = true;
+			break;
+		case KEY_KEY_Q:
+			selectedVesselStack->rotateStack(core::vector3df(-90, 0, 0));
+			didWeRotate = true;
+			break;
+		case KEY_KEY_E:
+			selectedVesselStack->rotateStack(core::vector3df(90, 0, 0));
+			didWeRotate = true;
+			break;
+		default:
+			break;
+		}
+		if (didWeRotate)
+		{
+			//reset the move reference, as we screwed up the initial positions
+			selectedVesselStack->setMoveReference(returnMouseRelativePos());
+		}
+	}
+	return false;
+}
+
+bool Shipyard::processMouseEvent(const SEvent &event)
+{
+	//return if cursor is over the GUI, so the GUI gets the event
+	if (cursorOnGui)
+		return false;
+
+	switch (event.MouseInput.Event)
+	{
+	case EMIE_RMOUSE_LEFT_UP:
+		//tell the camera that the rotation has stopped. it'll probably go and throw up now...
+		camera->StopRotation();
+		//set the move reference again so the selected stack doesn't teleport into infinity like before
+		if (selectedVesselStack != 0)
+			selectedVesselStack->setMoveReference(returnMouseRelativePos());
+		break;
+	case EMIE_RMOUSE_PRESSED_DOWN:
+		//make the camera rotate around the current target
+		camera->StartRotation();
+		break;
+	case EMIE_MMOUSE_LEFT_UP:
+		//tell the camera to stop translating
+		camera->StopTranslation();
+		break;
+	case EMIE_MMOUSE_PRESSED_DOWN:
+		//make the camera pan over the scene
+		camera->StartTranslation();
+		break;
+	case EMIE_LMOUSE_PRESSED_DOWN:
+	{
+		//if we have a selected node, deselect it
+		if (selectedVesselStack != 0)
+		{
+
+			//try docking this node
+			scene::ISceneNode* selectedNode = collisionManager->getSceneNodeFromScreenCoordinatesBB(
+				device->getCursorControl()->getPosition(), DOCKPORT_ID, true);
+			if (selectedNode->getID() == DOCKPORT_ID)
+			{
+				selectedVesselStack->checkForSnapping(dockportmap.find(selectedNode)->second, selectedNode, true);
+			}
+
+			//hide docking ports
+			selectedVesselStack->changeDockingPortVisibility(false, false);
+			//hide all the rest of the empty docking ports
+			for (unsigned int i = 0; i < vessels.size(); i++)
+			{
+				if (!selectedVesselStack->isVesselInStack(vessels[i]))
+				{
+					vessels[i]->changeDockingPortVisibility(false, false);
+				}
+			}
+
+			delete selectedVesselStack;
+			selectedVesselStack = 0;
+			return true;
+		}
+		else if (isKeyDown[EKEY_CODE::KEY_LSHIFT])
+			//spawn last created vessel
+		{
+			if (lastSpawnedVessel != NULL)
+			{
+				addVessel(lastSpawnedVessel);
+			}
+			return true;
+		}
+		else
+		{
+			//try to select a node
+			selectedVesselStack = 0;
+			scene::ISceneNode* selectedNode = collisionManager->getSceneNodeFromScreenCoordinatesBB(
+				device->getCursorControl()->getPosition(), VESSEL_ID, true);
+			if (selectedNode->getID() == VESSEL_ID)
+			{
+				//it's a vessel!  Create the stack
+				selectedVesselStack = new VesselStack((VesselSceneNode*)selectedNode);
+				selectedNode = 0;
+			}
+			setupSelectedStack();
+			//return true if we got a vessel stack
+			return (selectedVesselStack != 0);
+		}
+		break;
+	}
+	case EMIE_MOUSE_MOVED:
+		//see if we have a node AND the camera isn't rotating or translating
+		if (selectedVesselStack != 0 && !camera->IsActionInProgress() && !isKeyDown[EKEY_CODE::KEY_LCONTROL])
+		{
+			//move the stack
+			selectedVesselStack->moveStackReferenced(returnMouseRelativePos());
+
+			//try snapping
+			scene::ISceneNode* selectedNode = collisionManager->getSceneNodeFromScreenCoordinatesBB(
+				device->getCursorControl()->getPosition(), DOCKPORT_ID, true);
+			if (selectedNode->getID() == DOCKPORT_ID)
+			{
+				selectedVesselStack->checkForSnapping(dockportmap.find(selectedNode)->second, selectedNode);
+			}
+			else if (selectedVesselStack->isSnaped())
+				//there's no dockport nearby, release the stack from snap and set up a new move reference
+			{
+				selectedVesselStack->unSnap(returnMouseRelativePos());
+			}
+		}
+		//update camera position
+		camera->UpdatePosition(event.MouseInput.X, event.MouseInput.Y, isKeyDown[EKEY_CODE::KEY_LCONTROL]);
+		break;
+	case EMIE_MOUSE_WHEEL:
+		camera->UpdateRadius(event.MouseInput.Wheel);
+		break;
+	}
+	return false;
+}
 
 void Shipyard::setupSelectedStack()
 //sets up move reference and ports for the selected vessel stack
@@ -589,7 +667,7 @@ bool Shipyard::loadToolBoxes()
 
 void Shipyard::saveToolBoxes()
 {
-	
+
 	for (UINT i = 0; i < toolboxes.size(); ++i)
 	{
 		toolboxes[i]->saveToolBox(std::string(tbxSet + "/"));
@@ -613,4 +691,119 @@ void Shipyard::switchToolBox()
 		}
 	}
 
+}
+
+
+void Shipyard::saveSession(std::string filename)
+{
+	std::string fullpath = Helpers::workingDirectory + "\\StackEditor\\Sessions\\" + filename + ".ses";
+	ofstream file(fullpath);
+	//we'll note the respective indices of vessels and dockports to have an easier time saving the docking connections
+	std::map<VesselSceneNode*, UINT> indices_by_vessels;
+	std::map<OrbiterDockingPort*, UINT> indices_by_dockports;
+
+	for (UINT i = 0; i < vessels.size(); ++i)
+	{
+		//save VesselSceneNodes to file and remember their indices
+		vessels[i]->saveToSession(file);
+		indices_by_vessels.insert(std::make_pair(vessels[i], i));
+		//walk through and note dockports
+		for (UINT j = 0; j < vessels[i]->dockingPorts.size(); ++j)
+		{
+			indices_by_dockports.insert(std::make_pair(&vessels[i]->dockingPorts[j], j));
+		}
+	}
+
+	file << "DOCKINFO =";
+	for (UINT i = 0; i < vessels.size(); ++i)
+	{
+		for (UINT j = 0; j < vessels[i]->dockingPorts.size(); ++j)
+		{
+			if (!vessels[i]->dockingPorts[j].docked)
+			//write -1 for docked vessel and port
+			{
+				file << " -1:-1";
+			}
+			else
+			//write index of connecting vessel followed by index of dockport on connected vessel
+			{
+				file << " " << indices_by_vessels[vessels[i]->dockingPorts[j].dockedTo->parent] 
+					<< ":" << indices_by_dockports[vessels[i]->dockingPorts[j].dockedTo];
+			}
+		}
+	}
+	file.close();
+	std::string newcaption = "Orbiter Shipyard - " + filename;
+	device->setWindowCaption(std::wstring(newcaption.begin(), newcaption.end()).c_str());
+	session = filename;
+}
+
+
+bool Shipyard::loadSession(std::string path)
+{
+	clearSession();
+	ifstream file(path);
+	std::vector<std::string> tokens;
+	while (Helpers::readLine(file, tokens))
+	{
+		if (tokens.size() == 0)
+		{
+			continue;
+		}
+
+		if (tokens[0].compare("VESSEL_BEGIN") == 0)
+		{
+			tokens.clear();
+			Helpers::readLine(file, tokens);
+			if (tokens[0].compare("FILE") != 0)
+			//there's no file for the vessel, throw error and abort
+			{
+				Helpers::writeToLog(std::string("Error: No FILE declared for vessel, unable to load session"));
+				guiEnv->addMessageBox(L"He's dead, Jim!", L"No FILE declared for vessel, unable to load session");
+				return false;
+			}
+
+			addVessel(dataManager.GetGlobalConfig(tokens[1], device->getVideoDriver()), false);
+			if (!vessels[vessels.size() - 1]->loadFromSession(file))
+			{
+				guiEnv->addMessageBox(L"He's dead, Jim!", L"error while loading session");
+				return false;
+			}
+		}
+		else if (tokens[0].compare("DOCKINFO") == 0)
+		//establish docking connections
+		{
+			UINT tokenidx = 1;
+			for (UINT i = 0; i < vessels.size(); ++i)
+			{
+				for (UINT j = 0; j < vessels[i]->dockingPorts.size(); ++j)
+				{
+					//take appart the token containing the index of the docked vessel and its dockport
+					vector<std::string> connection;
+					Helpers::tokenize(tokens[tokenidx], connection, ":");
+					UINT vesselidx = Helpers::stringToInt(connection[0]);
+					UINT portidx = Helpers::stringToInt(connection[1]);
+					if (vesselidx != -1 && portidx != -1)
+					{
+						//we have a connection, update the dockport of the vessel
+						vessels[i]->dockingPorts[j].docked = true;
+						vessels[i]->dockingPorts[j].dockedTo = &vessels[vesselidx]->dockingPorts[portidx];
+					}
+					tokenidx++;
+				}
+			}
+		}
+		tokens.clear();
+	}
+	return true;
+}
+
+void Shipyard::clearSession()
+{
+	for (UINT i = 0; i < vessels.size(); ++i)
+	{
+		vessels[i]->remove();
+		vessels[i]->drop();
+	}
+	vessels.clear();
 }

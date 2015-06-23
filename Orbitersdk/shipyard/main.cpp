@@ -81,7 +81,7 @@ int main()
 	Helpers::writeToLog(std::string("\n Irrlicht device ok..."));
 
 	//set caption
-	device->setWindowCaption(L"Orbiter Shipyard");
+	device->setWindowCaption(L"Orbiter Shipyard - unnamed");
 
 	//set the working directory
 	std::string directory = device->getFileSystem()->getWorkingDirectory().c_str();

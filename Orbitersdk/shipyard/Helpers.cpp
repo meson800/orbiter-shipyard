@@ -16,7 +16,12 @@ bool Helpers::readLine(ifstream& file, std::vector<std::string>& tokens, const s
 		line.erase(line.find_first_of(';'), std::string::npos);
 	//remove extra spaces
 	removeExtraSpaces(line);
+	tokenize(line, tokens, delimiters);
+	return true;
+}
 
+void Helpers::tokenize(std::string line, std::vector<std::string>& tokens, const std::string &delimiters)
+{
 	// Skipping delimiters at the beginning
 	std::string::size_type lastPos = line.find_first_not_of(delimiters, 0);
 	// Find first "non-delimiter".
@@ -31,7 +36,6 @@ bool Helpers::readLine(ifstream& file, std::vector<std::string>& tokens, const s
 		// Find next "non-delimiter"
 		pos = line.find_first_of(delimiters, lastPos);
 	}
-	return true;
 }
 
 int Helpers::stringToInt(const std::string& inputString)
@@ -74,7 +78,7 @@ void Helpers::writeToLog(std::string &logMsg, bool clear)
 		mode = ios::out;
 	}
 	std::ofstream logFile = std::ofstream("./StackEditor/StackEditor.log", mode);
-	logFile << logMsg;
+	logFile << logMsg << "\n";
 	logFile.close();
 }
 
