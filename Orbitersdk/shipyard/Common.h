@@ -1,6 +1,7 @@
 #ifndef SHIPYARD_COMMON
 #define SHIPYARD_COMMON
 
+
 #include <irrlicht.h>
 #include <vector>
 #include <string>
@@ -10,6 +11,7 @@
 #include <map>
 
 using namespace irr;
+
 using namespace scene;
 using namespace std;
 
