@@ -46,8 +46,10 @@ int main()
 	std::replace(directory.begin(), directory.end(), '/', '\\');
 	Helpers::workingDirectory = directory;
 
+	//allocate the data manager
+	DataManager *datamanager = new DataManager();
 	//pass it off to Shipyard
-	shipyard.setupDevice(device, params.toolboxset);
+	shipyard.setupDevice(device, params.toolboxset, datamanager);
 	//and run!
 	shipyard.loop();
 	device->drop();

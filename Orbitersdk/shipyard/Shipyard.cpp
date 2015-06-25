@@ -19,18 +19,19 @@ Shipyard::Shipyard()
 Shipyard::~Shipyard()
 {
 	saveToolBoxes();
+	dataManager->DeInitialise();
 	Helpers::writeToLog(std::string("\n Terminating StackEditor..."));
 }
 
-void Shipyard::setupDevice(IrrlichtDevice * _device, std::string toolboxSet)
+void Shipyard::setupDevice(IrrlichtDevice * _device, std::string toolboxSet, DataManager *datamanager)
 {
 	device = _device;
 	smgr = device->getSceneManager();
 	collisionManager = smgr->getSceneCollisionManager();
 	guiEnv = device->getGUIEnvironment();
 	tbxSet = toolboxSet;
-
-	dataManager.Initialise(device);
+	dataManager = datamanager;
+	dataManager->Initialise(device);
 
 	//initialising GUI skin to something nicer and loading a bigger font.
 	//well, loading the font, anyways. They messed around with the color identifiers since the last irrlicht version, it'll take a while to set the skin up properly :/
@@ -124,7 +125,7 @@ void Shipyard::loop()
 		ToolboxData* toolboxData = toolboxes[activetoolbox]->checkCreateVessel();
 		if (toolboxData != NULL)
 		{
-			VesselData *createVessel = dataManager.GetGlobalConfig(toolboxData->configFileName, driver);
+			VesselData *createVessel = dataManager->GetGlobalConfig(toolboxData->configFileName, driver);
 			if (createVessel != NULL)
 			{
 				addVessel(createVessel);
@@ -246,7 +247,7 @@ bool Shipyard::processGuiEvent(const SEvent &event)
 			{
 				std::string filename = fullfilename.substr(Helpers::workingDirectory.length() + 16);
 				//create a new toolbox entry
-				bool success = toolboxes[UINT(toolBoxList->getSelected())]->addElement(dataManager.GetGlobalToolboxData(filename, device->getVideoDriver()));
+				bool success = toolboxes[UINT(toolBoxList->getSelected())]->addElement(dataManager->GetGlobalToolboxData(filename, device->getVideoDriver()));
 				if (!success)
 				//pop a message that the vessel could not be loaded
 				{
@@ -641,7 +642,7 @@ bool Shipyard::loadToolBoxes()
 			while (getline(tbxFile, line))
 			//loading the toolbox entries
 			{
-				bool success = toolboxes[toolboxes.size() - 1]->addElement(dataManager.GetGlobalToolboxData(line, device->getVideoDriver()));
+				bool success = toolboxes[toolboxes.size() - 1]->addElement(dataManager->GetGlobalToolboxData(line, device->getVideoDriver()));
 				if (!success)
 				{
 					haderrors = true;
@@ -756,7 +757,7 @@ bool Shipyard::loadSession(std::string path)
 				return false;
 			}
 
-			addVessel(dataManager.GetGlobalConfig(tokens[1], device->getVideoDriver()), false);
+			addVessel(dataManager->GetGlobalConfig(tokens[1], device->getVideoDriver()), false);
 			if (!vessels[vessels.size() - 1]->loadFromSession(file))
 			{
 				guiEnv->addMessageBox(L"He's dead, Jim!", L"error while loading session");

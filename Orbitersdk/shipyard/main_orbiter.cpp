@@ -17,6 +17,7 @@ using namespace irr;
 DWORD g_dwCmd;
 void startSEThread(void *context);
 void OpenSE();
+DataManager *datamanager;
 
 DLLCLBK void InitModule(HINSTANCE hDLL)
 {
@@ -24,6 +25,8 @@ DLLCLBK void InitModule(HINSTANCE hDLL)
 	// To allow the user to open our new dialog box, we create
 	// an entry in the "Custom Functions" list which is accessed
 	// in Orbiter via Ctrl-F4.
+	datamanager = new DataManager();
+
 	g_dwCmd = oapiRegisterCustomCmd("StackEditor",
 		"Opens StackEditor in an external window",
 		startSEThread, NULL);
@@ -76,7 +79,8 @@ void OpenSE()
 	Helpers::workingDirectory = directory;
 
 	//pass it off to Shipyard
-	shipyard.setupDevice(device, params.toolboxset);
+	shipyard.setupDevice(device, params.toolboxset, datamanager);
+
 	//and run!
 	shipyard.loop();
 	device->drop();

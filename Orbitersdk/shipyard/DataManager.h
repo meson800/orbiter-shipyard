@@ -41,6 +41,7 @@ public:
 	ToolboxData* GetGlobalToolboxData(std::string configName, video::IVideoDriver* driver);
 	video::ITexture *GetGlobalImg(std::string imgname, std::string configname, video::IVideoDriver* driver);
 	void Initialise(IrrlichtDevice *device);
+	void DeInitialise();
 
 private:
 	VesselData* LoadVesselData(std::string configFileName, video::IVideoDriver* driver);
