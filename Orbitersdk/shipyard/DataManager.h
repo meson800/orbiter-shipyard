@@ -52,4 +52,6 @@ private:
 	std::map<std::string, VesselData*> cfgMap;		//stores all loaded configs
 	std::map<std::string, video::ITexture*> imgMap;	//stores all loaded images
 	SE_PhotoStudio *photostudio;
+
+	int _runningthreads;							//amount of background loading threads running currently
 };
