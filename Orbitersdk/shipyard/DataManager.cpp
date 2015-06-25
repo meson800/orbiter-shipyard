@@ -6,7 +6,6 @@
 DataManager::DataManager()
 {
 	_runningthreads = 0;
-	photostudio = NULL;
 }
 
 DataManager::~DataManager()
@@ -33,16 +32,13 @@ DataManager::~DataManager()
 	cfgMap.clear();
 
 	imgMap.clear();			//Irrlicht will drop the textures itself
+	delete photostudio;
 }
 
 void DataManager::Initialise(IrrlichtDevice *device)
 {
+	//set up the photostudio for when we have to take pictures of meshes
 	photostudio = new SE_PhotoStudio(device);
-}
-
-void DataManager::DeInitialise()
-{
-	delete photostudio;
 }
 
 OrbiterMesh* DataManager::GetGlobalMesh(string meshName, video::IVideoDriver* driver)
