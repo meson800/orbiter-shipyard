@@ -2,6 +2,7 @@
 
 std::string Helpers::workingDirectory = "";
 Shipyard* Helpers::mainShipyard = 0;
+IrrlichtDevice *Helpers::irrdevice = NULL;
 std::mutex Helpers::videoDriverMutex;
 bool Helpers::readLine(ifstream& file, std::vector<std::string>& tokens, const std::string &delimiters)
 {
@@ -15,7 +16,12 @@ bool Helpers::readLine(ifstream& file, std::vector<std::string>& tokens, const s
 		line.erase(line.find_first_of(';'), std::string::npos);
 	//remove extra spaces
 	removeExtraSpaces(line);
+	tokenize(line, tokens, delimiters);
+	return true;
+}
 
+void Helpers::tokenize(std::string line, std::vector<std::string>& tokens, const std::string &delimiters)
+{
 	// Skipping delimiters at the beginning
 	std::string::size_type lastPos = line.find_first_not_of(delimiters, 0);
 	// Find first "non-delimiter".
@@ -30,7 +36,6 @@ bool Helpers::readLine(ifstream& file, std::vector<std::string>& tokens, const s
 		// Find next "non-delimiter"
 		pos = line.find_first_of(delimiters, lastPos);
 	}
-	return true;
 }
 
 int Helpers::stringToInt(const std::string& inputString)
@@ -73,7 +78,7 @@ void Helpers::writeToLog(std::string &logMsg, bool clear)
 		mode = ios::out;
 	}
 	std::ofstream logFile = std::ofstream("./StackEditor/StackEditor.log", mode);
-	logFile << logMsg;
+	logFile << logMsg << "\n";
 	logFile.close();
 }
 
@@ -102,3 +107,19 @@ double Helpers::max(double v1, double v2)
 	return v2;
 }
 
+//takes the name of the mesh as noted in the config file and returns the name of the GUI image for that mesh
+//basically, replaces all "/" or "\\" with _ and appends ".bmp"
+std::string Helpers::meshNameToImageName(std::string meshname)
+{
+	std::string imagename = "";
+	std::string::size_type pos = meshname.find_first_of("/\\", 0);
+	std::string::size_type lastpos = meshname.find_first_not_of("/\\", 0);
+	while (pos != std::string::npos)
+	{
+		imagename = imagename + meshname.substr(lastpos, pos - lastpos) + "_";
+		lastpos = meshname.find_first_not_of("/\\", pos);
+		pos = meshname.find_first_of("/\\", lastpos);
+	}
+	imagename = imagename + meshname.substr(lastpos, meshname.length()) + ".bmp";
+	return imagename;
+}

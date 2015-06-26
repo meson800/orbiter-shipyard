@@ -67,9 +67,7 @@ void VesselSceneNode::setupDockingPortNodes()
 		dockingPorts[i].docked = false;
 
 		dockingPorts[i].portNode = smgr->addSphereSceneNode((f32)1.4, 16, this, DOCKPORT_ID, dockingPorts[i].position);
-		dockingPorts[i].portNode->getMaterial(0).AmbientColor.set(255, 255, 255, 0);
-		dockingPorts[i].portNode->getMaterial(0).EmissiveColor.set(150, 150, 150, 150);
-		dockingPorts[i].portNode->setVisible(false);
+		setupDockingPortNode(dockingPorts[i].portNode);
 
 		//rotate portNode so it has the actual orientation of the dockport (direction and up)
 		core::matrix4 matrix;
@@ -80,11 +78,26 @@ void VesselSceneNode::setupDockingPortNodes()
 		//the helper node is used to avoid collision conflicts when checking for visual overlap between the mousecursor and docking nodes
 		//in short, the currently selected stack turns on the helper nodes to avoid stealing the overlap event from other vessels
 		dockingPorts[i].helperNode = smgr->addSphereSceneNode((f32)1.4, 16, this, HELPER_ID, dockingPorts[i].position);
-		dockingPorts[i].helperNode->getMaterial(0).AmbientColor.set(255, 255, 255, 0);
-		dockingPorts[i].helperNode->getMaterial(0).EmissiveColor.set(150, 150, 150, 150);
-		dockingPorts[i].helperNode->setVisible(false);
+		setupDockingPortNode(dockingPorts[i].helperNode);
+	}
+}
+
+void VesselSceneNode::setupDockingPortNode(IMeshSceneNode *node)
+{
+	//deactivate lighting so we don't get reflections on the nodes and make them transparent
+	node->setMaterialFlag(EMF_LIGHTING, false);
+	node->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
+
+	//now that we don't have lighting, we have to set vertex color directly to have any effect
+	S3DVertex *vertices = (S3DVertex*)(node->getMesh()->getMeshBuffer(0)->getVertices());
+	UINT vertexcount = node->getMesh()->getMeshBuffer(0)->getVertexCount();
+	SColor vertexcolor = SColor(255, 13, 161, 247);
+	for (UINT i = 0; i < vertexcount; ++i)
+	{
+		vertices[i].Color = vertexcolor;
 	}
 
+	node->setVisible(false);
 }
 
 void VesselSceneNode::OnRegisterSceneNode()
@@ -212,8 +225,9 @@ void VesselSceneNode::snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& thei
 	core::matrix4 ourPortToTheirPort;
 	ourPortToTheirPort.buildCameraLookAtMatrixLH(core::vector3df(0, 0, 0), theirDir, theirRot).makeInverse();
 
-	//get source port rotation relative to its vessel
+	//get inverted source port rotation relative to its vessel
 	core::matrix4 ourVesselToOurPort = ourNode->getRelativeTransformation();
+	ourVesselToOurPort.makeInverse();
 
 	//multiply the rotation from our vessel origin to our port and from our port origin to the target to get the total transformation for the vessel
 	core::matrix4 ourVesselToTheirPort = ourPortToTheirPort * ourVesselToOurPort;
@@ -230,6 +244,8 @@ void VesselSceneNode::snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& thei
 	//position the vessel so the docking ports touch
 	core::vector3df pos = ourNode->getAbsolutePosition() - getAbsolutePosition();
 	setPosition(theirNode->getAbsolutePosition() - pos);
+	//update the new position, in case there's a vessel being snapped to this right next
+	updateAbsolutePosition();				
 }
 
 void VesselSceneNode::dock(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort)
@@ -240,4 +256,68 @@ void VesselSceneNode::dock(OrbiterDockingPort& ourPort, OrbiterDockingPort& thei
 	//set dockedTo pointers
 	ourPort.dockedTo = &theirPort;
 	theirPort.dockedTo = &ourPort;
+}
+
+void VesselSceneNode::saveToSession(ofstream &file)
+//writes pos and rot of the vesselscenenode to a session file
+{
+	updateAbsolutePosition();		//just in case
+	file << "VESSEL_BEGIN\n" << "FILE =  " << vesselData->className << "\n";
+	core::vector3df pos = getAbsolutePosition();
+	core::vector3df rot = getRotation();
+	file << "POS = " << pos.X << " " << pos.Y << " " << pos.Z << "\n";
+	file << "ROT = " << rot.X << " " << rot.Y << " " << rot.Z << "\n";
+	file << "VESSEL_END\n";
+}
+
+bool VesselSceneNode::loadFromSession(ifstream &file)
+{
+	vector<string> tokens;
+	bool done = false;
+	while (!done)
+	{
+		done = !Helpers::readLine(file, tokens);
+		if (done)
+		//unexpected eof, write to log and abort
+		{
+			Helpers::writeToLog(string("ERROR: unexpected end of file while loading session"));
+			return false;
+		}
+		if (tokens.size() == 0)
+			continue;
+		if (tokens[0].compare("POS") == 0)
+		{
+			if (tokens.size() < 4)
+			//line doesn't contain enough values
+			{
+				Helpers::writeToLog(string("ERROR: invalid POS in session"));
+				return false;
+			}
+			core::vector3df pos = core::vector3df(Helpers::stringToDouble(tokens[1]),
+													Helpers::stringToDouble(tokens[2]),
+													Helpers::stringToDouble(tokens[3]));
+			setPosition(pos);
+			updateAbsolutePosition();
+		}
+		else if (tokens[0].compare("ROT") == 0)
+		{
+			if (tokens.size() < 4)
+			//line doesn't contain enough values
+			{
+				Helpers::writeToLog(string("ERROR: invalid ROT in session"));
+				return false;
+			}
+			core::vector3df rot = core::vector3df(Helpers::stringToDouble(tokens[1]),
+				Helpers::stringToDouble(tokens[2]),
+				Helpers::stringToDouble(tokens[3]));
+			setRotation(rot);
+			updateAbsolutePosition();
+		}
+		else if (tokens[0].compare("VESSEL_END") == 0)
+		{
+			done = true;
+		}
+		tokens.clear();
+	}
+	return true;
 }

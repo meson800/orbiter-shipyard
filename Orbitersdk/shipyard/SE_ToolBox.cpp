@@ -1,13 +1,14 @@
 #include "GuiIdentifiers.h"
 #include "SE_ToolBox.h"
 
+
 CGUIToolBox::CGUIToolBox(std::string _name, core::rect<s32> rectangle, irr::gui::IGUIEnvironment* environment, irr::gui::IGUIElement* parent)
 : IGUIElement((irr::gui::EGUI_ELEMENT_TYPE)MGUIET_TOOLBOX, environment, parent, -1, rectangle)
 {
 	
 	name = _name;
 	width = rectangle.getWidth();
-	imgWidth = 164;
+	imgWidth = 130;
 	scrollPos = 0;
 	
 	IGUISkin* skin = Environment->getSkin();
@@ -25,8 +26,8 @@ CGUIToolBox::CGUIToolBox(std::string _name, core::rect<s32> rectangle, irr::gui:
 
 	vesselToCreate = NULL;
 	rightClickedElement = -1;
-
-	//setVisible(false);
+	hasbeenedited = false;
+	lasthovered = -1;
 }
 
 
@@ -41,7 +42,7 @@ CGUIToolBox::~CGUIToolBox(void)
 
 bool CGUIToolBox::OnEvent(const SEvent& event)
 {
-	if (!isEnabled())
+	if (!isEnabled() || !Environment->hasFocus(this))
 		return IGUIElement::OnEvent(event);
 
 	switch (event.EventType)
@@ -52,37 +53,60 @@ bool CGUIToolBox::OnEvent(const SEvent& event)
 		case gui::EGET_SCROLL_BAR_CHANGED:
 			if (event.GUIEvent.Caller == ScrollBar)
 				return true;
+		case gui::EGET_ELEMENT_FOCUS_LOST:
+			if (event.GUIEvent.Caller == this)
+			{
+				if (lasthovered != -1 && entries[lasthovered]->imsData != NULL)
+				{
+					entries[lasthovered]->imsData->setVisible(false);
+					lasthovered = -1;
+				}
+			}
 			break;
 		}
 	case EET_MOUSE_INPUT_EVENT:
-		if (event.MouseInput.Event == EMIE_LMOUSE_PRESSED_DOWN || event.MouseInput.Event == EMIE_RMOUSE_PRESSED_DOWN)
-		{
-			if (Environment->hasFocus(this) &&
-				!AbsoluteClippingRect.isPointInside(core::position2d<s32>(event.MouseInput.X, event.MouseInput.Y)))
-			{
-				Environment->removeFocus(this);
-				return false;
-			}
-
-			Environment->setFocus(this);
-		}
 		if (event.MouseInput.Event == EMIE_LMOUSE_DOUBLE_CLICK)
 		{
-			UINT entryToCreate = GetEntryUnderCursor(event.MouseInput.X);
-			if (entryToCreate < entries.size())
+			//due to a quirk of irrlicht, doubleclicks get handled as a separate event even if the individual clicks already produced an event
+			//this makes it neccessary to check if the cursor is over the scrollbar, otherwise fast-clicking on the bar will spawn vessels
+			if (!ScrollBar->isVisible() || event.MouseInput.Y < ScrollBar->getAbsoluteClippingRect().UpperLeftCorner.Y)
 			{
-				vesselToCreate = entries[entryToCreate];
+				UINT entryToCreate = GetEntryUnderCursor(event.MouseInput.X);
+				if (entryToCreate < entries.size())
+				{
+					vesselToCreate = entries[entryToCreate];
+				}
 			}
-
 		}
 		else if (event.MouseInput.Event == EMIE_RMOUSE_PRESSED_DOWN)
-		//create context menu for editting toolbox
+		//create context menu for editing toolbox
 		{
 			IGUIContextMenu *mnu = Environment->addContextMenu(rect<s32>(event.MouseInput.X, event.MouseInput.Y, event.MouseInput.X + 50, event.MouseInput.Y + 50), 0, TOOLBOXCONTEXT);
 			mnu->addItem(L"add vessel");
 			mnu->addItem(L"remove vessel");
 			mnu->addItem(L"create new toolbox");
+			mnu->addItem(L"delete toolbox");
 			rightClickedElement = GetEntryUnderCursor(event.MouseInput.X);
+		}
+		else if (event.MouseInput.Event == EMIE_MOUSE_MOVED)
+		{
+			int elementhovered = GetEntryUnderCursor(event.MouseInput.X);
+			if (elementhovered != lasthovered)
+			//new element hovered, update visible ims data
+			{
+				//hide old table
+				if (lasthovered != -1 && entries[lasthovered]->imsData != NULL)
+				{
+					entries[lasthovered]->imsData->setVisible(false);
+				}
+			
+				//show new table
+				if (elementhovered != -1 && entries[elementhovered]->imsData != NULL)
+				{
+					entries[elementhovered]->imsData->setVisible(true);
+				}
+			}
+			lasthovered = elementhovered;
 		}
 	}
 	return IGUIElement::OnEvent(event);
@@ -99,20 +123,20 @@ void CGUIToolBox::draw()
 	if (ScrollBar->isVisible())
 	{
 		scrollPos = double(ScrollBar->getPos()) / 100 * ((entries.size() * imgWidth) - AbsoluteRect.getWidth());
-		bool bugme = true;
 	}
 
 	IGUISkin* skin = Environment->getSkin();
 	video::IVideoDriver* driver = Environment->getVideoDriver();
-
+	
+	//draw background
 	driver->draw2DRectangle(skin->getColor(EGDC_3D_FACE), AbsoluteRect);
 
 	//drawing vessel images
-	//first partly visible entry
+	//first partly visible entry (because of scrollposition)
 	UINT firstEntry = scrollPos / imgWidth;
 	//last partly visible entry
 	UINT lastEntry = firstEntry + (AbsoluteRect.getWidth() / imgWidth + 1);
-	int imgDrawPos = firstEntry * imgWidth - scrollPos;
+	int imgDrawPos = 2 + firstEntry * imgWidth - scrollPos;
 
 	for (UINT i = firstEntry; i < entries.size() && i < lastEntry; i++)
 	{
@@ -140,7 +164,7 @@ bool CGUIToolBox::addElement(ToolboxData *newElement)
 			ScrollBar->setVisible(true);
 			ScrollBar->setEnabled(true);
 		}
-
+		hasbeenedited = true;
 		return true;
 	}
 	return false;
@@ -152,13 +176,12 @@ ToolboxData *CGUIToolBox::checkCreateVessel()
 	if (vesselToCreate != NULL)
 	//function automatically resets after it's been checked
 	{
-		ToolboxData* retVessel = vesselToCreate;
+		ToolboxData *createvessel = vesselToCreate;
 		vesselToCreate = NULL;
-		return retVessel;
+		return createvessel;
 	}
 	return NULL;
 }
-
 
 void CGUIToolBox::removeCurrentElement()
 //removes the element from the toolbox that was right-clicked last
@@ -166,6 +189,7 @@ void CGUIToolBox::removeCurrentElement()
 	if (rightClickedElement != -1)
 	{
 		entries.erase(entries.begin() + rightClickedElement);
+		hasbeenedited = true;
 	}
 	rightClickedElement = -1;
 
@@ -184,19 +208,44 @@ std::string CGUIToolBox::getName()
 
 void CGUIToolBox::saveToolBox(std::string subfolder)
 {
-	std::string toolboxPath = std::string(Helpers::workingDirectory + "/StackEditor/Toolboxes/" + subfolder + name + ".tbx");
-	ofstream toolboxFile = ofstream(toolboxPath.c_str(), ios::out);
-	for (UINT i = 0; i < entries.size(); ++i)
+	//only save the toolbox if it has been edited. Otherwise modules that could not be loaded will be removed 
+	//from the toolbox after first load, which is not desirable as it would complicate fixing the problem
+	//which is undesirable
+	if (hasbeenedited)
 	{
-		toolboxFile << entries[i]->configFileName << "\n";
+		std::string toolboxPath = std::string(Helpers::workingDirectory + "/StackEditor/Toolboxes/" + subfolder + name + ".tbx");
+		ofstream toolboxFile = ofstream(toolboxPath.c_str(), ios::out);
+		for (UINT i = 0; i < entries.size(); ++i)
+		{
+			toolboxFile << entries[i]->configFileName << "\n";
+		}
+		toolboxFile.close();
 	}
-	toolboxFile.close();
+}
+
+//delete the toolbox file from harddisk
+void CGUIToolBox::deleteToolBoxFromDisk(std::string subfolder)
+{
+	std::string toolboxPath = std::string(Helpers::workingDirectory + "/StackEditor/Toolboxes/" + subfolder + name + ".tbx");
+	std::remove((const char*)toolboxPath.c_str());
 }
 
 
-UINT CGUIToolBox::GetEntryUnderCursor(int x)
+int CGUIToolBox::GetEntryUnderCursor(int x)
 //returns the index of the entry over which the cursor currently hovers. x is x-position of mouse cursor
+//returns -1 if there's nothing under the cursor
 {
 	int effectiveCursorPos = scrollPos + x;		//position of the cursor on the toolbox overall (not just visible part)
-	return effectiveCursorPos / imgWidth;		//calculating index of entry at this position
+	int idx = effectiveCursorPos / imgWidth;		//calculating index of entry at this position
+	if (idx >= entries.size())
+	{
+		idx = -1;
+	}
+	return idx;
+}
+
+void CGUIToolBox::finishedLoading()
+//tells the toolbox that it has finished loading. Otherwise the loading itself would count as editing.
+{
+	hasbeenedited = false;
 }

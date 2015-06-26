@@ -22,6 +22,7 @@ public:
 	vector<video::SMaterial> materials;
 	vector<video::ITexture*> textures;
 	vector<OrbiterMeshGroup> meshGroups;
+	void getOuterDimensions(core::vector3df &max, core::vector3df &min);
 
 private:
 	void setupNormals(int meshGroup);

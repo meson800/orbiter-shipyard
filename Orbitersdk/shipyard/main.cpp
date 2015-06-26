@@ -73,13 +73,15 @@ int main()
 	Helpers::mainShipyard = &shipyard;
 
 	IrrlichtDevice *device = createDevice(video::EDT_DIRECT3D9, windowRes, 32, false, false, false, &shipyard);
+	
 	if (!device)
 		return 1;
 
+	Helpers::irrdevice = device;
 	Helpers::writeToLog(std::string("\n Irrlicht device ok..."));
 
 	//set caption
-	device->setWindowCaption(L"Orbiter Shipyard");
+	device->setWindowCaption(L"Orbiter Shipyard - unnamed");
 
 	//set the working directory
 	std::string directory = device->getFileSystem()->getWorkingDirectory().c_str();

@@ -80,6 +80,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DdsImage.cpp" />
+    <ClCompile Include="SE_ImsData.cpp" />
+    <ClCompile Include="SE_PhotoStudio.cpp" />
     <ClCompile Include="Helpers.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="DataManager.cpp" />
@@ -96,6 +98,8 @@
     <ClInclude Include="DdsHeader.h" />
     <ClInclude Include="DdsImage.h" />
     <ClInclude Include="GuiIdentifiers.h" />
+    <ClInclude Include="SE_ImsData.h" />
+    <ClInclude Include="SE_PhotoStudio.h" />
     <ClInclude Include="Helpers.h" />
     <ClInclude Include="DataManager.h" />
     <ClInclude Include="OrbiterDockingPort.h" />

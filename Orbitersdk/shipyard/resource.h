@@ -8,6 +8,7 @@ enum
 	HELPER_ID = 1 << 2
 };
 
+
 /*enum NodeId
 {
 	ID_IsNotPickable = 0,

@@ -4,6 +4,7 @@ VesselStack::VesselStack(VesselSceneNode* startingVessel)
 {
 	//recurse through with the helper, start with a null pointer, so any docked port works
 	createStackHelper(startingVessel, 0);
+	issnaped = false;
 }
 
 void VesselStack::changeDockingPortVisibility(bool showEmpty, bool showDocked)
@@ -29,10 +30,30 @@ void VesselStack::rotateStack(core::vector3df relativeRot)
 	rotateStack(core::quaternion(relativeRot * core::DEGTORAD));
 }
 
+/*void VesselStack::rotateStackAroundVessel(core::vector3df relativeRot, VesselSceneNode *vessel)
+//rotates the stack around a given vessel (which it must contain!)
+// relativeRot: 
+{
+
+}*/
+
 void VesselStack::rotateStack(core::quaternion relativeRot)
 {
+	//simplified by only rotating the first vessel in the stack (the one the stack was selected with) and just snapping the rest of the stack to it.
+	//prevents the stack from running away when being rotated.
+
+	core::quaternion thisNodeRotation = core::quaternion(nodes[0]->getRotation() * core::DEGTORAD);
+	//rotate this sucker
+	thisNodeRotation = thisNodeRotation * relativeRot;
+	//set the rotation
+	core::vector3df eulerRotation;
+	thisNodeRotation.toEuler(eulerRotation);
+	nodes[0]->setRotation(eulerRotation * core::RADTODEG);
+	nodes[0]->updateAbsolutePosition();
+	snapStack(0);
+
 	//use the force, erm, quaternoins to rotate each node in the stack to avoid gimbal lock
-	for (unsigned int i = 0; i < nodes.size(); i++)
+/*	for (unsigned int i = 0; i < nodes.size(); i++)
 	{
 		core::quaternion thisNodeRotation = core::quaternion(nodes[i]->getRotation() * core::DEGTORAD);
 		//rotate this sucker
@@ -56,7 +77,7 @@ void VesselStack::rotateStack(core::quaternion relativeRot)
 		core::vector3df relativePos = nodes[i]->getAbsolutePosition() - center;
 		core::vector3df rotatedPos = relativeRot * relativePos;
 		nodes[i]->setPosition(nodes[i]->getPosition() + (rotatedPos - relativePos));
-	}
+	}*/
 }
 
 void VesselStack::setMoveReference(core::vector3df refPos)
@@ -84,6 +105,9 @@ void VesselStack::moveStackReferenced(core::vector3df movePos)
 	//be able to move the node out of the snapping radius, resulting in permenant snapping.
 	//This way always moves the node to a position relative to the initial position, making snapping work
 
+	if (issnaped)
+		return;
+
 	//check to make sure that we have the same amount of positions in previousPositions than we have nodes
 	if (nodes.size() != previousPositions.size())
 	{
@@ -102,45 +126,24 @@ void VesselStack::moveStackReferenced(core::vector3df movePos)
 
 }
 
+void VesselStack::unSnap(core::vector3df refPos)
+{
+	if (issnaped)
+	{
+		setMoveReference(refPos);
+		issnaped = false;
+	}
+}
+
+bool VesselStack::isSnaped()
+{
+	return issnaped;
+}
+
 void VesselStack::checkForSnapping(VesselSceneNode* vessel, ISceneNode* dockportnode, bool dock)
 {
-	//loop over each node
-/*	for (unsigned int nodeNum = 0; nodeNum < nodes.size(); nodeNum++)
-	{
-		//loop over empty docking ports on this node
-		for (unsigned int i = 0; i < nodes[nodeNum]->dockingPorts.size(); i++)
-		{
-			if (nodes[nodeNum]->dockingPorts[i].docked == false)
-			{
-				//now, loop over the OTHER vessels (not equal to this node)
-				//and see if it is close to another port's empty docking ports
-				for (unsigned int j = 0; j < vessels.size(); j++)
-				{
-					//make sure this vessel isn't in our stack
-					if (std::find(nodes.begin(), nodes.end(), vessels[j]) == nodes.end())
-					{
-						//check it's docking ports
-						for (unsigned int k = 0; k < vessels[j]->dockingPorts.size(); k++)
-						{
-							//check if it is not docked, and they are within a certain distance
-							if (!(vessels[j]->dockingPorts[k].docked) &&
-								((nodes[nodeNum]->getAbsolutePosition() + nodes[nodeNum]->returnRotatedVector(nodes[nodeNum]->dockingPorts[i].position)) -
-								(vessels[j]->getAbsolutePosition() + vessels[j]->returnRotatedVector(vessels[j]->dockingPorts[k].position))
-								).getLengthSQ() < 16)
-							{
-								//snap it if dock=false, dock if dock=true
-								if (!dock)
-									snapStack(nodeNum, i, vessels[j]->dockingPorts[k]);
-								else
-									snap(nodes[nodeNum]->dockingPorts[i], vessels[j]->dockingPorts[k], true);
-							}
-
-						}
-					}
-				}
-			}
-		}
-	}*/
+	if (issnaped && !dock)
+		return;
 
 	//find which port on the target the node belongs to
 	int targetdock = -1;
@@ -187,7 +190,7 @@ void VesselStack::checkForSnapping(VesselSceneNode* vessel, ISceneNode* dockport
 	if (closestvessel != -1 && closestport != -1)
 	{
 		//we have a valid vessel in the stack and a valid dockport, let's snap
-		snapStack(closestvessel, closestport, vessel->dockingPorts[targetdock]);
+		snapStack(closestvessel, closestport, &vessel->dockingPorts[targetdock]);
 		if (dock)
 		{
 			nodes[closestvessel]->dock(nodes[closestvessel]->dockingPorts[closestport], vessel->dockingPorts[targetdock]);
@@ -200,16 +203,21 @@ void VesselStack::checkForSnapping(VesselSceneNode* vessel, ISceneNode* dockport
 //srcvesselidx: index of the vessel in this stack causing the snap
 //srcdockidx: index of the dockport causing the snap
 //tgtport: the OrbiterDockingPort the stack is snapping to
-void VesselStack::snapStack(int srcvesselidx, int srcdockportidx, OrbiterDockingPort& tgtport)
+void VesselStack::snapStack(int srcvesselidx, int srcdockportidx, OrbiterDockingPort *tgtport)
 {
 	VesselSceneNode *srcvessel = nodes[srcvesselidx];
-	//snap the corpus delicti
-	srcvessel->snap(srcvessel->dockingPorts[srcdockportidx], tgtport);
-
 	vector<VesselSceneNode*> snapped_in_last_pass;							//will remember the vessels processed in the last pass
-	snapped_in_last_pass.push_back(srcvessel);								//this is where we start from
 	vector<VesselSceneNode*> hasSnapped = snapped_in_last_pass;				//will contain all vessels that have already snapped
-	hasSnapped.push_back(tgtport.parent);									//need that in here too
+
+	if (tgtport != NULL && srcdockportidx != -1)
+	//a target port has been defined, snap the passed vessel to it
+	{
+		srcvessel->snap(srcvessel->dockingPorts[srcdockportidx], *tgtport);
+		hasSnapped.push_back(tgtport->parent);									//mark the vessel we snaped to, or the algorithm will spill over into the neighbouring stack
+	}
+
+	//continue to snap the rest of the stack to the source vessel
+	snapped_in_last_pass.push_back(srcvessel);								//this is where we start from
 
 
 	while (snapped_in_last_pass.size() != 0)									//if there's no vessels snapped in a pass, the algorithm is complete
@@ -235,6 +243,8 @@ void VesselStack::snapStack(int srcvesselidx, int srcdockportidx, OrbiterDocking
 		}
 		snapped_in_last_pass = snapped_in_this_pass;
 	}
+
+	issnaped = true;
 }
 
 //recursive function to init a vessel stack

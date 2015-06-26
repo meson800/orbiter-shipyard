@@ -35,6 +35,9 @@ public:
 	ToolboxData *checkCreateVessel();										//if called, returns pointer to vesseldata to be created. NULL if no vessel is scheduled for creation. Returns to NULL after calling.
 	std::string getName();
 	void saveToolBox(std::string subfolder);
+	void deleteToolBoxFromDisk(std::string subfolder);
+	void finishedLoading();
+
 private:
 	vector<ToolboxData*> entries;
 //	IGUIElement* maneuverGUI;
@@ -45,8 +48,10 @@ private:
 	int imgWidth;
 	int scrollPos;
 
-	UINT GetEntryUnderCursor(int x);										//returns the index of the entry over which the cursor currently hovers
+	int GetEntryUnderCursor(int x);										//returns the index of the entry over which the cursor currently hovers
 	ToolboxData *vesselToCreate;
 	UINT rightClickedElement;												//stores the element that was right clicked last
 	std::string name;
+	bool hasbeenedited;
+	int lasthovered;
 };

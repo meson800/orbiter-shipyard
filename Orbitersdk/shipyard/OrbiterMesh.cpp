@@ -16,7 +16,7 @@ bool OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 	int groupCounter = 0;
 	bool noNormal = false;
 	int materialCounter = 1;			//a default material will be added in any case right below
-	int textureCounter = 0;				//a default texture will be added in any case right below
+	int textureCounter = 0;				
 	int meshGroupCounter = 0;
 	int vertexCounter = 0;
 	int triangleCounter = 0;
@@ -115,7 +115,6 @@ bool OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 					Helpers::stringToDouble(tokens[2]), Helpers::stringToDouble(tokens[3]),
 					Helpers::stringToDouble(tokens[4]), Helpers::stringToDouble(tokens[5]),
 					video::SColor(255,255,255,255), Helpers::stringToDouble(tokens[6]), Helpers::stringToDouble(tokens[7])));
-				
 				vertexCounter--;
 				break;
 			}
@@ -176,7 +175,7 @@ bool OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 
 				//insert standard shininess if it doesn't exist
 				if (tokens.size() == 16)
-					tokens.insert(tokens.begin() + 12, "20");
+					tokens.insert(tokens.begin() + 12, "0");
 
 				//orbiter format
 				//0		1	2	3		Diffuse colour(RGBA)
@@ -197,8 +196,8 @@ bool OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 				materials[materialCounter].SpecularColor.setGreen(Helpers::stringToDouble(tokens[9]) * 255);
 				materials[materialCounter].SpecularColor.setBlue(Helpers::stringToDouble(tokens[10]) * 255);
 				materials[materialCounter].SpecularColor.setAlpha(Helpers::stringToDouble(tokens[11]) * 255);
-				//set specular power-"shineness"
-				materials[materialCounter].Shininess = Helpers::stringToDouble(tokens[12]);
+				//set specular power-"shineness". Modified from the orbiter value because the irrlicht shader interprets it differently
+				materials[materialCounter].Shininess = Helpers::min(128, Helpers::stringToDouble(tokens[12]) * 2);
 
 				materials[materialCounter].EmissiveColor.setRed(Helpers::stringToDouble(tokens[13]) * 255);
 				materials[materialCounter].EmissiveColor.setGreen(Helpers::stringToDouble(tokens[14]) * 255);
@@ -272,3 +271,6 @@ void OrbiterMesh::setupNormals(int meshGroup)
 	for (int i = 0; i < meshGroups[meshGroup].vertices.size(); i++)
 		meshGroups[meshGroup].vertices[i].Normal = meshGroups[meshGroup].vertices[i].Normal.normalize();
 }
+
+
+
