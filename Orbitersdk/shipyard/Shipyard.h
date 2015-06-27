@@ -54,6 +54,8 @@ private:
 	scene::ISceneManager* smgr;
 	DataManager dataManager;
 	void addVessel(VesselData* vesseldata, bool snaptocursor = true);										//adds a new vessel to the scene
+	void registerVessel(VesselSceneNode* node);
+	void registerVessels(const std::vector<VesselSceneNode*>& nodes);
 	bool cursorOnGui;															//registers when the cursor is over a GUI element, so events can be passed on
 	vector<CGUIToolBox*> toolboxes;
 	IGUIListBox *toolBoxList;

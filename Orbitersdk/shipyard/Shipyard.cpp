@@ -151,12 +151,8 @@ void Shipyard::addVessel(VesselData* vesseldata, bool snaptocursor)
 {
 	//add the vessel
 	VesselSceneNode* newvessel = new VesselSceneNode(vesseldata, smgr->getRootSceneNode(), smgr, VESSEL_ID);
-	vessels.push_back(newvessel);
-	//map dockport nodes for fast vessel identification
-	for (vector<OrbiterDockingPort>::iterator i = newvessel->dockingPorts.begin(); i != newvessel->dockingPorts.end(); ++i)
-	{
-		dockportmap.insert(make_pair((*i).portNode, newvessel));
-	}
+	//register for fast vessel identification
+	registerVessel(newvessel);
 
 	if (snaptocursor)
 	{
@@ -172,6 +168,25 @@ void Shipyard::addVessel(VesselData* vesseldata, bool snaptocursor)
 	guiEnv->removeFocus(toolboxes[activetoolbox]);
 	cursorOnGui = false;
 
+}
+
+void Shipyard::registerVessel(VesselSceneNode* node)
+{
+	vessels.push_back(node);
+	for (vector<OrbiterDockingPort>::iterator i = node->dockingPorts.begin(); i != node->dockingPorts.end(); ++i)
+	{
+		dockportmap.insert(make_pair((*i).portNode, node));
+	}
+	if (selectedVesselStack != 0)
+		setupSelectedStack(); //this is needed to show available docking ports if we copied
+}
+
+void Shipyard::registerVessels(const std::vector<VesselSceneNode*>& nodes)
+{
+	for (UINT i = 0; i < nodes.size(); ++i)
+	{
+		registerVessel(nodes[i]);
+	}
 }
 
 void Shipyard::moveVesselToCursor(VesselSceneNode* vessel)
