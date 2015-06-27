@@ -481,18 +481,25 @@ bool Shipyard::processKeyboardEvent(const SEvent &event)
 			selectedVesselStack->setMoveReference(returnMouseRelativePos());
 		}
 
-		//check for splitting stack
-		switch (event.KeyInput.Key)
+		//check for splitting stack or copying
+		if (event.KeyInput.PressedDown)
 		{
-		case KEY_TAB:
-			if (event.KeyInput.PressedDown)
+			switch (event.KeyInput.Key)
 			{
+			case KEY_TAB:
 				areSplittingStack = !areSplittingStack;
 				selectedVesselStack->changeDockingPortVisibility(!areSplittingStack, areSplittingStack);
+				break;
+
+			case KEY_KEY_C:
+				if (selectedVesselStack != 0 && isKeyDown[EKEY_CODE::KEY_LCONTROL])
+				{
+					registerVessels(VesselStackOperations::copyStack(selectedVesselStack, smgr));
+				}
+				break;
+			default:
+				break;
 			}
-			break;
-		default:
-			break;
 		}
 	}
 	return false;
