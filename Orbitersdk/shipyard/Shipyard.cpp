@@ -14,6 +14,7 @@ Shipyard::Shipyard()
 	device = NULL;
 	lastSpawnedVessel = NULL;
 	session = "unnamed";
+	areSplittingStack = false;
 }
 
 Shipyard::~Shipyard()
@@ -464,6 +465,20 @@ bool Shipyard::processKeyboardEvent(const SEvent &event)
 			//reset the move reference, as we screwed up the initial positions
 			selectedVesselStack->setMoveReference(returnMouseRelativePos());
 		}
+
+		//check for splitting stack
+		switch (event.KeyInput.Key)
+		{
+		case KEY_TAB:
+			if (event.KeyInput.PressedDown)
+			{
+				areSplittingStack = !areSplittingStack;
+				selectedVesselStack->changeDockingPortVisibility(!areSplittingStack, areSplittingStack);
+			}
+			break;
+		default:
+			break;
+		}
 	}
 	return false;
 }
@@ -497,32 +512,64 @@ bool Shipyard::processMouseEvent(const SEvent &event)
 		break;
 	case EMIE_LMOUSE_PRESSED_DOWN:
 	{
-		//if we have a selected node, deselect it
+		//if we have a selected node, deselect it or check for stack splitting
 		if (selectedVesselStack != 0)
 		{
-
-			//try docking this node
-			scene::ISceneNode* selectedNode = collisionManager->getSceneNodeFromScreenCoordinatesBB(
-				device->getCursorControl()->getPosition(), DOCKPORT_ID, true);
-			if (selectedNode->getID() == DOCKPORT_ID)
+			if (areSplittingStack)
 			{
-				selectedVesselStack->checkForSnapping(dockportmap.find(selectedNode)->second, selectedNode, true);
-			}
-
-			//hide docking ports
-			selectedVesselStack->changeDockingPortVisibility(false, false);
-			//hide all the rest of the empty docking ports
-			for (unsigned int i = 0; i < vessels.size(); i++)
-			{
-				if (!selectedVesselStack->isVesselInStack(vessels[i]))
+				//try seeing if we clicked on a docking node
+				scene::ISceneNode* selectedNode = collisionManager->getSceneNodeFromScreenCoordinatesBB(
+					device->getCursorControl()->getPosition(), HELPER_ID, true);
+				if (selectedNode->getID() == HELPER_ID)
 				{
-					vessels[i]->changeDockingPortVisibility(false, false);
+					VesselSceneNode* nodeVessel = (VesselSceneNode*)selectedNode->getParent();
+					//check if this node is in our stack
+					if (selectedVesselStack->isVesselInStack(nodeVessel))
+					{
+						//find docking port
+						OrbiterDockingPort* selectedDockingPort = nodeVessel->dockingPortHelperNodeToOrbiter(selectedNode);
+
+						//if it is docked, undock it to split the stack
+						//and regenerate stack
+						if (selectedDockingPort->docked)
+						{
+							//before splitting, reset docking port node visibility
+							selectedVesselStack->changeDockingPortVisibility(false, false);
+							VesselStackOperations::splitStack(selectedDockingPort);
+							delete selectedVesselStack;
+							selectedVesselStack = new VesselStack(nodeVessel);
+							areSplittingStack = false;
+							setupSelectedStack();
+						}
+					}
 				}
 			}
+			else
+			{
 
-			delete selectedVesselStack;
-			selectedVesselStack = 0;
-			return true;
+				//try docking this node
+				scene::ISceneNode* selectedNode = collisionManager->getSceneNodeFromScreenCoordinatesBB(
+					device->getCursorControl()->getPosition(), DOCKPORT_ID, true);
+				if (selectedNode->getID() == DOCKPORT_ID)
+				{
+					selectedVesselStack->checkForSnapping(dockportmap.find(selectedNode)->second, selectedNode, true);
+				}
+
+				//hide docking ports
+				selectedVesselStack->changeDockingPortVisibility(false, false);
+				//hide all the rest of the empty docking ports
+				for (unsigned int i = 0; i < vessels.size(); i++)
+				{
+					if (!selectedVesselStack->isVesselInStack(vessels[i]))
+					{
+						vessels[i]->changeDockingPortVisibility(false, false);
+					}
+				}
+
+				delete selectedVesselStack;
+				selectedVesselStack = 0;
+				return true;
+			}
 		}
 		else if (isKeyDown[EKEY_CODE::KEY_LSHIFT])
 			//spawn last created vessel
@@ -552,8 +599,9 @@ bool Shipyard::processMouseEvent(const SEvent &event)
 		break;
 	}
 	case EMIE_MOUSE_MOVED:
-		//see if we have a node AND the camera isn't rotating or translating
-		if (selectedVesselStack != 0 && !camera->IsActionInProgress() && !isKeyDown[EKEY_CODE::KEY_LCONTROL])
+		//see if we have a node AND the camera isn't rotating or translating 
+		//AND we aren't selecting a node to split the stack
+		if (selectedVesselStack != 0 && !areSplittingStack && !camera->IsActionInProgress() && !isKeyDown[EKEY_CODE::KEY_LCONTROL])
 		{
 			//move the stack
 			selectedVesselStack->moveStackReferenced(returnMouseRelativePos());

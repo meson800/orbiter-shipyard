@@ -7,6 +7,7 @@
 #include "resource.h"
 #include "VesselSceneNode.h"
 #include "VesselStack.h"
+#include "VesselStackOperations.h"
 //#include "CSceneNodeAnimatorCameraCustom.h"
 #include "ShipyardCamera.h"
 #include "DataManager.h"
@@ -62,6 +63,8 @@ private:
 	void saveToolBoxes();
 	VesselData *lastSpawnedVessel;
 	void switchToolBox();
+
+	bool areSplittingStack;
 
 	void saveSession(std::string filename);
 	bool loadSession(std::string path);

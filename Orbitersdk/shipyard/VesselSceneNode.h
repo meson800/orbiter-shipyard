@@ -32,6 +32,9 @@ public:
 	void dock(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort);
 	core::vector3df returnRotatedVector(const core::vector3df& vec);
 
+	OrbiterDockingPort* dockingPortSceneNodeToOrbiter(scene::ISceneNode* sceneNode);
+	OrbiterDockingPort* dockingPortHelperNodeToOrbiter(scene::ISceneNode* sceneNode);
+
 	vector<OrbiterDockingPort> dockingPorts;
 	void saveToSession(ofstream &file);
 	bool loadFromSession(ifstream &file);
