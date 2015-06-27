@@ -37,6 +37,9 @@
     <ClCompile Include="SE_ImsData.cpp">
       <Filter>C++ Files</Filter>
     </ClCompile>
+    <ClCompile Include="VesselStackOperations.cpp">
+	      <Filter>C++ Files</Filter>
+    </ClCompile>
     <ClCompile Include="main_orbiter.cpp">
       <Filter>C++ Files</Filter>
     </ClCompile>
@@ -97,6 +100,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SE_ImsData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VesselStackOperations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StackExport.h">

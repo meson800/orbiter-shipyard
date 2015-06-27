@@ -7,6 +7,7 @@
 #include "resource.h"
 #include "VesselSceneNode.h"
 #include "VesselStack.h"
+#include "VesselStackOperations.h"
 //#include "CSceneNodeAnimatorCameraCustom.h"
 #include "ShipyardCamera.h"
 #include "DataManager.h"
@@ -55,6 +56,8 @@ private:
 	scene::ISceneManager* smgr;
 	DataManager dataManager;
 	void addVessel(VesselData* vesseldata, bool snaptocursor = true);										//adds a new vessel to the scene
+	void registerVessel(VesselSceneNode* node);
+	void registerVessels(const std::vector<VesselSceneNode*>& nodes);
 	bool cursorOnGui;															//registers when the cursor is over a GUI element, so events can be passed on
 	bool dialogOpen;															//true while dialog windows are open
 	vector<CGUIToolBox*> toolboxes;
@@ -65,6 +68,8 @@ private:
 	void saveToolBoxes();
 	VesselData *lastSpawnedVessel;
 	void switchToolBox();
+
+	bool areSplittingStack;
 
 	void saveSession(std::string filename);
 	bool loadSession(std::string path);

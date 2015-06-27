@@ -24,6 +24,7 @@ public:
 	int getIndexOfVessel(VesselSceneNode* vessel);
 	void unSnap(core::vector3df refPos);
 	bool isSnaped();
+	OrbiterDockingPort* dockingPortSceneNodeToOrbiter(scene::ISceneNode* sceneNode);
 	UINT getStackSize();
 private:
 	//recursive helper to init the stack

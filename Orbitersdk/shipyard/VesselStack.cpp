@@ -9,7 +9,7 @@ VesselStack::VesselStack(VesselSceneNode* startingVessel)
 
 void VesselStack::changeDockingPortVisibility(bool showEmpty, bool showDocked)
 {
-	for (unsigned int i = 0; i < nodes.size(); i++)
+		for (unsigned int i = 0; i < nodes.size(); i++)
 		nodes[i]->changeDockingPortVisibility(showEmpty, showDocked, true);
 }
 
