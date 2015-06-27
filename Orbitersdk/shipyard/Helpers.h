@@ -15,6 +15,11 @@
 using namespace irr;
 
 class Shipyard;
+struct CONFIGPARAMS
+{
+	std::string toolboxset;
+	core::dimension2d<u32> windowres;
+};
 
 class Helpers
 {
@@ -35,4 +40,5 @@ public:
 	static double max(double v1, double v2);
 	static std::string meshNameToImageName(std::string meshname);
 	static IrrlichtDevice *irrdevice;
+	static CONFIGPARAMS loadConfigParams();
 };

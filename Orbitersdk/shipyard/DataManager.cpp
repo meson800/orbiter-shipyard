@@ -5,11 +5,14 @@
 
 DataManager::DataManager()
 {
-
+	_runningthreads = 0;
 }
 
 DataManager::~DataManager()
 {
+	//make sure the loading threads are done before deallocating
+	while (_runningthreads > 0)	{ }
+	
 	for (std::map<std::string, OrbiterMesh*>::iterator pos = meshMap.begin(); pos != meshMap.end(); ++pos)
 	{
 		delete pos->second;
@@ -17,6 +20,12 @@ DataManager::~DataManager()
 	meshMap.clear();
 
 	for (std::map<std::string, VesselData*>::iterator pos = cfgMap.begin(); pos != cfgMap.end(); ++pos)
+	{
+		delete pos->second;
+	}
+	cfgMap.clear();
+
+	for (std::map<std::string, ToolboxData*>::iterator pos = toolboxMap.begin(); pos != toolboxMap.end(); ++pos)
 	{
 		delete pos->second;
 	}
@@ -95,6 +104,7 @@ VesselData* DataManager::GetGlobalConfig(string cfgName, video::IVideoDriver* dr
 		{
 			Helpers::writeToLog(std::string("\n ERROR: could not load cfg: " + cfgName));
 		}
+		_runningthreads--;		//the loading thread will terminate after returning
 		return newVessel;
 	}
 	else
@@ -200,6 +210,7 @@ ToolboxData* DataManager::GetGlobalToolboxData(std::string configName, video::IV
 		//data loaded succesfully, background load data, enter in map and return pointer
 		{
 			std::thread backgroundLoadThread = std::thread(&DataManager::GetGlobalConfig, this, configName, driver);
+			_runningthreads++;
 			//detach the thread to continue background loading
 			backgroundLoadThread.detach();
 

@@ -40,15 +40,8 @@ void Shipyard::setupDevice(IrrlichtDevice * _device, std::string toolboxSet)
 	gui::IGUISkin* Skin = guiEnv->getSkin();
 	Skin->setFont(font);
 
-	//interface option 1 - somewhat dark, I don't like it much.
-/*	scenebgcolor = video::SColor(0, 9, 26, 24);
-	Skin->setColor(EGDC_3D_FACE, video::SColor(50, 0, 0, 0));
-	Skin->setColor(EGDC_3D_HIGH_LIGHT, video::SColor(50, 0, 0, 0));
-	Skin->setColor(EGDC_BUTTON_TEXT, video::SColor(255, 169, 231, 246));
-	Skin->setColor(EGDC_HIGH_LIGHT_TEXT, video::SColor(255, 255, 238, 238));
-	Skin->setColor(EGDC_HIGH_LIGHT, video::SColor(10, 169, 231, 246));*/
 	
-	//interface option 2, somewhat inspired by homeworld 2. pretty easy on the eyes if the images are generated with the right background color (regenerate images if image background is black!)
+	//skin option 2, somewhat inspired by homeworld 2. pretty easy on the eyes if the images are generated with the right background color (regenerate images if image background is black!)
 	scenebgcolor = video::SColor(0, 3, 20, 35);
 	Skin->setColor(EGDC_3D_FACE, video::SColor(200, 13, 161, 247));
 	Skin->setColor(EGDC_3D_HIGH_LIGHT, video::SColor(200, 13, 161, 247));

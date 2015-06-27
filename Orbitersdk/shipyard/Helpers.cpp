@@ -123,3 +123,53 @@ std::string Helpers::meshNameToImageName(std::string meshname)
 	imagename = imagename + meshname.substr(lastpos, meshname.length()) + ".bmp";
 	return imagename;
 }
+
+//loads windowresolution and used toolboxset from config file
+CONFIGPARAMS Helpers::loadConfigParams()
+{
+	CONFIGPARAMS params;
+	params.windowres = core::dimension2d<u32>(0, 0);
+	params.toolboxset = "default";
+	std::string cfgPath("./StackEditor/StackEditor.cfg");
+	ifstream configFile = ifstream(cfgPath.c_str());
+
+	writeToLog(std::string("Initialising StackEditor..."), true);
+	if (configFile)
+	{
+		std::vector<std::string> tokens;
+		while (readLine(configFile, tokens))
+		{
+			if (tokens.size() == 0) continue;
+
+			if (tokens[0].compare("resolution") == 0 && tokens.size() == 3)
+			{
+				params.windowres = core::dimension2d<u32>(unsigned int(Helpers::stringToInt(tokens[1])), unsigned int(Helpers::stringToInt(tokens[2])));
+			}
+
+			if (tokens[0].compare("tbxset") == 0)
+			{
+				if (tokens.size() > 2)
+					//putting together the rest of the string again if the folder name contains a space
+				{
+					params.toolboxset = "";
+					for (unsigned int i = 1; i < tokens.size(); ++i)
+					{
+						params.toolboxset += std::string(tokens[i] + " ");
+					}
+				}
+				else
+				{
+					params.toolboxset = tokens[1];
+				}
+			}
+
+			tokens.clear();
+		}
+		configFile.close();
+	}
+	else
+	{
+		Helpers::writeToLog(std::string("\n WARNING: StackEditor.cfg not found!"));
+	}
+	return params;
+}

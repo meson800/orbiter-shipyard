@@ -10,6 +10,9 @@
     <ClCompile Include="Helpers.cpp">
       <Filter>C++ Files</Filter>
     </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>C++ Files</Filter>
+    </ClCompile>
     <ClCompile Include="OrbiterMesh.cpp">
       <Filter>C++ Files</Filter>
     </ClCompile>
@@ -38,9 +41,6 @@
       <Filter>C++ Files</Filter>
     </ClCompile>
     <ClCompile Include="VesselStackOperations.cpp">
-	      <Filter>C++ Files</Filter>
-    </ClCompile>
-    <ClCompile Include="main_orbiter.cpp">
       <Filter>C++ Files</Filter>
     </ClCompile>
   </ItemGroup>
