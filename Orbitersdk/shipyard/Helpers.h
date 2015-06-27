@@ -36,9 +36,10 @@ public:
 	static void writeToLog(std::string &logMsg, bool clear = false);
 	static void writeVectorToLog(const std::string& vectorName, irr::core::vector3df vec);
 	static std::mutex videoDriverMutex;
-	static double min(double v1, double v2);
-	static double max(double v1, double v2);
+//	static double min(double v1, double v2);
+//	static double max(double v1, double v2);
 	static std::string meshNameToImageName(std::string meshname);
 	static IrrlichtDevice *irrdevice;
 	static CONFIGPARAMS loadConfigParams();
+	static void resetDirectory();
 };

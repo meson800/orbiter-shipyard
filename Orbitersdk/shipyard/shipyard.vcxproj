@@ -95,6 +95,7 @@
     <ClCompile Include="SE_ToolBox.cpp" />
     <ClCompile Include="Shipyard.cpp" />
     <ClCompile Include="ShipyardCamera.cpp" />
+    <ClCompile Include="StackExport.cpp" />
     <ClCompile Include="VesselStack.cpp" />
     <ClCompile Include="VesselSceneNode.cpp" />
   </ItemGroup>
@@ -103,6 +104,8 @@
     <ClInclude Include="DdsHeader.h" />
     <ClInclude Include="DdsImage.h" />
     <ClInclude Include="GuiIdentifiers.h" />
+    <ClInclude Include="StackExport.h" />
+    <ClInclude Include="StackExportStructs.h" />
     <ClInclude Include="SE_ImsData.h" />
     <ClInclude Include="SE_PhotoStudio.h" />
     <ClInclude Include="Helpers.h" />

@@ -197,7 +197,7 @@ bool OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 				materials[materialCounter].SpecularColor.setBlue(Helpers::stringToDouble(tokens[10]) * 255);
 				materials[materialCounter].SpecularColor.setAlpha(Helpers::stringToDouble(tokens[11]) * 255);
 				//set specular power-"shineness". Modified from the orbiter value because the irrlicht shader interprets it differently
-				materials[materialCounter].Shininess = Helpers::min(128, Helpers::stringToDouble(tokens[12]) * 2);
+				materials[materialCounter].Shininess = std::min(128.0, Helpers::stringToDouble(tokens[12]) * 2);
 
 				materials[materialCounter].EmissiveColor.setRed(Helpers::stringToDouble(tokens[13]) * 255);
 				materials[materialCounter].EmissiveColor.setGreen(Helpers::stringToDouble(tokens[14]) * 255);
@@ -235,7 +235,7 @@ bool OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 		//clean up the token vector
 		tokens.clear();
 	}
-
+	meshFile.close();
 	//now, set up the bounding box
 	boundingBox.reset(meshGroups[0].vertices[0].Pos);
 	//loop over every vertex

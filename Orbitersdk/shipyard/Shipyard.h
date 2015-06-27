@@ -12,6 +12,8 @@
 #include "DataManager.h"
 #include "SE_ToolBox.h"
 #include "SE_PhotoStudio.h"
+#include "StackExportStructs.h"
+
 
 
 #define cameraRotateSpeed = .1;
@@ -21,7 +23,7 @@ using namespace irr;
 class Shipyard : public IEventReceiver
 {
 public:
-	Shipyard();
+	Shipyard(ExportData *exportdata = NULL);
 	~Shipyard();
 	void setupDevice(IrrlichtDevice * _device, std::string toolboxSet);
 	void loop();
@@ -54,6 +56,7 @@ private:
 	DataManager dataManager;
 	void addVessel(VesselData* vesseldata, bool snaptocursor = true);										//adds a new vessel to the scene
 	bool cursorOnGui;															//registers when the cursor is over a GUI element, so events can be passed on
+	bool dialogOpen;															//true while dialog windows are open
 	vector<CGUIToolBox*> toolboxes;
 	IGUIListBox *toolBoxList;
 	int activetoolbox;
@@ -67,4 +70,5 @@ private:
 	bool loadSession(std::string path);
 	void clearSession();
 	std::string session;
+	ExportData *_exportdata;
 };

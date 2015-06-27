@@ -255,6 +255,7 @@ void VesselStack::createStackHelper(VesselSceneNode* startingVessel, OrbiterDock
 	if (std::find(nodes.begin(), nodes.end(), startingVessel) == nodes.end())
 	{
 		nodes.push_back(startingVessel);
+
 		for (UINT i = 0; i < startingVessel->dockingPorts.size(); ++i)
 		{
 			//store all dockingport nodes in the stack. It could occur that the stack tries to dock with itself otherwise
@@ -281,4 +282,22 @@ void VesselStack::createStackHelper(VesselSceneNode* startingVessel, OrbiterDock
 bool VesselStack::isVesselInStack(VesselSceneNode* vessel)
 {
 	return std::find(nodes.begin(), nodes.end(), vessel) != nodes.end();
+}
+
+
+//returns the index of the vessel in the stacks nodes vector. returns -1 if vessel is not in stack
+int VesselStack::getIndexOfVessel(VesselSceneNode* vessel)
+{
+	int idx = -1;
+	vector<VesselSceneNode*>::iterator it = std::find(nodes.begin(), nodes.end(), vessel);
+	if (it != nodes.end())
+	{
+		idx = it - nodes.begin();
+	}
+	return idx;
+}
+
+UINT VesselStack::getStackSize()
+{
+	return nodes.size();
 }

@@ -1,5 +1,4 @@
 #pragma once
-
 #include <irrlicht.h>
 
 class VesselSceneNode;
@@ -14,6 +13,7 @@ struct OrbiterDockingPort
 	OrbiterDockingPort* dockedTo;
 	scene::IMeshSceneNode* portNode;
 	scene::IMeshSceneNode* helperNode;
+	int index;
 	bool docked;
 	core::vector3d<f32> position;
 	core::vector3d<f32> approachDirection;

@@ -5,6 +5,7 @@
 #include "orbitersdk.h"
 #include <algorithm>
 #include "Shipyard.h"
+#include "StackExport.h"
 #include "Helpers.h"
 
 
@@ -17,6 +18,8 @@ using namespace irr;
 DWORD g_dwCmd;
 void startSEThread(void *context);
 void OpenSE();
+ExportData orbiterexport;
+StackExport *exporter = NULL;
 
 DLLCLBK void InitModule(HINSTANCE hDLL)
 {
@@ -34,6 +37,30 @@ DLLCLBK void ExitModule(HINSTANCE hDLL)
 {
 	oapiUnregisterCustomCmd(g_dwCmd);
 }
+
+DLLCLBK void opcPostStep(double  simt, double  simdt, double  mjd)
+{
+	//check if an export has been ordered
+	if (!orbiterexport.locked && orbiterexport.exporting)
+	{
+		if (!exporter)
+		{
+			//process data and create vessels in orbiter
+			exporter = new StackExport(&orbiterexport);
+		}
+		//create and dock a new vessel every frame. Bulk creation and docking works only most of the time in my expierience.
+		if (exporter->advanceQueue())
+		{
+			//the process has finished, clear the data
+			orbiterexport.exporting = false;
+			orbiterexport.name = "";
+			orbiterexport.stack = NULL;
+			delete exporter;
+			exporter = NULL;
+		}
+	}
+}
+
 
 void startSEThread(void *context)
 {
@@ -55,7 +82,7 @@ void OpenSE()
 	}
 
 
-	Shipyard shipyard = Shipyard();
+	Shipyard shipyard = Shipyard(&orbiterexport);
 	//setup the shipyard
 	Helpers::mainShipyard = &shipyard;
 

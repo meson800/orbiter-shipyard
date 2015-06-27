@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <map>
 #include <algorithm>
 #include "VesselSceneNode.h"
 #include "OrbiterDockingPort.h"
@@ -20,8 +21,10 @@ public:
 	int numVessels();
 	VesselSceneNode* getVessel(int index);
 	bool isVesselInStack(VesselSceneNode* vessel);
+	int getIndexOfVessel(VesselSceneNode* vessel);
 	void unSnap(core::vector3df refPos);
 	bool isSnaped();
+	UINT getStackSize();
 private:
 	//recursive helper to init the stack
 	void createStackHelper(VesselSceneNode* startingVessel, OrbiterDockingPort* fromPort);

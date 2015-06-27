@@ -321,3 +321,9 @@ bool VesselSceneNode::loadFromSession(ifstream &file)
 	}
 	return true;
 }
+
+
+std::string VesselSceneNode::getClassName()
+{
+	return vesselData->className;
+}

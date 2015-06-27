@@ -35,6 +35,7 @@ public:
 	vector<OrbiterDockingPort> dockingPorts;
 	void saveToSession(ofstream &file);
 	bool loadFromSession(ifstream &file);
+	std::string getClassName();
 
 private:
 	scene::ISceneManager* smgr;

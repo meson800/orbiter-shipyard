@@ -3,7 +3,7 @@
 #include "windows.h"
 
 
-Shipyard::Shipyard()
+Shipyard::Shipyard(ExportData *exportdata)
 {
 	for (u32 i = 0; i<KEY_KEY_CODES_COUNT; ++i)
 		isKeyDown[i] = false;
@@ -11,9 +11,11 @@ Shipyard::Shipyard()
 	isOpenDialogOpen = false;
 	selectedVesselStack = 0;
 	cursorOnGui = false;
+	dialogOpen = false;
 	device = NULL;
 	lastSpawnedVessel = NULL;
 	session = "unnamed";
+	_exportdata = exportdata;
 }
 
 Shipyard::~Shipyard()
@@ -251,6 +253,7 @@ bool Shipyard::processGuiEvent(const SEvent &event)
 				//pop a message that the vessel could not be loaded
 				{
 					guiEnv->addMessageBox(L"He's dead, Jim!", L"This vessel can't be loaded by StackEditor! \nThis is most likely because the config file doesn't specify docking ports, doesn't specify a mesh or specifies a mesh that doesn't exist.");
+					Helpers::resetDirectory();
 				}
 				else
 				{
@@ -269,8 +272,10 @@ bool Shipyard::processGuiEvent(const SEvent &event)
 					std::string newcaption = "Orbiter Shipyard - " + session;
 					device->setWindowCaption(std::wstring(newcaption.begin(), newcaption.end()).c_str());
 				}
+				Helpers::resetDirectory();
 			}
 			cursorOnGui = false;
+			dialogOpen = false;
 		}
 		break;
 		case gui::EGET_MESSAGEBOX_OK:
@@ -315,15 +320,51 @@ bool Shipyard::processGuiEvent(const SEvent &event)
 			{
 				IGUIFileOpenDialog *dlg = guiEnv->addFileOpenDialog(L"Select Config File", true, 0, SESSIONOPENFILE, false, "StackEditor/Sessions");
 			}
+			else if (event.GUIEvent.Caller->getID() == NAMESTACK)
+			{
+				IGUIEditBox *stacknamebox = (gui::IGUIEditBox*)event.GUIEvent.Caller->getElementFromId(NAMESTACKENTRY, true);
+				std::string stackname = std::string(stringc(stacknamebox->getText()).c_str());
+				if (stackname != "")
+				{
+					//put the stack in the export data
+					_exportdata->locked = true;
+					_exportdata->stack = selectedVesselStack;
+					_exportdata->name = stackname;
+					_exportdata->exporting = true;
+					_exportdata->locked = false;
+					//hold this thread until export finishes
+					while (_exportdata->exporting){};
+					
+					//put the stack down. Easiest way to avoid motion mayhem afterwards.
+					selectedVesselStack->changeDockingPortVisibility(false, false);
+					//hide all the rest of the empty docking ports
+					for (unsigned int i = 0; i < vessels.size(); i++)
+					{
+						if (!selectedVesselStack->isVesselInStack(vessels[i]))
+						{
+							vessels[i]->changeDockingPortVisibility(false, false);
+						}
+					}
+
+					delete selectedVesselStack;
+					selectedVesselStack = NULL;
+				}
+			}
+				
 			cursorOnGui = false;
+			dialogOpen = false;
+			return true;
 		}
 		break;
 		case gui::EGET_MESSAGEBOX_CANCEL:
 			cursorOnGui = false;
+			dialogOpen = false;
 		break;
 		case gui::EGET_FILE_CHOOSE_DIALOG_CANCELLED:
 			isOpenDialogOpen = false;
 			cursorOnGui = false;
+			dialogOpen = false;
+			Helpers::resetDirectory();
 		break;
 
 
@@ -336,11 +377,13 @@ bool Shipyard::processGuiEvent(const SEvent &event)
 				//spawn open dialog
 				{
 					IGUIFileOpenDialog *dlg = guiEnv->addFileOpenDialog(L"Select Config File", true, 0, SESSIONOPENFILE, false, "StackEditor/Sessions");
+					dialogOpen = true;
 				}
 				else
 				//spawn confirmation message
 				{
 					IGUIWindow *msgBx = guiEnv->addMessageBox(L"Sir, are you absolutely sure? It does mean changing the bulb.", L"Any unsaved changes in this session will be lost. Proceed anyways?", true, EMBF_OK | EMBF_CANCEL, 0, SESSIONLOADCONFIRM);
+					dialogOpen = true;
 				}
 			}
 			else if (event.GUIEvent.Caller->getID() == SAVESESSIONAS || event.GUIEvent.Caller->getID() == SAVESESSION && session.compare("unnamed") == 0)
@@ -349,6 +392,7 @@ bool Shipyard::processGuiEvent(const SEvent &event)
 				IGUIWindow *msgBx = guiEnv->addMessageBox(L"session name", L"please enter a name for this session", true, EMBF_OK | EMBF_CANCEL, 0, NAMESESSION);
 				msgBx->setMinSize(dimension2du(300, 150));
 				guiEnv->addEditBox(L"session name", rect<s32>(20, 100, 280, 130), true, msgBx, SESSIONNAMEENTRY);
+				dialogOpen = true;
 			}
 			else if (event.GUIEvent.Caller->getID() == SAVESESSION)
 			{
@@ -364,6 +408,7 @@ bool Shipyard::processGuiEvent(const SEvent &event)
 				//open file dialog to add new element
 				{
 					IGUIFileOpenDialog *dlg = guiEnv->addFileOpenDialog(L"Select Config File", true, 0, TBXOPENFILE, false, "config\\vessels");
+					dialogOpen = true;
 				}
 				if (menuItem == 1)
 				{
@@ -375,6 +420,7 @@ bool Shipyard::processGuiEvent(const SEvent &event)
 					IGUIWindow *msgBx = guiEnv->addMessageBox(L"toolbox name", L"please enter a name for your toolbox", true, EMBF_OK | EMBF_CANCEL, 0, TBXNAMEMSG);
 					msgBx->setMinSize(dimension2du(300, 150));
 					guiEnv->addEditBox(L"toolbox name", rect<s32>(20, 100, 280, 130), true, msgBx, TBXNAMEENTRY);
+					dialogOpen = true;
 				}
 				if (menuItem == 3)
 				//pop a confirmation message for deletion
@@ -384,12 +430,14 @@ bool Shipyard::processGuiEvent(const SEvent &event)
 						IGUIWindow *msgBx = guiEnv->addMessageBox(L"Sir, are you absolutely sure? It does mean changing the bulb.",
 							L"this will permanently delete the currently active toolbox. \n Are you sure?",
 							true, EMBF_OK | EMBF_CANCEL, 0, TBXDELETE);
+						dialogOpen = true;
 					}
 					else
 					//there's only one toolbox left. If we delete that, there will be mayhem.
 					{
 						IGUIWindow *msgBx = guiEnv->addMessageBox(L"I'm afraid I can't do that, Dave...",
 							L"There is only one toolbox left, and Stackeditor needs at least one to function properly! \n \n If you really need to delete this toolbox, create an empty one first.");
+						dialogOpen = true;
 					}
 				}
 			}
@@ -412,8 +460,14 @@ bool Shipyard::processGuiEvent(const SEvent &event)
 
 bool Shipyard::processKeyboardEvent(const SEvent &event)
 {
+
 	//it's a key, store it
 	isKeyDown[event.KeyInput.Key] = event.KeyInput.PressedDown;
+
+	if (dialogOpen)
+	{
+		return false;
+	}
 
 	//see if it is the "c" key, to center the camera
 	if (event.KeyInput.Key == KEY_KEY_C)
@@ -449,6 +503,18 @@ bool Shipyard::processKeyboardEvent(const SEvent &event)
 			selectedVesselStack->rotateStack(core::vector3df(90, 0, 0));
 			didWeRotate = true;
 			break;
+			//stack export triggered by ctrl-o. Only has effect in orbiter integrated version
+		case KEY_KEY_O:
+			if (_exportdata && isKeyDown[EKEY_CODE::KEY_LCONTROL] || _exportdata && isKeyDown[EKEY_CODE::KEY_RCONTROL])
+			{
+				//throw up a naming dialog
+				IGUIWindow *msgBx = guiEnv->addMessageBox(L"I christen thee...", L"please enter a name for your stack.\nThe currently selected vessel will bear the stack name, all other vessels will get a number tagged to them.\n\nAnd remember, orbiter vessels should never have spaces in their filenames!", true, EMBF_OK | EMBF_CANCEL, 0, NAMESTACK);
+				msgBx->setMinSize(dimension2du(300, 250));
+				guiEnv->addEditBox(L"stack", rect<s32>(20, 200, 280, 230), true, msgBx, NAMESTACKENTRY);
+				dialogOpen = true;
+			}
+			break;
+
 		default:
 			break;
 		}
@@ -457,6 +523,7 @@ bool Shipyard::processKeyboardEvent(const SEvent &event)
 			//reset the move reference, as we screwed up the initial positions
 			selectedVesselStack->setMoveReference(returnMouseRelativePos());
 		}
+			
 	}
 	return false;
 }
@@ -464,7 +531,7 @@ bool Shipyard::processKeyboardEvent(const SEvent &event)
 bool Shipyard::processMouseEvent(const SEvent &event)
 {
 	//return if cursor is over the GUI, so the GUI gets the event
-	if (cursorOnGui)
+	if (cursorOnGui || dialogOpen)
 		return false;
 
 	switch (event.MouseInput.Event)
@@ -735,7 +802,7 @@ void Shipyard::saveSession(std::string filename)
 bool Shipyard::loadSession(std::string path)
 {
 	clearSession();
-	ifstream file(path);
+	ifstream file(path.c_str());
 	std::vector<std::string> tokens;
 	while (Helpers::readLine(file, tokens))
 	{
@@ -788,6 +855,7 @@ bool Shipyard::loadSession(std::string path)
 		}
 		tokens.clear();
 	}
+	file.close();
 	return true;
 }
 

@@ -89,23 +89,7 @@ void Helpers::writeVectorToLog(const std::string& vecName, irr::core::vector3df 
 	logFile.close();
 }
 
-double Helpers::min(double v1, double v2)
-{
-	if (v1 <= v2)
-	{
-		return v1;
-	}
-	return v2;
-}
 
-double Helpers::max(double v1, double v2)
-{
-	if (v1 >= v2)
-	{
-		return v1;
-	}
-	return v2;
-}
 
 //takes the name of the mesh as noted in the config file and returns the name of the GUI image for that mesh
 //basically, replaces all "/" or "\\" with _ and appends ".bmp"
@@ -172,4 +156,12 @@ CONFIGPARAMS Helpers::loadConfigParams()
 		Helpers::writeToLog(std::string("\n WARNING: StackEditor.cfg not found!"));
 	}
 	return params;
+}
+
+
+//fun fact: irrlicht changes the working directory when using a fileopendialog
+//we totally need to reset that, or Orbiter won't find ANY files anymore.
+void Helpers::resetDirectory()
+{
+	irrdevice->getFileSystem()->changeWorkingDirectoryTo(Helpers::workingDirectory.c_str());
 }

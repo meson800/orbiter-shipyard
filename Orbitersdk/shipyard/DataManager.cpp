@@ -332,6 +332,7 @@ VesselData *DataManager::LoadVesselData(string configFileName, video::IVideoDriv
 				Helpers::stringToDouble(tokens[4]), Helpers::stringToDouble(tokens[5])),
 				core::vector3d<f32>(Helpers::stringToDouble(tokens[6]),
 				Helpers::stringToDouble(tokens[7]), Helpers::stringToDouble(tokens[8]))));
+			newVessel->dockingPorts[newVessel->dockingPorts.size() - 1].index = newVessel->dockingPorts.size() - 1;
 			if (tokens.size() > 9)
 			{
 				Helpers::writeToLog(std::string("\n WARNING: Unusual docking port definition in cfg file " + configFileName) + ": definition contains more than 9 entries!");
@@ -366,6 +367,7 @@ VesselData *DataManager::LoadVesselData(string configFileName, video::IVideoDriv
 		//clear tokens
 		tokens.clear();
 	}
+	configFile.close();
 
 	if (!meshDefined)
 	{
