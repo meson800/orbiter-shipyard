@@ -22,6 +22,7 @@ public:
 	bool isVesselInStack(VesselSceneNode* vessel);
 	void unSnap(core::vector3df refPos);
 	bool isSnaped();
+	OrbiterDockingPort* dockingPortSceneNodeToOrbiter(scene::ISceneNode* sceneNode);
 private:
 	//recursive helper to init the stack
 	void createStackHelper(VesselSceneNode* startingVessel, OrbiterDockingPort* fromPort);

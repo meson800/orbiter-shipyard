@@ -92,6 +92,7 @@
     <ClCompile Include="ShipyardCamera.cpp" />
     <ClCompile Include="VesselStack.cpp" />
     <ClCompile Include="VesselSceneNode.cpp" />
+    <ClCompile Include="VesselStackOperations.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
@@ -112,6 +113,7 @@
     <ClInclude Include="VesselStack.h" />
     <ClInclude Include="VesselSceneNode.h" />
     <ClInclude Include="Shipyard.h" />
+    <ClInclude Include="VesselStackOperations.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

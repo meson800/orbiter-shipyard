@@ -321,3 +321,32 @@ bool VesselSceneNode::loadFromSession(ifstream &file)
 	}
 	return true;
 }
+
+OrbiterDockingPort* VesselSceneNode::dockingPortSceneNodeToOrbiter(scene::ISceneNode* sceneNode)
+{
+	for (UINT i = 0; i < dockingPorts.size(); ++i)
+	{
+		if (sceneNode == dockingPorts[i].portNode)
+		{
+			return &(dockingPorts[i]);
+		}
+	}
+	return 0;
+}
+
+OrbiterDockingPort* VesselSceneNode::dockingPortHelperNodeToOrbiter(scene::ISceneNode* sceneNode)
+{
+	for (UINT i = 0; i < dockingPorts.size(); ++i)
+	{
+		if (sceneNode == dockingPorts[i].helperNode)
+		{
+			return &(dockingPorts[i]);
+		}
+	}
+	return 0;
+}
+
+VesselData* VesselSceneNode::returnVesselData()
+{
+	return vesselData;
+}
