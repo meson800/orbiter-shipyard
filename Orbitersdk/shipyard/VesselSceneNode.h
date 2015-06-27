@@ -31,6 +31,7 @@ public:
 	void snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort);
 	void dock(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort);
 	core::vector3df returnRotatedVector(const core::vector3df& vec);
+	VesselData* returnVesselData();
 
 	OrbiterDockingPort* dockingPortSceneNodeToOrbiter(scene::ISceneNode* sceneNode);
 	OrbiterDockingPort* dockingPortHelperNodeToOrbiter(scene::ISceneNode* sceneNode);

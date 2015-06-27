@@ -345,3 +345,8 @@ OrbiterDockingPort* VesselSceneNode::dockingPortHelperNodeToOrbiter(scene::IScen
 	}
 	return 0;
 }
+
+VesselData* VesselSceneNode::returnVesselData()
+{
+	return vesselData;
+}
