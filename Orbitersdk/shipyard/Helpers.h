@@ -28,6 +28,7 @@ public:
 	static std::string workingDirectory;
 	static bool readLine(ifstream& file, std::vector<std::string>& tokens, const std::string &delimiters = std::string("\t ="));
 	static void tokenize(std::string line, std::vector<std::string>& tokens, const std::string &delimiters);
+	static void slashreplace(std::string &str);
 	static int stringToInt(const std::string& inputString);
 	static double stringToDouble(const std::string& inputString);
 	static video::ITexture* readDDS(std::string path, std::string name, video::IVideoDriver* driver);

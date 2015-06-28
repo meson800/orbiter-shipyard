@@ -26,6 +26,8 @@ public:
 	bool isSnaped();
 	OrbiterDockingPort* dockingPortSceneNodeToOrbiter(scene::ISceneNode* sceneNode);
 	UINT getStackSize();
+	void showFirstNodeForSplitting();
+	void resetFirstNode();
 private:
 	//recursive helper to init the stack
 	void createStackHelper(VesselSceneNode* startingVessel, OrbiterDockingPort* fromPort);

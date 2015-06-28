@@ -301,3 +301,26 @@ UINT VesselStack::getStackSize()
 {
 	return nodes.size();
 }
+
+//makes the first node in the stack transparent and shows connected dockports
+void VesselStack::showFirstNodeForSplitting()
+{
+	nodes[0]->setTransparency(true);
+	for (UINT i = 0; i < nodes[0]->dockingPorts.size(); ++i)
+	{
+		if (nodes[0]->dockingPorts[i].docked)
+		{
+			nodes[0]->dockingPorts[i].helperNode->setVisible(true);
+		}
+	}
+}
+
+//resets the first node to default appearance
+void VesselStack::resetFirstNode()
+{
+	nodes[0]->setTransparency(false);
+	for (UINT i = 0; i < nodes[0]->dockingPorts.size(); ++i)
+	{
+		nodes[0]->dockingPorts[i].helperNode->setVisible(false);
+	}
+}

@@ -11,18 +11,6 @@ StackExport::StackExport(ExportData *data)
 	vessels_processed = 0;
 }
 
-void StackExport::export(ExportData *data)
-{
-	_data = data;
-	prepareExportData();
-	vessels_processed = 0;
-/*	while (_vessels.size() > 0)
-	{
-		advanceQueue();
-	}*/
-
-}
-
 StackExport::~StackExport()
 {
 }
@@ -80,11 +68,13 @@ bool StackExport::advanceQueue()
 	{
 		vesselname << "_" << vessels_processed;
 	}
-	//get the classname without the file extension
+	//get the classname without the file extension, because orbiter wants it that way
 	string classname(_vessels.front().className.substr(0, _vessels.front().className.find_last_of(".")));
-	//debug
-	string vesseltestname = vesselname.str();
-
+	//put classname in caps, because IMS wants it that way. 
+	//and it won't recognise the class as an IMS module if it's written in small letters. Probably needs glasses...
+	//oh, and switch any / with \. because I was kind of stupid when I wrote IMS.
+	std::transform(classname.begin(), classname.end(), classname.begin(), ::toupper);
+	Helpers::slashreplace(classname);
 	// create the vessel, add its handle to the list and get the new interface from orbiter
 	OBJHANDLE newvessel = oapiCreateVesselEx(vesselname.str().data(), classname.data(), &vs);
 	_createdvessels.push_back(newvessel);	

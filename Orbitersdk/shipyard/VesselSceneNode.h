@@ -32,6 +32,7 @@ public:
 	void dock(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort);
 	core::vector3df returnRotatedVector(const core::vector3df& vec);
 	VesselData* returnVesselData();
+	void setTransparency(bool transparency);
 
 	OrbiterDockingPort* dockingPortSceneNodeToOrbiter(scene::ISceneNode* sceneNode);
 	OrbiterDockingPort* dockingPortHelperNodeToOrbiter(scene::ISceneNode* sceneNode);
@@ -46,4 +47,5 @@ private:
 	OrbiterMesh *vesselMesh;
 	VesselData *vesselData;
 	void setupDockingPortNode(IMeshSceneNode *node);
+	bool transparent;
 };

@@ -547,7 +547,16 @@ bool Shipyard::processKeyboardEvent(const SEvent &event)
 			{
 			case KEY_TAB:
 				areSplittingStack = !areSplittingStack;
-				selectedVesselStack->changeDockingPortVisibility(!areSplittingStack, areSplittingStack);
+				if (areSplittingStack)
+				{
+					selectedVesselStack->changeDockingPortVisibility(false, false);
+					selectedVesselStack->showFirstNodeForSplitting();
+				}
+				else
+				{
+					selectedVesselStack->resetFirstNode();
+					selectedVesselStack->changeDockingPortVisibility(true, false);
+				}
 				break;
 
 			case KEY_KEY_C:
@@ -603,25 +612,22 @@ bool Shipyard::processMouseEvent(const SEvent &event)
 					device->getCursorControl()->getPosition(), HELPER_ID, true);
 				if (selectedNode->getID() == HELPER_ID)
 				{
+					//get vessel and port
 					VesselSceneNode* nodeVessel = (VesselSceneNode*)selectedNode->getParent();
-					//check if this node is in our stack
-					if (selectedVesselStack->isVesselInStack(nodeVessel))
-					{
-						//find docking port
-						OrbiterDockingPort* selectedDockingPort = nodeVessel->dockingPortHelperNodeToOrbiter(selectedNode);
+					OrbiterDockingPort* selectedDockingPort = nodeVessel->dockingPortHelperNodeToOrbiter(selectedNode);
 
-						//if it is docked, undock it to split the stack
-						//and regenerate stack
-						if (selectedDockingPort->docked)
-						{
-							//before splitting, reset docking port node visibility
-							selectedVesselStack->changeDockingPortVisibility(false, false);
-							VesselStackOperations::splitStack(selectedDockingPort);
-							delete selectedVesselStack;
-							selectedVesselStack = new VesselStack(nodeVessel);
-							areSplittingStack = false;
-							setupSelectedStack();
-						}
+					//if it is docked, undock it to split the stack
+					//and regenerate stack
+					if (selectedDockingPort->docked)
+					{
+						//before splitting, reset docking port node visibility
+						selectedVesselStack->resetFirstNode();
+						selectedVesselStack->changeDockingPortVisibility(false, false);
+						VesselStackOperations::splitStack(selectedDockingPort);
+						delete selectedVesselStack;
+						selectedVesselStack = new VesselStack(nodeVessel);
+						areSplittingStack = false;
+						setupSelectedStack();
 					}
 				}
 			}

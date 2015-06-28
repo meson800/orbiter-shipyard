@@ -133,7 +133,7 @@ CONFIGPARAMS Helpers::loadConfigParams()
 			if (tokens[0].compare("tbxset") == 0)
 			{
 				if (tokens.size() > 2)
-					//putting together the rest of the string again if the folder name contains a space
+				//putting together the rest of the string again if the folder name contains a space
 				{
 					params.toolboxset = "";
 					for (unsigned int i = 1; i < tokens.size(); ++i)
@@ -164,4 +164,17 @@ CONFIGPARAMS Helpers::loadConfigParams()
 void Helpers::resetDirectory()
 {
 	irrdevice->getFileSystem()->changeWorkingDirectoryTo(Helpers::workingDirectory.c_str());
+}
+
+//replaces all / in a path with \\. Does not work for leading and trailing slashes.
+void Helpers::slashreplace(std::string &str)
+{
+	std::vector<std::string> tokens;
+	tokenize(str, tokens, "/");
+	str = "";
+	for (unsigned int i = 0; i < tokens.size() - 1; ++i)
+	{
+		str = str + tokens[i] + "\\";
+	}
+	str += tokens[tokens.size() - 1];
 }

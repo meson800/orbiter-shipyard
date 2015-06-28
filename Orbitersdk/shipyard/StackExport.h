@@ -9,7 +9,6 @@ class StackExport
 public:
 	StackExport(ExportData *data);
 	~StackExport();
-	void export(ExportData *data);
 	bool advanceQueue();								//creates the next vessel in orbiter
 
 private:

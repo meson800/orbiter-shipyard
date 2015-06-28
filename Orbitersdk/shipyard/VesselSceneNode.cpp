@@ -123,7 +123,15 @@ void VesselSceneNode::render()
 				vesselMesh->textures[vesselMesh->meshGroups[i].textureIndex]);
 		//set the material for the video driver
 		if (vesselMesh->meshGroups[i].materialIndex < vesselMesh->materials.size())
-			driver->setMaterial(vesselMesh->materials[vesselMesh->meshGroups[i].materialIndex]);
+		{
+			SMaterial material = vesselMesh->materials[vesselMesh->meshGroups[i].materialIndex];
+			if (transparent)
+			{
+				material.Lighting = false;
+				material.MaterialType = EMT_TRANSPARENT_ADD_COLOR;
+			}
+			driver->setMaterial(material);
+		}
 		//set transform
 		driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
 		//and draw it as a triangle list!
@@ -356,3 +364,9 @@ std::string VesselSceneNode::getClassName()
 {
 	return vesselData->className;
 }
+
+void VesselSceneNode::setTransparency(bool transparency)
+{
+	transparent = transparency;
+}
+
