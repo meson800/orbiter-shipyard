@@ -3,6 +3,7 @@
 #include <irrlicht.h>
 #include <vector>
 #include <string>
+#include <algorithm>
 
 #include "resource.h"
 #include "VesselSceneNode.h"
@@ -55,9 +56,14 @@ private:
 	scene::ISceneCollisionManager* collisionManager;
 	scene::ISceneManager* smgr;
 	DataManager dataManager;
-	void addVessel(VesselData* vesseldata, bool snaptocursor = true);										//adds a new vessel to the scene
+	void addVessel(VesselData* vesseldata, bool snaptocursor = true);		//adds a new vessel to the scene
+
 	void registerVessel(VesselSceneNode* node);
 	void registerVessels(const std::vector<VesselSceneNode*>& nodes);
+	void deregisterVessel(VesselSceneNode* node);
+	void deregisterVessels(const std::vector<VesselSceneNode*>& nodes);
+	void deregisterVessels(VesselStack* stack);
+	
 	bool cursorOnGui;															//registers when the cursor is over a GUI element, so events can be passed on
 	bool dialogOpen;															//true while dialog windows are open
 	vector<CGUIToolBox*> toolboxes;

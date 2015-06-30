@@ -36,11 +36,11 @@ public:
 
 	OrbiterDockingPort* dockingPortSceneNodeToOrbiter(scene::ISceneNode* sceneNode);
 	OrbiterDockingPort* dockingPortHelperNodeToOrbiter(scene::ISceneNode* sceneNode);
-
-	vector<OrbiterDockingPort> dockingPorts;
 	void saveToSession(ofstream &file);
 	bool loadFromSession(ifstream &file);
 	std::string getClassName();
+
+	vector<OrbiterDockingPort> dockingPorts;
 
 private:
 	scene::ISceneManager* smgr;
