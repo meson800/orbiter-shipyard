@@ -184,6 +184,33 @@ void Shipyard::registerVessels(const std::vector<VesselSceneNode*>& nodes)
 	}
 }
 
+void Shipyard::deregisterVessel(VesselSceneNode* node)
+{
+	//Remove node from vessels list by value
+	vessels.erase(std::remove(vessels.begin(), vessels.end(), node), vessels.end());
+	//remove all of the docking ports in this node
+	for (UINT i = 0; i < node->dockingPorts.size(); ++i)
+	{
+		dockportmap.erase(node->dockingPorts[i].portNode);
+	}
+}
+
+void Shipyard::deregisterVessels(const std::vector<VesselSceneNode*>& nodes)
+{
+	for (UINT i = 0; i < nodes.size(); ++i)
+	{
+		deregisterVessel(nodes[i]);
+	}
+}
+
+void Shipyard::deregisterVessels(VesselStack* stack)
+{
+	for (UINT i = 0; i < stack->numVessels(); ++i)
+	{
+		deregisterVessel(stack->getVessel(i));
+	}
+}
+
 void Shipyard::moveVesselToCursor(VesselSceneNode* vessel)
 //moves a VesselSceneNode to the mousecursor. used when a new vessel is created
 {
@@ -563,6 +590,15 @@ bool Shipyard::processKeyboardEvent(const SEvent &event)
 				if (selectedVesselStack != 0 && isKeyDown[EKEY_CODE::KEY_LCONTROL])
 				{
 					registerVessels(VesselStackOperations::copyStack(selectedVesselStack, smgr));
+				}
+				break;
+			case KEY_DELETE:
+				if (selectedVesselStack != 0)
+				{
+					deregisterVessels(selectedVesselStack);
+					VesselStackOperations::deleteStack(selectedVesselStack);
+					//remove stack reference
+					selectedVesselStack = 0;
 				}
 				break;
 			default:

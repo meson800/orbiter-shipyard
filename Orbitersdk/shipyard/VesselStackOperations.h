@@ -12,4 +12,5 @@ class VesselStackOperations
 public:
 	static void splitStack(OrbiterDockingPort* sourcePort);
 	static std::vector<VesselSceneNode*> copyStack(VesselStack* stack, scene::ISceneManager* smgr);
+	static void deleteStack(VesselStack* stack);
 };

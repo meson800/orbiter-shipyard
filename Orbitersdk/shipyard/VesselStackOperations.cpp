@@ -61,3 +61,13 @@ std::vector<VesselSceneNode*> VesselStackOperations::copyStack(VesselStack* stac
 	return newNodes;
 
 }
+
+//Assumes that vessels have been deregistered prior to sending it to this
+void VesselStackOperations::deleteStack(VesselStack* stack)
+{
+	for (UINT i = 0; i < stack->numVessels(); ++i)
+	{
+		stack->getVessel(i)->removeAll(); //removeAll only drops children, not the node itself
+		stack->getVessel(i)->remove();
+	}
+}
