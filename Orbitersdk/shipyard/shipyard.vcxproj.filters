@@ -38,12 +38,15 @@
       <Filter>C++ Files</Filter>
     </ClCompile>
     <ClCompile Include="VesselStackOperations.cpp">
-	      <Filter>C++ Files</Filter>
+      <Filter>C++ Files</Filter>
     </ClCompile>
     <ClCompile Include="main_orbiter.cpp">
       <Filter>C++ Files</Filter>
     </ClCompile>
     <ClCompile Include="StackExport.cpp">
+      <Filter>C++ Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StackImport.cpp">
       <Filter>C++ Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -108,8 +111,11 @@
     <ClInclude Include="StackExport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="StackImport.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="StackExportStructs.h">
-      <Filter>C++ Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

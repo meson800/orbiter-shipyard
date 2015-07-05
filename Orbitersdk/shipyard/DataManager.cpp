@@ -84,6 +84,9 @@ VesselData* DataManager::GetGlobalConfig(string cfgName, video::IVideoDriver* dr
 //returns pointer to the requsted VesselData. Loads VesselData if it doesn't exist yet. returns NULL if cfg could not be found
 {
 	configMutex.lock();
+	//insure a consistent style for the key
+	transform(cfgName.begin(), cfgName.end(), cfgName.begin(), ::tolower);
+	Helpers::slashreplace(cfgName);
 	map<string, VesselData*>::iterator pos = cfgMap.find(cfgName);
 	bool temp = (pos == cfgMap.end());	//again, put this here so we can unlock ASAP
 	configMutex.unlock();

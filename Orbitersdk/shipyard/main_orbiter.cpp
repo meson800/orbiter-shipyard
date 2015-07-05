@@ -6,6 +6,7 @@
 #include <algorithm>
 #include "Shipyard.h"
 #include "StackExport.h"
+#include "StackImport.h"
 #include "Helpers.h"
 
 
@@ -19,7 +20,9 @@ DWORD g_dwCmd;
 void startSEThread(void *context);
 void OpenSE();
 ExportData orbiterexport;
+ImportData orbiterimport;
 StackExport *exporter = NULL;
+StackImport *importer = NULL;
 
 DLLCLBK void InitModule(HINSTANCE hDLL)
 {
@@ -59,6 +62,17 @@ DLLCLBK void opcPostStep(double  simt, double  simdt, double  mjd)
 			exporter = NULL;
 		}
 	}
+	else if (orbiterimport.importing)
+	{
+		if (!importer)
+		{
+			//read in data of focused stack
+			importer = new StackImport(&orbiterimport);
+			delete importer;
+			importer = NULL;
+			orbiterimport.importing = false;
+		}
+	}
 }
 
 
@@ -82,7 +96,7 @@ void OpenSE()
 	}
 
 
-	Shipyard shipyard = Shipyard(&orbiterexport);
+	Shipyard shipyard = Shipyard(&orbiterexport, &orbiterimport);
 	//setup the shipyard
 	Helpers::mainShipyard = &shipyard;
 

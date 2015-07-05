@@ -3,7 +3,7 @@
 #include "windows.h"
 
 
-Shipyard::Shipyard(ExportData *exportdata)
+Shipyard::Shipyard(ExportData *exportdata, ImportData *importdata)
 {
 	for (u32 i = 0; i<KEY_KEY_CODES_COUNT; ++i)
 		isKeyDown[i] = false;
@@ -17,6 +17,7 @@ Shipyard::Shipyard(ExportData *exportdata)
 	session = "unnamed";
 	areSplittingStack = false;
 	_exportdata = exportdata;
+	_importdata = importdata;
 }
 
 Shipyard::~Shipyard()
@@ -133,6 +134,12 @@ void Shipyard::loop()
 				addVessel(createVessel);
 			}
 		}
+
+		//checking import struct for imports, only has effect in orbiter version
+		if (_importdata && !_importdata->locked && _importdata->stack.size() > 0)
+		{
+			importStack();
+		}
 	}
 	//drop all vessels
 	for (unsigned int i = 0; i < vessels.size(); i++)
@@ -144,6 +151,12 @@ void Shipyard::loop()
 
 void Shipyard::addVessel(VesselData* vesseldata, bool snaptocursor)
 {
+	//make sure we have valid vesseldata
+	if (!vesseldata)
+	{
+		throw 5;
+	}
+
 	//add the vessel
 	VesselSceneNode* newvessel = new VesselSceneNode(vesseldata, smgr->getRootSceneNode(), smgr, VESSEL_ID);
 	//register for fast vessel identification
@@ -557,10 +570,10 @@ bool Shipyard::processKeyboardEvent(const SEvent &event)
 				dialogOpen = true;
 			}
 			break;
-
 		default:
 			break;
 		}
+
 		if (didWeRotate)
 		{
 			//reset the move reference, as we screwed up the initial positions
@@ -606,6 +619,18 @@ bool Shipyard::processKeyboardEvent(const SEvent &event)
 			}
 		}
 	}
+	else if (selectedVesselStack == 0 && event.KeyInput.PressedDown)
+	{
+		switch (event.KeyInput.Key)
+		{
+		case KEY_KEY_I:
+			if (_importdata && isKeyDown[EKEY_CODE::KEY_LCONTROL] || _importdata && isKeyDown[EKEY_CODE::KEY_RCONTROL])
+			{
+				_importdata->importing = true;
+			}
+		}
+	}
+
 	return false;
 }
 
@@ -978,4 +1003,43 @@ void Shipyard::clearSession()
 		vessels[i]->drop();
 	}
 	vessels.clear();
+}
+
+//creates a stack from importdata
+void Shipyard::importStack()
+{
+	//note the index in the vessel list the first node from this stack will occupy
+	int startidx = vessels.size();
+	while (_importdata->stack.size() > 0)
+	{
+		VesselExport newv = _importdata->stack.front();
+		_importdata->stack.pop();
+
+		try
+		{
+			//create the new vessel
+			addVessel(dataManager.GetGlobalConfig(newv.className, device->getVideoDriver()), false);
+		}
+		catch (int e)
+		{
+			std::string msg = newv.className + ": This vessel is not compatible with StackEditor, the import has been aborted!\nlikely cause: no mesh or docking ports defined in .cfg";
+			guiEnv->addMessageBox(L"I'm afraid I can't do that, dave!", std::wstring(msg.begin(), msg.end()).c_str(), true, EMBF_OK);
+			break;
+		}
+		//check if this vessel needs to dock
+		if (newv.dockports.size() > 0)
+		{
+			//identify the port we have to dock to
+			DockPortExport port = newv.dockports.front();
+			OrbiterDockingPort *tgtport = &vessels[startidx + port.dockedToVessel]->dockingPorts[port.dockedToPort];
+			VesselSceneNode *curv = vessels[vessels.size() - 1];
+
+			//grab the new vessel, turn it into a stack and snap it to where it belongs
+			VesselStack *stack = new VesselStack(curv);
+			stack->snapStack(0, port.myindex, tgtport);
+			delete stack;
+			//set the actual dock status
+			curv->dock(curv->dockingPorts[port.myindex], *tgtport);
+		}
+	}
 }

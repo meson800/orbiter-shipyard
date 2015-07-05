@@ -52,6 +52,7 @@ VesselSceneNode::VesselSceneNode(std::string configFilename, scene::ISceneNode* 
 VesselSceneNode::VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id)
 : scene::ISceneNode(parent, mgr, id), smgr(mgr)
 {
+
 	vesselData = vesData;
 	vesselMesh = vesselData->vesselMesh;
 	dockingPorts = vesselData->dockingPorts;

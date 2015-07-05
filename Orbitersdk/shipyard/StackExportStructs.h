@@ -6,7 +6,7 @@
 //#include "OrbiterDockingPort.h"
 #include "VesselStack.h"
 
-//structs that contain the neccessary data to export a vessel into orbiter
+//structs that contain the neccessary data to export a stack into orbiter
 struct DockPortExport
 {
 	int dockedToVessel = -1;	//index of vessel docked to this port (in StackExport::vessels queue)
@@ -28,3 +28,9 @@ struct ExportData
 	std::string name;							//base name of the stack
 };
 
+struct ImportData
+{
+	bool locked = false;
+	bool importing = false;
+	std::queue<VesselExport> stack;
+};

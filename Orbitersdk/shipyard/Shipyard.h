@@ -25,7 +25,7 @@ using namespace irr;
 class Shipyard : public IEventReceiver
 {
 public:
-	Shipyard(ExportData *exportdata = NULL);
+	Shipyard(ExportData *exportdata = NULL, ImportData *importdata = NULL);
 	~Shipyard();
 	void setupDevice(IrrlichtDevice * _device, std::string toolboxSet);
 	void loop();
@@ -80,6 +80,9 @@ private:
 	void saveSession(std::string filename);
 	bool loadSession(std::string path);
 	void clearSession();
+	void importStack();
+
 	std::string session;
 	ExportData *_exportdata;
+	ImportData *_importdata;
 };

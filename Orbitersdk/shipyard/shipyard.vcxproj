@@ -96,6 +96,7 @@
     <ClCompile Include="Shipyard.cpp" />
     <ClCompile Include="ShipyardCamera.cpp" />
     <ClCompile Include="StackExport.cpp" />
+    <ClCompile Include="StackImport.cpp" />
     <ClCompile Include="VesselStack.cpp" />
     <ClCompile Include="VesselSceneNode.cpp" />
     <ClCompile Include="VesselStackOperations.cpp" />
@@ -118,6 +119,7 @@
     <ClInclude Include="s3tc.h" />
     <ClInclude Include="SE_ToolBox.h" />
     <ClInclude Include="ShipyardCamera.h" />
+    <ClInclude Include="StackImport.h" />
     <ClInclude Include="VesselStack.h" />
     <ClInclude Include="VesselSceneNode.h" />
     <ClInclude Include="Shipyard.h" />

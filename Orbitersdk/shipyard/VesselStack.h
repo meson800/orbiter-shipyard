@@ -17,6 +17,7 @@ public:
 	void moveStackReferenced(core::vector3df movePos);
 	void moveStackRelative(core::vector3df movePos);
 	void checkForSnapping(VesselSceneNode* vessel, ISceneNode* dockportnode, bool dock=false);
+	void snapStack(int srcvesselidx, int srcdockportidx = -1, OrbiterDockingPort *tgtport = NULL);
 	void changeDockingPortVisibility(bool showEmpty, bool showDocked);
 	int numVessels();
 	VesselSceneNode* getVessel(int index);
@@ -31,7 +32,6 @@ public:
 private:
 	//recursive helper to init the stack
 	void createStackHelper(VesselSceneNode* startingVessel, OrbiterDockingPort* fromPort);
-	void snapStack(int srcvesselidx, int srcdockportidx = -1, OrbiterDockingPort *tgtport = NULL);
 	std::vector<core::vector3df> previousPositions;
 	core::vector3df moveReference, currentStackLocation;
 	std::vector<VesselSceneNode*> nodes;
