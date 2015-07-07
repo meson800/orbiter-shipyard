@@ -1,53 +1,6 @@
 #include "VesselSceneNode.h"
 
-VesselSceneNode::VesselSceneNode(std::string configFilename, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id)
-: scene::ISceneNode(parent, mgr, id), smgr(mgr)
-{
-	vector<std::string> tokens;
-	ifstream configFile = ifstream(configFilename.c_str());
-
-	bool readingDockingPorts = false;
-
-	while (Helpers::readLine(configFile, tokens))
-	{
-		//check to see if there are any tokens
-		if (tokens.size() == 0)
-			continue;
-
-		//or if it is the end
-		if (tokens[0].compare("END_DOCKLIST") == 0)
-			readingDockingPorts = false;
-		//if we are reading docking ports, create a new docking port!
-		if (readingDockingPorts)
-			dockingPorts.push_back(OrbiterDockingPort(
-			core::vector3d<f32>(Helpers::stringToDouble(tokens[0]),
-				Helpers::stringToDouble(tokens[1]), Helpers::stringToDouble(tokens[2])),
-			core::vector3d<f32>(Helpers::stringToDouble(tokens[3]),
-			Helpers::stringToDouble(tokens[4]), Helpers::stringToDouble(tokens[5])),
-				core::vector3d<f32>(Helpers::stringToDouble(tokens[6]),
-			Helpers::stringToDouble(tokens[7]), Helpers::stringToDouble(tokens[8]))));
-		//now see if this is the beginning of a docking port list
-		if (tokens[0].compare("BEGIN_DOCKLIST") == 0)
-		{
-			readingDockingPorts = true;
-		}
-
-
-		//now see if it is a MeshName
-		//put it in lowercase to start
-		transform(tokens[0].begin(), tokens[0].end(), tokens[0].begin(), ::tolower);
-		//see if it matches
-		if (tokens[0].compare("meshname") == 0)
-			//load the mesh!
-			vesselMesh->setupMesh(string(Helpers::workingDirectory + "\\Meshes\\" + tokens[2] + ".msh"), mgr->getVideoDriver()); //tokens 2 because the format is
-		//MeshName = blahblah
-
-		//clear tokens
-		tokens.clear();
-	}
-	//setup docking port nodes
-	setupDockingPortNodes();
-}
+UINT VesselSceneNode::next_uid = 0;
 
 VesselSceneNode::VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id)
 : scene::ISceneNode(parent, mgr, id), smgr(mgr)

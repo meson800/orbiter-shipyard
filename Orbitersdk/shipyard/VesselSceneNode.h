@@ -18,7 +18,6 @@ using namespace std;
 class VesselSceneNode : public scene::ISceneNode
 {
 public:
-	VesselSceneNode(std::string configFilename, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id);
 	VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id);
 	virtual void OnRegisterSceneNode();
 	virtual void render();
@@ -43,6 +42,8 @@ public:
 	vector<OrbiterDockingPort> dockingPorts;
 
 private:
+    UINT uid;
+    static UINT next_uid;
 	scene::ISceneManager* smgr;
 	OrbiterMesh *vesselMesh;
 	VesselData *vesselData;
