@@ -190,7 +190,7 @@ void Helpers::registerVessel(unsigned int uid, VesselSceneNode* vessel)
 {
     if (vesselMap != 0)
     {
-        vesselMap->at(uid) = vessel;
+        (*vesselMap)[uid] = vessel;
     }
 }
 
@@ -208,4 +208,5 @@ VesselSceneNode* Helpers::getVesselByUID(unsigned int uid)
     {
         return vesselMap->at(uid);
     }
+    return 0;
 }

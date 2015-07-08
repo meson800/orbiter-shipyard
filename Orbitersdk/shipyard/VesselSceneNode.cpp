@@ -10,6 +10,15 @@ VesselSceneNode::VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent,
 	dockingPorts = vesselData->dockingPorts;
 
 	setupDockingPortNodes();
+
+    //register self with map
+    Helpers::registerVessel(uid, this);
+}
+
+VesselSceneNode::~VesselSceneNode()
+{
+    //unregister self from map
+    Helpers::unregisterVessel(uid);
 }
 
 UINT VesselSceneNode::getUID()
