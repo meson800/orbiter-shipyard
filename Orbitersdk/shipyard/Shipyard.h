@@ -45,10 +45,8 @@ private:
 
 	std::string tbxSet;
 	gui::IGUIEnvironment* guiEnv;
-	std::vector<VesselSceneNode*> vessels;
 
     std::map<UINT, VesselSceneNode*> uidVesselMap;
-	std::map<ISceneNode*, VesselSceneNode*> dockportmap;					//maps dockport nodes to vessels for performance when checking for mouse/dockport overlap
 	bool isKeyDown[KEY_KEY_CODES_COUNT];
 	bool isOpenDialogOpen;
 	IrrlichtDevice * device;
@@ -61,11 +59,7 @@ private:
 	DataManager dataManager;
 	void addVessel(VesselData* vesseldata, bool snaptocursor = true);		//adds a new vessel to the scene
 
-	void registerVessel(VesselSceneNode* node);
-	void registerVessels(const std::vector<VesselSceneNode*>& nodes);
-	void deregisterVessel(VesselSceneNode* node);
-	void deregisterVessels(const std::vector<VesselSceneNode*>& nodes);
-	void deregisterVessels(VesselStack* stack);
+    void setAllDockingPortVisibility(bool showEmpty, bool showDocked);
 	
 	bool cursorOnGui;															//registers when the cursor is over a GUI element, so events can be passed on
 	bool dialogOpen;															//true while dialog windows are open
