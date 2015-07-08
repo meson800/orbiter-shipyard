@@ -136,9 +136,7 @@ void Shipyard::loop()
 			}
 		}
 	}
-	//drop all vessels
-    //they will auto-delete from the uidVesselMap
-    smgr->getRootSceneNode()->removeAll();
+    clearSession();
 }
 
 void Shipyard::addVessel(VesselData* vesseldata, bool snaptocursor)
@@ -811,54 +809,44 @@ void Shipyard::switchToolBox()
 
 void Shipyard::saveSession(std::string filename)
 {
-    /*
 	std::string fullpath = Helpers::workingDirectory + "\\StackEditor\\Sessions\\" + filename + ".ses";
 	ofstream file(fullpath);
-	//we'll note the respective indices of vessels and dockports to have an easier time saving the docking connections
-	std::map<VesselSceneNode*, UINT> indices_by_vessels;
-	std::map<OrbiterDockingPort*, UINT> indices_by_dockports;
 
-	for (UINT i = 0; i < vessels.size(); ++i)
-	{
-		//save VesselSceneNodes to file and remember their indices
-		vessels[i]->saveToSession(file);
-		indices_by_vessels.insert(std::make_pair(vessels[i], i));
-		//walk through and note dockports
-		for (UINT j = 0; j < vessels[i]->dockingPorts.size(); ++j)
-		{
-			indices_by_dockports.insert(std::make_pair(&vessels[i]->dockingPorts[j], j));
-		}
-	}
+    //write vessel info
+    for (auto it = uidVesselMap.begin(); it != uidVesselMap.end(); ++it)
+    {
+        it->second->saveToSession(file);
+    }
 
-	file << "DOCKINFO =";
-	for (UINT i = 0; i < vessels.size(); ++i)
-	{
-		for (UINT j = 0; j < vessels[i]->dockingPorts.size(); ++j)
-		{
-			if (!vessels[i]->dockingPorts[j].docked)
-			//write -1 for docked vessel and port
-			{
-				file << " -1:-1";
-			}
-			else
-			//write index of connecting vessel followed by index of dockport on connected vessel
-			{
-				file << " " << indices_by_vessels[vessels[i]->dockingPorts[j].dockedTo->parent] 
-					<< ":" << indices_by_dockports[vessels[i]->dockingPorts[j].dockedTo];
-			}
-		}
-	}
+    //write docking info
+    file << "DOCKINFO =";
+    for (auto it = uidVesselMap.begin(); it != uidVesselMap.end(); ++it)
+    {
+        for (auto docking_it = it->second->dockingPorts.begin(); docking_it != it->second->dockingPorts.end(); ++docking_it)
+        {
+            if (!(docking_it->docked))
+                //write -1 for docked vessel and port
+            {
+                file << " -1:-1";
+            }
+            else
+                //write index of connecting vessel followed by index of dockport on connected vessel
+            {
+                file << " " << docking_it->dockedTo.vesselUID
+                    << ":" << docking_it->dockedTo.portID;
+            }
+        }
+    }
+
 	file.close();
 	std::string newcaption = "Orbiter Shipyard - " + filename;
 	device->setWindowCaption(std::wstring(newcaption.begin(), newcaption.end()).c_str());
 	session = filename;
-    */
 }
 
 
 bool Shipyard::loadSession(std::string path)
 {
-    /*
 	clearSession();
 	ifstream file(path.c_str());
 	std::vector<std::string> tokens;
@@ -880,9 +868,11 @@ bool Shipyard::loadSession(std::string path)
 				guiEnv->addMessageBox(L"He's dead, Jim!", L"No FILE declared for vessel, unable to load session");
 				return false;
 			}
+            VesselSceneNode* newvessel = new VesselSceneNode(dataManager.GetGlobalConfig(tokens[1], 
+                device->getVideoDriver()), smgr->getRootSceneNode(), smgr, VESSEL_ID, 0, true);
+            //defer registration on UID
 
-			addVessel(dataManager.GetGlobalConfig(tokens[1], device->getVideoDriver()), false);
-			if (!vessels[vessels.size() - 1]->loadFromSession(file))
+			if (!newvessel->loadFromSession(file))
 			{
 				guiEnv->addMessageBox(L"He's dead, Jim!", L"error while loading session");
 				return false;
@@ -892,39 +882,46 @@ bool Shipyard::loadSession(std::string path)
 		//establish docking connections
 		{
 			UINT tokenidx = 1;
-			for (UINT i = 0; i < vessels.size(); ++i)
-			{
-				for (UINT j = 0; j < vessels[i]->dockingPorts.size(); ++j)
-				{
-					//take appart the token containing the index of the docked vessel and its dockport
-					vector<std::string> connection;
-					Helpers::tokenize(tokens[tokenidx], connection, ":");
-					UINT vesselidx = Helpers::stringToInt(connection[0]);
-					UINT portidx = Helpers::stringToInt(connection[1]);
-					if (vesselidx != -1 && portidx != -1)
-					{
-						//we have a connection, update the dockport of the vessel
-						vessels[i]->dockingPorts[j].docked = true;
-						vessels[i]->dockingPorts[j].dockedTo = &vessels[vesselidx]->dockingPorts[portidx];
-					}
-					tokenidx++;
-				}
-			}
+            for (auto it = uidVesselMap.begin(); it != uidVesselMap.end(); ++it)
+            {
+                for (auto docking_it = it->second->dockingPorts.begin(); docking_it != it->second->dockingPorts.end(); ++docking_it)
+                {
+                    //take appart the token containing the index of the docked vessel and its dockport
+                    vector<std::string> connection;
+                    Helpers::tokenize(tokens[tokenidx], connection, ":");
+                    UINT vesselidx = Helpers::stringToInt(connection[0]);
+                    UINT portidx = Helpers::stringToInt(connection[1]);
+                    if (vesselidx != -1 && portidx != -1)
+                    {
+                        //we have a connection, update the dockport of the vessel
+                        docking_it->docked = true;
+                        docking_it->dockedTo.vesselUID = vesselidx;
+                    }
+                    tokenidx++;
+                }
+            }
 		}
 		tokens.clear();
 	}
 	file.close();
-    */
 	return true;
 }
 
 void Shipyard::clearSession()
 {
+    //remove all vessels from root scene node
+    //they will auto-delete from the uidVesselMap
+
+    //make a list of children to delete
+    //because we can't remove directly from uidVesselMap because vessels auto-remove
+    std::vector<ISceneNode*> childrenToDelete;
     for (auto it = uidVesselMap.begin(); it != uidVesselMap.end(); ++it)
-	{
-        it->second->removeAll();
-		it->second->remove();
-		it->second->drop();
-	}
-	uidVesselMap.clear();
+    {
+        childrenToDelete.push_back(it->second);
+    }
+
+    for (UINT i = 0; i < childrenToDelete.size(); ++i)
+    {
+        smgr->getRootSceneNode()->removeChild(childrenToDelete[i]);
+    }
 }

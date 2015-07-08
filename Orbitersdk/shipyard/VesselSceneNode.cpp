@@ -2,7 +2,7 @@
 
 UINT VesselSceneNode::next_uid = 0;
 
-VesselSceneNode::VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id, UINT _uid)
+VesselSceneNode::VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id, UINT _uid, bool deferRegistration)
     : scene::ISceneNode(parent, mgr, id), smgr(mgr), uid(_uid)
 {
 	vesselData = vesData;
@@ -11,8 +11,11 @@ VesselSceneNode::VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent,
 
 	setupDockingPortNodes();
 
-    //register self with map
-    Helpers::registerVessel(uid, this);
+    if (!deferRegistration)
+        //register self with map
+    {
+        Helpers::registerVessel(uid, this);
+    }
 }
 
 VesselSceneNode::~VesselSceneNode()
@@ -246,6 +249,7 @@ void VesselSceneNode::saveToSession(ofstream &file)
 	core::vector3df rot = getRotation();
 	file << "POS = " << pos.X << " " << pos.Y << " " << pos.Z << "\n";
 	file << "ROT = " << rot.X << " " << rot.Y << " " << rot.Z << "\n";
+    file << "UID = " << uid << "\n";
 	file << "VESSEL_END\n";
 }
 
@@ -292,6 +296,17 @@ bool VesselSceneNode::loadFromSession(ifstream &file)
 			setRotation(rot);
 			updateAbsolutePosition();
 		}
+        else if (tokens[0].compare("UID") == 0)
+        {
+            if (tokens.size() < 2)
+                //line doesn't contain enough values
+            {
+                Helpers::writeToLog(string("ERROR: invalid UID in session"));
+                return false;
+            }
+            uid = Helpers::stringToInt(tokens[1]);
+            Helpers::registerVessel(uid,this);
+        }
 		else if (tokens[0].compare("VESSEL_END") == 0)
 		{
 			done = true;

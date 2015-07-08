@@ -19,7 +19,7 @@ class VesselSceneNode : public scene::ISceneNode
 {
 public:
 	VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id, 
-        UINT _uid = next_uid++); //If UID is not given, init to the next free UID, then increment next_UID
+        UINT _uid = next_uid++, bool deferRegistration=false); //If UID is not given, init to the next free UID, then increment next_UID
     ~VesselSceneNode();
 
 	virtual void OnRegisterSceneNode();
