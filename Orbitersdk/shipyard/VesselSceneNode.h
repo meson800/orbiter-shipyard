@@ -18,7 +18,9 @@ using namespace std;
 class VesselSceneNode : public scene::ISceneNode
 {
 public:
-	VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id);
+	VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id, 
+        UINT _uid = next_uid++); //If UID is not given, init to the next free UID, then increment next_UID
+
 	virtual void OnRegisterSceneNode();
 	virtual void render();
 	virtual void drawDockingPortLines(video::IVideoDriver* driver);
@@ -38,6 +40,8 @@ public:
 	void saveToSession(ofstream &file);
 	bool loadFromSession(ifstream &file);
 	std::string getClassName();
+
+    UINT getUID();
 
 	vector<OrbiterDockingPort> dockingPorts;
 
