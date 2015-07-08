@@ -2,6 +2,7 @@
 
 #include <irrlicht.h>
 #include <vector>
+#include <map>
 #include <string>
 #include <algorithm>
 
@@ -45,6 +46,8 @@ private:
 	std::string tbxSet;
 	gui::IGUIEnvironment* guiEnv;
 	std::vector<VesselSceneNode*> vessels;
+
+    std::map<UINT, VesselSceneNode*> uidVesselMap;
 	std::map<ISceneNode*, VesselSceneNode*> dockportmap;					//maps dockport nodes to vessels for performance when checking for mouse/dockport overlap
 	bool isKeyDown[KEY_KEY_CODES_COUNT];
 	bool isOpenDialogOpen;

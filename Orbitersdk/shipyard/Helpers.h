@@ -5,14 +5,18 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <map>
 #include <mutex>
 #include <algorithm>
 #include <irrlicht.h>
 #include <sstream>
 #include "DdsImage.h"
+#include "Common.h"
 
 //using namespace std;
 using namespace irr;
+
+class VesselSceneNode;
 
 class Shipyard;
 struct CONFIGPARAMS
@@ -43,4 +47,12 @@ public:
 	static IrrlichtDevice *irrdevice;
 	static CONFIGPARAMS loadConfigParams();
 	static void resetDirectory();
+
+    static void setVesselMap(std::map<unsigned int, VesselSceneNode*>* _vesselMap);
+    static void registerVessel(unsigned int uid, VesselSceneNode* vessel);
+    static void unregisterVessel(unsigned int uid);
+    static VesselSceneNode* getVesselByUID(unsigned int uid);
+
+private:
+    static std::map<unsigned int, VesselSceneNode*>* vesselMap;
 };

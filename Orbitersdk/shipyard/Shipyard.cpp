@@ -17,6 +17,8 @@ Shipyard::Shipyard(ExportData *exportdata)
 	session = "unnamed";
 	areSplittingStack = false;
 	_exportdata = exportdata;
+
+    Helpers::setVesselMap(&uidVesselMap);
 }
 
 Shipyard::~Shipyard()
