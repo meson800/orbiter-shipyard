@@ -10,7 +10,12 @@ struct OrbiterDockingPort
 	OrbiterDockingPort(core::vector3d<f32> pos, core::vector3d<f32> appDir, core::vector3d<f32> refDir)
 	: position(pos), approachDirection(appDir), referenceDirection(refDir) {}
 	VesselSceneNode* parent;
-	OrbiterDockingPort* dockedTo;
+    struct 
+    {
+        UINT vesselUID, portID;
+    }dockedTo;
+
+    UINT portID;
 	scene::IMeshSceneNode* portNode;
 	scene::IMeshSceneNode* helperNode;
 	int index;

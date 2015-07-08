@@ -32,6 +32,7 @@ void VesselSceneNode::setupDockingPortNodes()
 	{
 		dockingPorts[i].parent = this;
 		dockingPorts[i].docked = false;
+        dockingPorts[i].portID = i;
 
 		dockingPorts[i].portNode = smgr->addSphereSceneNode((f32)1.4, 16, this, DOCKPORT_ID, dockingPorts[i].position);
 		setupDockingPortNode(dockingPorts[i].portNode);
@@ -229,8 +230,11 @@ void VesselSceneNode::dock(OrbiterDockingPort& ourPort, OrbiterDockingPort& thei
 	ourPort.docked = true;
 	theirPort.docked = true;
 	//set dockedTo pointers
-	ourPort.dockedTo = &theirPort;
-	theirPort.dockedTo = &ourPort;
+	ourPort.dockedTo.vesselUID = theirPort.parent->getUID();
+    ourPort.dockedTo.portID = theirPort.portID;
+
+    theirPort.dockedTo.vesselUID = ourPort.parent->getUID();
+    theirPort.dockedTo.portID = ourPort.portID;
 }
 
 void VesselSceneNode::saveToSession(ofstream &file)

@@ -2,14 +2,17 @@
 
 void VesselStackOperations::splitStack(OrbiterDockingPort* sourcePort)
 {
-	OrbiterDockingPort* destPort = sourcePort->dockedTo;
+    OrbiterDockingPort* destPort = &(Helpers::getVesselByUID(sourcePort->dockedTo.vesselUID)->
+        dockingPorts[sourcePort->dockedTo.portID]);
 	
 	//reset docked flags	
 	sourcePort->docked = false;
 	destPort->docked = false;
 	//reset dockedTo pointers
-	sourcePort->dockedTo = 0;
-	destPort->dockedTo = 0;
+	sourcePort->dockedTo.vesselUID = 0;
+    sourcePort->dockedTo.portID = 0;
+	destPort->dockedTo.vesselUID = 0;
+    destPort->dockedTo.portID = 0;
 }
 
 std::vector<VesselSceneNode*> VesselStackOperations::copyStack(VesselStack* stack, scene::ISceneManager* smgr)
@@ -31,17 +34,13 @@ std::vector<VesselSceneNode*> VesselStackOperations::copyStack(VesselStack* stac
 	}
 
 	//Now we have to set up the docking ports correctly.
-	//The hardest part is swapping the pointers so each docking port's dockedTo pointer is set correctly.
-	//To do this, we have to get a pointer to pointer map going for each docking port
-	std::map<OrbiterDockingPort*, OrbiterDockingPort*> dockingPortPointerMap;
+    //make a map from old UID to new UID
+	std::map<UINT, UINT> vesselUIDTransferMap;
 	for (UINT i = 0; i < stack->numVessels(); ++i)
 	{
-		VesselSceneNode* oldVessel = stack->getVessel(i);
-		VesselSceneNode* newVessel = newNodes[i];
-		for (UINT j = 0; j < oldVessel->dockingPorts.size(); ++j)
-		{
-			dockingPortPointerMap[&(oldVessel->dockingPorts[j])] = &(newVessel->dockingPorts[j]);
-		}
+        VesselSceneNode* oldVessel = stack->getVessel(i);
+        VesselSceneNode* newVessel = newNodes[i];
+        vesselUIDTransferMap[oldVessel->getUID()] = newVessel->getUID();
 	}
 
 	//Now, recurse through the docking ports one more time, setting the pointers correctly with the map
@@ -52,7 +51,8 @@ std::vector<VesselSceneNode*> VesselStackOperations::copyStack(VesselStack* stac
 		for (UINT j = 0; j < oldVessel->dockingPorts.size(); ++j)
 		{
 			newVessel->dockingPorts[j].docked = oldVessel->dockingPorts[j].docked;
-			newVessel->dockingPorts[j].dockedTo = dockingPortPointerMap[oldVessel->dockingPorts[j].dockedTo];
+			newVessel->dockingPorts[j].dockedTo.vesselUID = vesselUIDTransferMap[oldVessel->dockingPorts[j].dockedTo.vesselUID];
+            newVessel->dockingPorts[j].dockedTo.portID = oldVessel->dockingPorts[j].dockedTo.portID;
 		}
 	}
 

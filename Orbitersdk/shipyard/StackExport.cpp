@@ -30,14 +30,14 @@ void StackExport::prepareExportData()
 			if (v->dockingPorts[j].docked)
 			{
 				//get the index of the docked vessel
-				int dockedvidx = _data->stack->getIndexOfVessel(v->dockingPorts[j].dockedTo->parent);
+				int dockedvidx = v->dockingPorts[j].dockedTo.vesselUID;
 				//connections are only remembered down the queue. 
 				//Vessels appearing earlier in the queue must not know that they're docked to vessels higher up
 				if (dockedvidx < i)
 				{ 
 					DockPortExport newd;
 					newd.dockedToVessel = dockedvidx;
-					newd.dockedToPort = v->dockingPorts[j].dockedTo->index;
+                    newd.dockedToPort = v->dockingPorts[j].dockedTo.portID;
 					newd.myindex = j;
 					newv.dockports.push(newd);
 				}
