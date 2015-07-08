@@ -896,6 +896,7 @@ bool Shipyard::loadSession(std::string path)
                         //we have a connection, update the dockport of the vessel
                         docking_it->docked = true;
                         docking_it->dockedTo.vesselUID = vesselidx;
+                        docking_it->dockedTo.portID = portidx;
                     }
                     tokenidx++;
                 }

@@ -210,3 +210,12 @@ VesselSceneNode* Helpers::getVesselByUID(unsigned int uid)
     }
     return 0;
 }
+
+bool Helpers::isUIDRegistered(unsigned int uid)
+{
+    if (vesselMap != 0)
+    {
+        return vesselMap->count(uid);
+    }
+    return false;
+}

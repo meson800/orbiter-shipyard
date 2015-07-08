@@ -11,9 +11,14 @@ VesselSceneNode::VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent,
 
 	setupDockingPortNodes();
 
-    if (!deferRegistration)
-        //register self with map
+    if (_uid == 0 && !deferRegistration)
     {
+        //find a free UID
+        while (Helpers::isUIDRegistered(next_uid))
+            ++next_uid;
+
+        uid = next_uid++; //increment after assignment
+        //register self with map
         Helpers::registerVessel(uid, this);
     }
 }
