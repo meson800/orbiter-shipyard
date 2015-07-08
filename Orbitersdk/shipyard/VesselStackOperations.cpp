@@ -67,7 +67,9 @@ void VesselStackOperations::deleteStack(VesselStack* stack)
 {
 	for (UINT i = 0; i < stack->numVessels(); ++i)
 	{
-		stack->getVessel(i)->removeAll(); //removeAll only drops children, not the node itself
-		stack->getVessel(i)->remove();
+        VesselSceneNode* vessel = stack->getVessel(i);
+		vessel->removeAll(); //removeAll only drops children, not the node itself
+		vessel->remove(); //remove from scene graph
+        vessel->drop(); //We need the extra drop because we called VesselSceneNode, which returns a pointer
 	}
 }
