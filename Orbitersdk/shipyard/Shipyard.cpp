@@ -535,6 +535,7 @@ bool Shipyard::processKeyboardEvent(const SEvent &event)
 				if (selectedVesselStack != 0 && isKeyDown[EKEY_CODE::KEY_LCONTROL])
 				{
 					VesselStackOperations::copyStack(selectedVesselStack, smgr);
+                    setupSelectedStack(); //needed to show new nodes created
 				}
 				break;
 			case KEY_DELETE:
@@ -703,8 +704,17 @@ void Shipyard::setupSelectedStack()
 
 void Shipyard::setAllDockingPortVisibility(bool showEmpty, bool showDocked)
 {
+    if (selectedVesselStack != 0)
+    {
+        //this shows HELPER nodes, this is why this is needed
+        selectedVesselStack->changeDockingPortVisibility(showEmpty, showDocked);
+    }
     for (auto it = uidVesselMap.begin(); it != uidVesselMap.end(); ++it)
-        it->second->changeDockingPortVisibility(showEmpty, showDocked);
+    {
+        if (selectedVesselStack == 0 || !selectedVesselStack->isVesselInStack(it->second))
+            it->second->changeDockingPortVisibility(showEmpty, showDocked);
+    }
+        
 }
 
 bool Shipyard::loadToolBoxes()
