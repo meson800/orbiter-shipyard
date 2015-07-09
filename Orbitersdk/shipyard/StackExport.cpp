@@ -30,7 +30,7 @@ void StackExport::prepareExportData()
 			if (v->dockingPorts[j].docked)
 			{
 				//get the index of the docked vessel
-				int dockedvidx = v->dockingPorts[j].dockedTo.vesselUID;
+				int dockedvidx = _data->stack->getIndexOfVessel(Helpers::getVesselByUID(v->dockingPorts[j].dockedTo.vesselUID));
 				//connections are only remembered down the queue. 
 				//Vessels appearing earlier in the queue must not know that they're docked to vessels higher up
 				if (dockedvidx < i)

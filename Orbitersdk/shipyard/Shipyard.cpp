@@ -146,7 +146,7 @@ void Shipyard::loop()
     clearSession();
 }
 
-void Shipyard::addVessel(VesselData* vesseldata, bool snaptocursor)
+VesselSceneNode *Shipyard::addVessel(VesselData* vesseldata, bool snaptocursor)
 {
 	//make sure we have valid vesseldata
 	if (!vesseldata)
@@ -170,7 +170,7 @@ void Shipyard::addVessel(VesselData* vesseldata, bool snaptocursor)
 	//remove focus from the element so no vessels can be spawned while the current one is still being selected
 	guiEnv->removeFocus(toolboxes[activetoolbox]);
 	cursorOnGui = false;
-
+	return newvessel;
 }
 
 void Shipyard::moveVesselToCursor(VesselSceneNode* vessel)
@@ -955,8 +955,8 @@ void Shipyard::clearSession()
 //creates a stack from importdata
 void Shipyard::importStack()
 {
-	//note the index in the vessel list the first node from this stack will occupy
-	int startidx = vessels.size();
+	//vector to store the created vessels during creation. We need them in fixed order for the docking to work!
+	vector<VesselSceneNode*> createdvessels;
 	while (_importdata->stack.size() > 0)
 	{
 		VesselExport newv = _importdata->stack.front();
@@ -965,7 +965,7 @@ void Shipyard::importStack()
 		try
 		{
 			//create the new vessel
-			addVessel(dataManager.GetGlobalConfig(newv.className, device->getVideoDriver()), false);
+			createdvessels.push_back(addVessel(dataManager.GetGlobalConfig(newv.className, device->getVideoDriver()), false));
 		}
 		catch (int e)
 		{
@@ -978,8 +978,8 @@ void Shipyard::importStack()
 		{
 			//identify the port we have to dock to
 			DockPortExport port = newv.dockports.front();
-			OrbiterDockingPort *tgtport = &vessels[startidx + port.dockedToVessel]->dockingPorts[port.dockedToPort];
-			VesselSceneNode *curv = vessels[vessels.size() - 1];
+			OrbiterDockingPort *tgtport = &createdvessels[port.dockedToVessel]->dockingPorts[port.dockedToPort];
+			VesselSceneNode *curv = createdvessels[createdvessels.size() - 1];
 
 			//grab the new vessel, turn it into a stack and snap it to where it belongs
 			VesselStack *stack = new VesselStack(curv);

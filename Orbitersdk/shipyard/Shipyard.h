@@ -57,7 +57,7 @@ private:
 	scene::ISceneCollisionManager* collisionManager;
 	scene::ISceneManager* smgr;
 	DataManager dataManager;
-	void addVessel(VesselData* vesseldata, bool snaptocursor = true);		//adds a new vessel to the scene
+	VesselSceneNode *addVessel(VesselData* vesseldata, bool snaptocursor = true);		//adds a new vessel to the scene
 
     void setAllDockingPortVisibility(bool showEmpty, bool showDocked);
 	
