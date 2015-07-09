@@ -18,8 +18,10 @@ using namespace std;
 class VesselSceneNode : public scene::ISceneNode
 {
 public:
-	VesselSceneNode(std::string configFilename, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id);
-	VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id);
+	VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id, 
+        UINT _uid = 0, bool deferRegistration=false); 
+    ~VesselSceneNode();
+
 	virtual void OnRegisterSceneNode();
 	virtual void render();
 	virtual void drawDockingPortLines(video::IVideoDriver* driver);
@@ -40,9 +42,13 @@ public:
 	bool loadFromSession(ifstream &file);
 	std::string getClassName();
 
+    UINT getUID();
+
 	vector<OrbiterDockingPort> dockingPorts;
 
 private:
+    UINT uid;
+    static UINT next_uid;
 	scene::ISceneManager* smgr;
 	OrbiterMesh *vesselMesh;
 	VesselData *vesselData;

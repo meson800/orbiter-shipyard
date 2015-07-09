@@ -18,6 +18,8 @@ Shipyard::Shipyard(ExportData *exportdata, ImportData *importdata)
 	areSplittingStack = false;
 	_exportdata = exportdata;
 	_importdata = importdata;
+
+    Helpers::setVesselMap(&uidVesselMap);
 }
 
 Shipyard::~Shipyard()
@@ -141,12 +143,7 @@ void Shipyard::loop()
 			importStack();
 		}
 	}
-	//drop all vessels
-	for (unsigned int i = 0; i < vessels.size(); i++)
-	{
-		vessels[0]->drop();
-		vessels.erase(vessels.begin());
-	}
+    clearSession();
 }
 
 void Shipyard::addVessel(VesselData* vesseldata, bool snaptocursor)
@@ -159,8 +156,6 @@ void Shipyard::addVessel(VesselData* vesseldata, bool snaptocursor)
 
 	//add the vessel
 	VesselSceneNode* newvessel = new VesselSceneNode(vesseldata, smgr->getRootSceneNode(), smgr, VESSEL_ID);
-	//register for fast vessel identification
-	registerVessel(newvessel);
 
 	if (snaptocursor)
 	{
@@ -176,52 +171,6 @@ void Shipyard::addVessel(VesselData* vesseldata, bool snaptocursor)
 	guiEnv->removeFocus(toolboxes[activetoolbox]);
 	cursorOnGui = false;
 
-}
-
-void Shipyard::registerVessel(VesselSceneNode* node)
-{
-	vessels.push_back(node);
-	for (vector<OrbiterDockingPort>::iterator i = node->dockingPorts.begin(); i != node->dockingPorts.end(); ++i)
-	{
-		dockportmap.insert(make_pair((*i).portNode, node));
-	}
-	if (selectedVesselStack != 0)
-		setupSelectedStack(); //this is needed to show available docking ports if we copied
-}
-
-void Shipyard::registerVessels(const std::vector<VesselSceneNode*>& nodes)
-{
-	for (UINT i = 0; i < nodes.size(); ++i)
-	{
-		registerVessel(nodes[i]);
-	}
-}
-
-void Shipyard::deregisterVessel(VesselSceneNode* node)
-{
-	//Remove node from vessels list by value
-	vessels.erase(std::remove(vessels.begin(), vessels.end(), node), vessels.end());
-	//remove all of the docking ports in this node
-	for (UINT i = 0; i < node->dockingPorts.size(); ++i)
-	{
-		dockportmap.erase(node->dockingPorts[i].portNode);
-	}
-}
-
-void Shipyard::deregisterVessels(const std::vector<VesselSceneNode*>& nodes)
-{
-	for (UINT i = 0; i < nodes.size(); ++i)
-	{
-		deregisterVessel(nodes[i]);
-	}
-}
-
-void Shipyard::deregisterVessels(VesselStack* stack)
-{
-	for (UINT i = 0; i < stack->numVessels(); ++i)
-	{
-		deregisterVessel(stack->getVessel(i));
-	}
 }
 
 void Shipyard::moveVesselToCursor(VesselSceneNode* vessel)
@@ -255,8 +204,8 @@ core::vector3df Shipyard::returnMouseRelativePos()
 core::aabbox3d<f32> Shipyard::returnOverallBoundingBox()
 {
 	core::aabbox3d<f32> result;
-	for (unsigned int i = 0; i < vessels.size(); i++)
-		result.addInternalBox(vessels[i]->getTransformedBoundingBox());
+    for (auto it = uidVesselMap.begin(); it != uidVesselMap.end(); ++it)
+		result.addInternalBox(it->second->getTransformedBoundingBox());
 	return result;
 }
 
@@ -391,17 +340,11 @@ bool Shipyard::processGuiEvent(const SEvent &event)
 					//hold this thread until export finishes
 					while (_exportdata->exporting){};
 					
-					//put the stack down. Easiest way to avoid motion mayhem afterwards.
-					selectedVesselStack->changeDockingPortVisibility(false, false);
+					
 					//hide all the rest of the empty docking ports
-					for (unsigned int i = 0; i < vessels.size(); i++)
-					{
-						if (!selectedVesselStack->isVesselInStack(vessels[i]))
-						{
-							vessels[i]->changeDockingPortVisibility(false, false);
-						}
-					}
+                    setAllDockingPortVisibility(false, false);
 
+                    //put the stack down. Easiest way to avoid motion mayhem afterwards.
 					delete selectedVesselStack;
 					selectedVesselStack = NULL;
 				}
@@ -429,7 +372,7 @@ bool Shipyard::processGuiEvent(const SEvent &event)
 		case gui::EGET_BUTTON_CLICKED:
 			if (event.GUIEvent.Caller->getID() == LOADSESSION)
 			{
-				if (vessels.size() == 0)
+				if (uidVesselMap.size() == 0)
 				//spawn open dialog
 				{
 					IGUIFileOpenDialog *dlg = guiEnv->addFileOpenDialog(L"Select Config File", true, 0, SESSIONOPENFILE, false, "StackEditor/Sessions");
@@ -602,13 +545,13 @@ bool Shipyard::processKeyboardEvent(const SEvent &event)
 			case KEY_KEY_C:
 				if (selectedVesselStack != 0 && isKeyDown[EKEY_CODE::KEY_LCONTROL])
 				{
-					registerVessels(VesselStackOperations::copyStack(selectedVesselStack, smgr));
+					VesselStackOperations::copyStack(selectedVesselStack, smgr);
+                    setupSelectedStack(); //needed to show new nodes created
 				}
 				break;
 			case KEY_DELETE:
 				if (selectedVesselStack != 0)
 				{
-					deregisterVessels(selectedVesselStack);
 					VesselStackOperations::deleteStack(selectedVesselStack);
 					//remove stack reference
 					selectedVesselStack = 0;
@@ -700,19 +643,11 @@ bool Shipyard::processMouseEvent(const SEvent &event)
 					device->getCursorControl()->getPosition(), DOCKPORT_ID, true);
 				if (selectedNode->getID() == DOCKPORT_ID)
 				{
-					selectedVesselStack->checkForSnapping(dockportmap.find(selectedNode)->second, selectedNode, true);
+                    selectedVesselStack->checkForSnapping((VesselSceneNode*)selectedNode->getParent(), selectedNode, true);
 				}
 
 				//hide docking ports
-				selectedVesselStack->changeDockingPortVisibility(false, false);
-				//hide all the rest of the empty docking ports
-				for (unsigned int i = 0; i < vessels.size(); i++)
-				{
-					if (!selectedVesselStack->isVesselInStack(vessels[i]))
-					{
-						vessels[i]->changeDockingPortVisibility(false, false);
-					}
-				}
+                setAllDockingPortVisibility(false, false);
 
 				delete selectedVesselStack;
 				selectedVesselStack = 0;
@@ -759,7 +694,7 @@ bool Shipyard::processMouseEvent(const SEvent &event)
 				device->getCursorControl()->getPosition(), DOCKPORT_ID, true);
 			if (selectedNode->getID() == DOCKPORT_ID)
 			{
-				selectedVesselStack->checkForSnapping(dockportmap.find(selectedNode)->second, selectedNode);
+				selectedVesselStack->checkForSnapping((VesselSceneNode*)selectedNode->getParent(), selectedNode);
 			}
 			else if (selectedVesselStack->isSnaped())
 				//there's no dockport nearby, release the stack from snap and set up a new move reference
@@ -786,16 +721,23 @@ void Shipyard::setupSelectedStack()
 		selectedVesselStack->setMoveReference(returnMouseRelativePos());
 
 		//show empty docking ports
-		selectedVesselStack->changeDockingPortVisibility(true, false);
-		//show all the rest of the empty docking ports
-		for (unsigned int i = 0; i < vessels.size(); i++)
-		{
-			if (!selectedVesselStack->isVesselInStack(vessels[i]))
-			{
-				vessels[i]->changeDockingPortVisibility(true, false);
-			}
-		}
+        setAllDockingPortVisibility(true, false);
 	}
+}
+
+void Shipyard::setAllDockingPortVisibility(bool showEmpty, bool showDocked)
+{
+    if (selectedVesselStack != 0)
+    {
+        //this shows HELPER nodes, this is why this is needed
+        selectedVesselStack->changeDockingPortVisibility(showEmpty, showDocked);
+    }
+    for (auto it = uidVesselMap.begin(); it != uidVesselMap.end(); ++it)
+    {
+        if (selectedVesselStack == 0 || !selectedVesselStack->isVesselInStack(it->second))
+            it->second->changeDockingPortVisibility(showEmpty, showDocked);
+    }
+        
 }
 
 bool Shipyard::loadToolBoxes()
@@ -894,40 +836,33 @@ void Shipyard::saveSession(std::string filename)
 {
 	std::string fullpath = Helpers::workingDirectory + "\\StackEditor\\Sessions\\" + filename + ".ses";
 	ofstream file(fullpath);
-	//we'll note the respective indices of vessels and dockports to have an easier time saving the docking connections
-	std::map<VesselSceneNode*, UINT> indices_by_vessels;
-	std::map<OrbiterDockingPort*, UINT> indices_by_dockports;
 
-	for (UINT i = 0; i < vessels.size(); ++i)
-	{
-		//save VesselSceneNodes to file and remember their indices
-		vessels[i]->saveToSession(file);
-		indices_by_vessels.insert(std::make_pair(vessels[i], i));
-		//walk through and note dockports
-		for (UINT j = 0; j < vessels[i]->dockingPorts.size(); ++j)
-		{
-			indices_by_dockports.insert(std::make_pair(&vessels[i]->dockingPorts[j], j));
-		}
-	}
+    //write vessel info
+    for (auto it = uidVesselMap.begin(); it != uidVesselMap.end(); ++it)
+    {
+        it->second->saveToSession(file);
+    }
 
-	file << "DOCKINFO =";
-	for (UINT i = 0; i < vessels.size(); ++i)
-	{
-		for (UINT j = 0; j < vessels[i]->dockingPorts.size(); ++j)
-		{
-			if (!vessels[i]->dockingPorts[j].docked)
-			//write -1 for docked vessel and port
-			{
-				file << " -1:-1";
-			}
-			else
-			//write index of connecting vessel followed by index of dockport on connected vessel
-			{
-				file << " " << indices_by_vessels[vessels[i]->dockingPorts[j].dockedTo->parent] 
-					<< ":" << indices_by_dockports[vessels[i]->dockingPorts[j].dockedTo];
-			}
-		}
-	}
+    //write docking info
+    file << "DOCKINFO =";
+    for (auto it = uidVesselMap.begin(); it != uidVesselMap.end(); ++it)
+    {
+        for (auto docking_it = it->second->dockingPorts.begin(); docking_it != it->second->dockingPorts.end(); ++docking_it)
+        {
+            if (!(docking_it->docked))
+                //write -1 for docked vessel and port
+            {
+                file << " -1:-1";
+            }
+            else
+                //write index of connecting vessel followed by index of dockport on connected vessel
+            {
+                file << " " << docking_it->dockedTo.vesselUID
+                    << ":" << docking_it->dockedTo.portID;
+            }
+        }
+    }
+
 	file.close();
 	std::string newcaption = "Orbiter Shipyard - " + filename;
 	device->setWindowCaption(std::wstring(newcaption.begin(), newcaption.end()).c_str());
@@ -958,9 +893,11 @@ bool Shipyard::loadSession(std::string path)
 				guiEnv->addMessageBox(L"He's dead, Jim!", L"No FILE declared for vessel, unable to load session");
 				return false;
 			}
+            VesselSceneNode* newvessel = new VesselSceneNode(dataManager.GetGlobalConfig(tokens[1], 
+                device->getVideoDriver()), smgr->getRootSceneNode(), smgr, VESSEL_ID, 0, true);
+            //defer registration on UID
 
-			addVessel(dataManager.GetGlobalConfig(tokens[1], device->getVideoDriver()), false);
-			if (!vessels[vessels.size() - 1]->loadFromSession(file))
+			if (!newvessel->loadFromSession(file))
 			{
 				guiEnv->addMessageBox(L"He's dead, Jim!", L"error while loading session");
 				return false;
@@ -970,24 +907,25 @@ bool Shipyard::loadSession(std::string path)
 		//establish docking connections
 		{
 			UINT tokenidx = 1;
-			for (UINT i = 0; i < vessels.size(); ++i)
-			{
-				for (UINT j = 0; j < vessels[i]->dockingPorts.size(); ++j)
-				{
-					//take appart the token containing the index of the docked vessel and its dockport
-					vector<std::string> connection;
-					Helpers::tokenize(tokens[tokenidx], connection, ":");
-					UINT vesselidx = Helpers::stringToInt(connection[0]);
-					UINT portidx = Helpers::stringToInt(connection[1]);
-					if (vesselidx != -1 && portidx != -1)
-					{
-						//we have a connection, update the dockport of the vessel
-						vessels[i]->dockingPorts[j].docked = true;
-						vessels[i]->dockingPorts[j].dockedTo = &vessels[vesselidx]->dockingPorts[portidx];
-					}
-					tokenidx++;
-				}
-			}
+            for (auto it = uidVesselMap.begin(); it != uidVesselMap.end(); ++it)
+            {
+                for (auto docking_it = it->second->dockingPorts.begin(); docking_it != it->second->dockingPorts.end(); ++docking_it)
+                {
+                    //take appart the token containing the index of the docked vessel and its dockport
+                    vector<std::string> connection;
+                    Helpers::tokenize(tokens[tokenidx], connection, ":");
+                    UINT vesselidx = Helpers::stringToInt(connection[0]);
+                    UINT portidx = Helpers::stringToInt(connection[1]);
+                    if (vesselidx != -1 && portidx != -1)
+                    {
+                        //we have a connection, update the dockport of the vessel
+                        docking_it->docked = true;
+                        docking_it->dockedTo.vesselUID = vesselidx;
+                        docking_it->dockedTo.portID = portidx;
+                    }
+                    tokenidx++;
+                }
+            }
 		}
 		tokens.clear();
 	}
@@ -997,12 +935,21 @@ bool Shipyard::loadSession(std::string path)
 
 void Shipyard::clearSession()
 {
-	for (UINT i = 0; i < vessels.size(); ++i)
-	{
-		vessels[i]->remove();
-		vessels[i]->drop();
-	}
-	vessels.clear();
+    //remove all vessels from root scene node
+    //they will auto-delete from the uidVesselMap
+
+    //make a list of children to delete
+    //because we can't remove directly from uidVesselMap because vessels auto-remove
+    std::vector<ISceneNode*> childrenToDelete;
+    for (auto it = uidVesselMap.begin(); it != uidVesselMap.end(); ++it)
+    {
+        childrenToDelete.push_back(it->second);
+    }
+
+    for (UINT i = 0; i < childrenToDelete.size(); ++i)
+    {
+        smgr->getRootSceneNode()->removeChild(childrenToDelete[i]);
+    }
 }
 
 //creates a stack from importdata

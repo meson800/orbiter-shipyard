@@ -31,7 +31,7 @@ public:
 	void resetFirstNode();
 private:
 	//recursive helper to init the stack
-	void createStackHelper(VesselSceneNode* startingVessel, OrbiterDockingPort* fromPort);
+	void createStackHelper(VesselSceneNode* startingVessel);
 	std::vector<core::vector3df> previousPositions;
 	core::vector3df moveReference, currentStackLocation;
 	std::vector<VesselSceneNode*> nodes;

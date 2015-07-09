@@ -1,5 +1,7 @@
 #include "Helpers.h"
 
+std::map<unsigned int, VesselSceneNode*>* Helpers::vesselMap = 0;
+
 std::string Helpers::workingDirectory = "";
 Shipyard* Helpers::mainShipyard = 0;
 IrrlichtDevice *Helpers::irrdevice = NULL;
@@ -177,4 +179,43 @@ void Helpers::slashreplace(std::string &str)
 		str = str + tokens[i] + "\\";
 	}
 	str += tokens[tokens.size() - 1];
+}
+
+void Helpers::setVesselMap(std::map<unsigned int, VesselSceneNode*>* _vesselMap)
+{
+    vesselMap = _vesselMap;
+}
+
+void Helpers::registerVessel(unsigned int uid, VesselSceneNode* vessel)
+{
+    if (vesselMap != 0)
+    {
+        (*vesselMap)[uid] = vessel;
+    }
+}
+
+void Helpers::unregisterVessel(unsigned int uid)
+{
+    if (vesselMap != 0)
+    {
+        vesselMap->erase(uid);
+    }
+}
+
+VesselSceneNode* Helpers::getVesselByUID(unsigned int uid)
+{
+    if (vesselMap != 0)
+    {
+        return vesselMap->at(uid);
+    }
+    return 0;
+}
+
+bool Helpers::isUIDRegistered(unsigned int uid)
+{
+    if (vesselMap != 0)
+    {
+        return vesselMap->count(uid);
+    }
+    return false;
 }

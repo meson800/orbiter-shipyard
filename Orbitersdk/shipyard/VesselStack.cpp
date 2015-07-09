@@ -2,8 +2,8 @@
 
 VesselStack::VesselStack(VesselSceneNode* startingVessel)
 {
-	//recurse through with the helper, start with a null pointer, so any docked port works
-	createStackHelper(startingVessel, 0);
+	//recurse through with the helper
+	createStackHelper(startingVessel);
 	issnaped = false;
 }
 
@@ -232,12 +232,13 @@ void VesselStack::snapStack(int srcvesselidx, int srcdockportidx, OrbiterDocking
 			//loop through all dockports, snap all connected that aren't snapped already
 			{
 				OrbiterDockingPort j = (*jt);
-				if (j.docked && std::find(hasSnapped.begin(), hasSnapped.end(), j.dockedTo->parent) == hasSnapped.end())
+				if (j.docked && std::find(hasSnapped.begin(), hasSnapped.end(), Helpers::getVesselByUID(j.dockedTo.vesselUID)) == hasSnapped.end())
 				//if the dockport has a connection and the connected vessel hasn't snapped already
 				{
-					j.dockedTo->parent->snap(*j.dockedTo, j);
-					snapped_in_this_pass.push_back(j.dockedTo->parent);
-					hasSnapped.push_back(j.dockedTo->parent);
+                    VesselSceneNode* dockedToVessel = Helpers::getVesselByUID(j.dockedTo.vesselUID);
+					dockedToVessel->snap(dockedToVessel->dockingPorts[j.dockedTo.portID], j);
+					snapped_in_this_pass.push_back(dockedToVessel);
+					hasSnapped.push_back(dockedToVessel);
 				}
 			}
 		}
@@ -248,10 +249,11 @@ void VesselStack::snapStack(int srcvesselidx, int srcdockportidx, OrbiterDocking
 }
 
 //recursive function to init a vessel stack
-void VesselStack::createStackHelper(VesselSceneNode* startingVessel, OrbiterDockingPort* fromPort)
+void VesselStack::createStackHelper(VesselSceneNode* startingVessel)
 {
 	//recurse through the docking ports, through docked vessels
-	//if the nodes doesn't contain this vessel yet, add it
+
+	//if the nodes doesn't contain this vessel yet, add it and recurse through the nodes
 	if (std::find(nodes.begin(), nodes.end(), startingVessel) == nodes.end())
 	{
 		nodes.push_back(startingVessel);
@@ -260,19 +262,13 @@ void VesselStack::createStackHelper(VesselSceneNode* startingVessel, OrbiterDock
 		{
 			//store all dockingport nodes in the stack. It could occur that the stack tries to dock with itself otherwise
 			dockportnodes.push_back(startingVessel->dockingPorts[i].portNode);
+            //and recurse into other vessels if docked
+            if (startingVessel->dockingPorts[i].docked)
+                createStackHelper(Helpers::getVesselByUID(startingVessel->dockingPorts[i].dockedTo.vesselUID));
 		}
 	}
 
-	//base case if there are no occupied docking ports except fromPort
-	//recurse if there is an occupied docking port not equal to fromPort
-
-	for (unsigned int i = 0; i < startingVessel->dockingPorts.size(); i++)
-	{
-		//if we are docked to a port that is not fromPort, recurse into it
-		if (startingVessel->dockingPorts[i].docked && startingVessel->dockingPorts[i].dockedTo != fromPort)
-			createStackHelper(startingVessel->dockingPorts[i].dockedTo->parent,
-				&(startingVessel->dockingPorts[i]));
-	}
+	//base case if we have already added this vessel to the list
 
 	//we must be in the base case!
 	return;
