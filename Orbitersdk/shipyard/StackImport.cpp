@@ -49,6 +49,7 @@ void StackImport::readStack(std::vector<VesselExport> &container, VESSEL *v, VES
 	VesselExport vexport;
 	vexport.className = v->GetClassNameA();
 	vexport.className += ".cfg";
+	vexport.orbitername = v->GetName();
 	container.push_back(vexport);
 
 	for (UINT i = 0; i < v->DockCount(); ++i)

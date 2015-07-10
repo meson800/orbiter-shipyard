@@ -327,6 +327,7 @@ bool Shipyard::processGuiEvent(const SEvent &event)
 			}
 			else if (event.GUIEvent.Caller->getID() == NAMESTACK)
 			{
+				//launch orbiter export
 				IGUIEditBox *stacknamebox = (gui::IGUIEditBox*)event.GUIEvent.Caller->getElementFromId(NAMESTACKENTRY, true);
 				std::string stackname = std::string(stringc(stacknamebox->getText()).c_str());
 				if (stackname != "")
@@ -966,6 +967,7 @@ void Shipyard::importStack()
 		{
 			//create the new vessel
 			createdvessels.push_back(addVessel(dataManager.GetGlobalConfig(newv.className, device->getVideoDriver()), false));
+			createdvessels[createdvessels.size() - 1]->setOrbiterName(newv.orbitername);
 		}
 		catch (int e)
 		{

@@ -18,6 +18,8 @@ struct VesselExport
 {
 	std::string className;
 	std::queue<DockPortExport> dockports;
+	UINT vesselid;
+	std::string orbitername;
 };
 
 struct ExportData

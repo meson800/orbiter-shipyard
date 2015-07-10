@@ -24,6 +24,9 @@ void StackExport::prepareExportData()
 		VesselSceneNode* v = _data->stack->getVessel(i);
 		VesselExport newv;
 		newv.className = v->getClassName();
+		newv.orbitername = v->getOrbiterName();
+		newv.vesselid = v->getUID();
+
 		//walk through dockports of vessel
 		for (UINT j = 0; j < v->dockingPorts.size(); ++j)
 		{
@@ -47,6 +50,7 @@ void StackExport::prepareExportData()
 	}
 }
 
+
 bool StackExport::advanceQueue()
 {
 	//initialise VESSELSTATUS for new vessel (taken from ScenarioEditor
@@ -60,24 +64,41 @@ bool StackExport::advanceQueue()
 	vs.rpos = _V(rad, 0, 0);
 	vs.rvel = _V(0, 0, vel);
 
-	//generating name for vessel
-	std::stringstream vesselname;
-	vesselname << _data->name;
-	//first vessel will bear the stack name, following vessels will get a number appended
-	if (vessels_processed > 0)
+	OBJHANDLE newvessel = oapiGetVesselByName((char*)_vessels.front().orbitername.data());	//an ugly cast for sure, but in my expierience orbiter doesn't do anything untowards with it
+	
+	if (newvessel == NULL)
+	//vessel does not exist in orbiter, create it
 	{
-		vesselname << "_" << vessels_processed;
+		//generating name for vessel
+		std::stringstream vesselname;
+		vesselname << _data->name;
+
+		//first vessel will bear the stack name, following vessels will get one or more numbers appended
+		//the important thing is that we don't have name duplication in orbiter
+		while (oapiGetVesselByName((char*)vesselname.str().data()) != NULL)
+		{
+			vesselname << "_" << vessels_processed;
+		}
+		//set the orbiter name for the VesselSceneNode so it can identify with the orbiter vessel without re-importing first
+		Helpers::getVesselByUID(_vessels.front().vesselid)->setOrbiterName(vesselname.str());
+
+		//get the classname without the file extension, because orbiter wants it that way
+		string classname(_vessels.front().className.substr(0, _vessels.front().className.find_last_of(".")));
+		//put classname in caps, because IMS wants it that way. 
+		//and it won't recognise the class as an IMS module if it's written in small letters. Probably needs glasses...
+		//oh, and switch any / with \. because I was kind of stupid when I wrote IMS.
+		std::transform(classname.begin(), classname.end(), classname.begin(), ::toupper);
+		Helpers::slashreplace(classname);
+		// create the vessel, add its handle to the list and get the new interface from orbiter
+		newvessel = oapiCreateVesselEx(vesselname.str().data(), classname.data(), &vs);
 	}
-	//get the classname without the file extension, because orbiter wants it that way
-	string classname(_vessels.front().className.substr(0, _vessels.front().className.find_last_of(".")));
-	//put classname in caps, because IMS wants it that way. 
-	//and it won't recognise the class as an IMS module if it's written in small letters. Probably needs glasses...
-	//oh, and switch any / with \. because I was kind of stupid when I wrote IMS.
-	std::transform(classname.begin(), classname.end(), classname.begin(), ::toupper);
-	Helpers::slashreplace(classname);
-	// create the vessel, add its handle to the list and get the new interface from orbiter
-	OBJHANDLE newvessel = oapiCreateVesselEx(vesselname.str().data(), classname.data(), &vs);
-	_createdvessels.push_back(newvessel);	
+	else
+	//vessel DOES exist in orbiter, undock it
+	{
+		oapiGetVesselInterface(newvessel)->Undock(ALLDOCKS);
+	}
+
+	_createdvessels.push_back(newvessel);
 	VESSEL *v = oapiGetVesselInterface(newvessel);
 
 	//walk through dockports and dock. The way the structure was created ensures that no vessel will try to dock to one that has not been created yet

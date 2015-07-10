@@ -43,6 +43,8 @@ public:
 	std::string getClassName();
 
     UINT getUID();
+	std::string getOrbiterName();
+	void setOrbiterName(std::string name);
 
 	vector<OrbiterDockingPort> dockingPorts;
 
@@ -54,4 +56,5 @@ private:
 	VesselData *vesselData;
 	void setupDockingPortNode(IMeshSceneNode *node);
 	bool transparent;
+	std::string orbitername;
 };

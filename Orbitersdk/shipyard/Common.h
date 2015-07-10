@@ -17,6 +17,7 @@ using namespace std;
 
 typedef unsigned int UINT;
 
+
 #ifdef _DEBUG
 #define DEBUG 1
 #else

@@ -21,7 +21,14 @@ VesselSceneNode::VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent,
         //register self with map
         Helpers::registerVessel(uid, this);
     }
+	else if (!deferRegistration)
+	{
+		//set own UID
+		//currently unsave, as it doesn't check if the UID is actually unique
+		uid = _uid;
+	}
 }
+
 
 VesselSceneNode::~VesselSceneNode()
 {
@@ -255,6 +262,10 @@ void VesselSceneNode::saveToSession(ofstream &file)
 	file << "POS = " << pos.X << " " << pos.Y << " " << pos.Z << "\n";
 	file << "ROT = " << rot.X << " " << rot.Y << " " << rot.Z << "\n";
     file << "UID = " << uid << "\n";
+	if (orbitername != "")
+	{
+		file << "ORBITERNAME = " << orbitername << "\n";
+	}
 	file << "VESSEL_END\n";
 }
 
@@ -312,6 +323,19 @@ bool VesselSceneNode::loadFromSession(ifstream &file)
             uid = Helpers::stringToInt(tokens[1]);
             Helpers::registerVessel(uid,this);
         }
+		else if (tokens[0].compare("ORBITERNAME") == 0)
+		{
+			if (tokens.size() < 2)
+				//line doesn't contain enough values
+			{
+				Helpers::writeToLog(string("WARNING: invalid ORBITERNAME parameter"));
+				//loading is still successful. this is a minor issue
+			}
+			else
+			{
+				orbitername = tokens[1];
+			}
+		}
 		else if (tokens[0].compare("VESSEL_END") == 0)
 		{
 			done = true;
@@ -355,6 +379,17 @@ std::string VesselSceneNode::getClassName()
 {
 	return vesselData->className;
 }
+
+std::string VesselSceneNode::getOrbiterName()
+{
+	return orbitername;
+}
+
+void VesselSceneNode::setOrbiterName(string name)
+{
+	orbitername = name;
+}
+
 
 void VesselSceneNode::setTransparency(bool transparency)
 {
