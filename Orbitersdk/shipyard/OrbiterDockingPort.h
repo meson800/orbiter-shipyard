@@ -5,17 +5,27 @@ class VesselSceneNode;
 
 using namespace irr;
 
+struct DockingIdentifier
+{
+    unsigned int vesselUID, portID;
+};
+
+struct DockingPortStatus
+{
+    bool docked;
+    DockingIdentifier dockedTo;
+};
+
 struct OrbiterDockingPort
 {
 	OrbiterDockingPort(core::vector3d<f32> pos, core::vector3d<f32> appDir, core::vector3d<f32> refDir)
 	: position(pos), approachDirection(appDir), referenceDirection(refDir) {}
 	VesselSceneNode* parent;
-    struct 
-    {
-        UINT vesselUID, portID;
-    }dockedTo;
+    DockingIdentifier dockedTo;
 
-    UINT portID;
+    DockingPortStatus returnStatus();
+
+    unsigned int portID;
 	scene::IMeshSceneNode* portNode;
 	scene::IMeshSceneNode* helperNode;
 	int index;

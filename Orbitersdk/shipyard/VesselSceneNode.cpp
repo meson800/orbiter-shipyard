@@ -29,6 +29,12 @@ VesselSceneNode::VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent,
 	}
 }
 
+VesselSceneNode::VesselSceneNode(const VesselSceneNodeState& state, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id)
+    : VesselSceneNode(state.vesData,parent,mgr,id,state.uid)
+{
+    loadState(state);
+}
+
 
 VesselSceneNode::~VesselSceneNode()
 {
@@ -252,6 +258,11 @@ void VesselSceneNode::dock(OrbiterDockingPort& ourPort, OrbiterDockingPort& thei
     theirPort.dockedTo.portID = ourPort.portID;
 }
 
+void VesselSceneNode::dock(UINT ourPortNum, UINT otherVesselUID, UINT otherPortID)
+{
+    dock(dockingPorts[ourPortNum], Helpers::getVesselByUID(otherVesselUID)->dockingPorts[otherPortID]);
+}
+
 void VesselSceneNode::saveToSession(ofstream &file)
 //writes pos and rot of the vesselscenenode to a session file
 {
@@ -343,6 +354,38 @@ bool VesselSceneNode::loadFromSession(ifstream &file)
 		tokens.clear();
 	}
 	return true;
+}
+
+VesselSceneNodeState VesselSceneNode::saveState()
+{
+    VesselSceneNodeState output;
+    output.vesData = returnVesselData();
+    output.uid = uid;
+    output.pos = getAbsolutePosition();
+    output.rot = getRotation();
+    output.orbiterName = orbitername;
+
+    for (UINT i = 0; i < dockingPorts.size(); ++i)
+    {
+        output.dockingStatus.push_back(dockingPorts[i].returnStatus());
+    }
+    return output;
+}
+
+void VesselSceneNode::loadState(const VesselSceneNodeState& state)
+{
+    if (state.uid != uid)
+        throw UID_Mismatch();
+    setPosition(state.pos);
+    setRotation(state.rot);
+    orbitername = state.orbiterName;
+
+    for (UINT i = 0; i < dockingPorts.size(); ++i)
+    {
+        if (state.dockingStatus[i].docked)
+            dock(i, state.dockingStatus[i].dockedTo.vesselUID, state.dockingStatus[i].dockedTo.portID);
+    }
+
 }
 
 OrbiterDockingPort* VesselSceneNode::dockingPortSceneNodeToOrbiter(scene::ISceneNode* sceneNode)

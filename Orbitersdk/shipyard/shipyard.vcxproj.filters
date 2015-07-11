@@ -49,6 +49,9 @@
     <ClCompile Include="StackImport.cpp">
       <Filter>C++ Files</Filter>
     </ClCompile>
+    <ClCompile Include="OrbiterDockingPort.cpp">
+      <Filter>C++ Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h">

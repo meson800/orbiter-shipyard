@@ -81,6 +81,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DdsImage.cpp" />
+    <ClCompile Include="OrbiterDockingPort.cpp" />
     <ClCompile Include="SE_ImsData.cpp" />
     <ClCompile Include="SE_PhotoStudio.cpp" />
     <ClCompile Include="Helpers.cpp" />
