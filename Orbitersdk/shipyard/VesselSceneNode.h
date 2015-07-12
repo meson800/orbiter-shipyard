@@ -5,6 +5,7 @@
 #include <vector>
 #include <fstream>
 #include <algorithm>
+#include <stdexcept>
 
 #include "OrbiterMesh.h"
 #include "Helpers.h"
@@ -15,11 +16,21 @@
 using namespace irr;
 using namespace std;
 
+struct VesselSceneNodeState
+{
+    VesselData* vesData;
+    UINT uid;
+    core::vector3df pos, rot;
+    std::string orbiterName;
+    std::vector<DockingPortStatus> dockingStatus;
+};
+
 class VesselSceneNode : public scene::ISceneNode
 {
 public:
 	VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id, 
         UINT _uid = 0, bool deferRegistration=false); 
+    VesselSceneNode(const VesselSceneNodeState& state, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id);
     ~VesselSceneNode();
 
 	virtual void OnRegisterSceneNode();
@@ -32,6 +43,7 @@ public:
 	void changeDockingPortVisibility(bool showEmpty, bool showDocked, bool showHelper = false);
 	void snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort);
 	void dock(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort);
+    void dock(UINT ourPortNum, UINT otherVesselUID, UINT otherPortID);
 	core::vector3df returnRotatedVector(const core::vector3df& vec);
 	VesselData* returnVesselData();
 	void setTransparency(bool transparency);
@@ -40,6 +52,10 @@ public:
 	OrbiterDockingPort* dockingPortHelperNodeToOrbiter(scene::ISceneNode* sceneNode);
 	void saveToSession(ofstream &file);
 	bool loadFromSession(ifstream &file);
+
+    VesselSceneNodeState saveState();
+    void loadState(const VesselSceneNodeState& state);
+
 	std::string getClassName();
 
     UINT getUID();
@@ -47,6 +63,8 @@ public:
 	void setOrbiterName(std::string name);
 
 	vector<OrbiterDockingPort> dockingPorts;
+
+    class UID_Mismatch : public std::exception {};
 
 private:
     UINT uid;

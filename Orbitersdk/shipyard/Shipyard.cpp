@@ -473,6 +473,23 @@ bool Shipyard::processKeyboardEvent(const SEvent &event)
 	if (event.KeyInput.Key == KEY_KEY_C)
 		centerCamera();
 
+    if (event.KeyInput.PressedDown && event.KeyInput.Key == KEY_KEY_Z)
+    {
+        if (isKeyDown[EKEY_CODE::KEY_LCONTROL])
+        {
+            //we need to undo
+            //first deselect stack
+
+            //hide docking ports
+            setAllDockingPortVisibility(false, false);
+
+            delete selectedVesselStack;
+            selectedVesselStack = 0;
+            //and undo
+            undo();
+        }
+    }
+
 	//if we are dragging a node, see if it is a rotation
 	if (selectedVesselStack != 0 && event.KeyInput.PressedDown)
 	{
@@ -652,6 +669,9 @@ bool Shipyard::processMouseEvent(const SEvent &event)
 
 				delete selectedVesselStack;
 				selectedVesselStack = 0;
+
+                //update undo stack
+                pushUndoStack();
 				return true;
 			}
 		}
@@ -991,4 +1011,23 @@ void Shipyard::importStack()
 			curv->dock(curv->dockingPorts[port.myindex], *tgtport);
 		}
 	}
+}
+
+void Shipyard::pushUndoStack()
+{
+    //get new global state
+    SE_GlobalState currentState = SE_GlobalState(uidVesselMap);
+
+    //create diff state from CURRENT state to OLD state, that is the correct diff
+    undoStack.push(SE_DiffState(currentState, lastGlobalState));
+    lastGlobalState = currentState;
+}
+
+void Shipyard::undo()
+{
+    if (undoStack.size() > 0)
+    {
+        undoStack.top().apply(smgr);
+        undoStack.pop();
+    }
 }
