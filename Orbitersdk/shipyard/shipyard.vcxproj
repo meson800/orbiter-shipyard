@@ -93,6 +93,7 @@
     <ClCompile Include="DataManager.cpp" />
     <ClCompile Include="OrbiterMesh.cpp" />
     <ClCompile Include="s3tc.cpp" />
+    <ClCompile Include="SE_State.cpp" />
     <ClCompile Include="SE_ToolBox.cpp" />
     <ClCompile Include="Shipyard.cpp" />
     <ClCompile Include="ShipyardCamera.cpp" />
@@ -107,6 +108,7 @@
     <ClInclude Include="DdsHeader.h" />
     <ClInclude Include="DdsImage.h" />
     <ClInclude Include="GuiIdentifiers.h" />
+    <ClInclude Include="SE_State.h" />
     <ClInclude Include="StackExport.h" />
     <ClInclude Include="StackExportStructs.h" />
     <ClInclude Include="SE_ImsData.h" />

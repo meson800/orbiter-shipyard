@@ -4,12 +4,14 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <stack>
 #include <algorithm>
 
 #include "resource.h"
 #include "VesselSceneNode.h"
 #include "VesselStack.h"
 #include "VesselStackOperations.h"
+#include "SE_State.h"
 //#include "CSceneNodeAnimatorCameraCustom.h"
 #include "ShipyardCamera.h"
 #include "DataManager.h"
@@ -78,6 +80,11 @@ private:
 	bool loadSession(std::string path);
 	void clearSession();
 	void importStack();
+
+    std::stack<SE_DiffState> undoStack;
+    void undo();
+    void pushUndoStack();
+    SE_GlobalState lastGlobalState;
 
 	std::string session;
 	ExportData *_exportdata;

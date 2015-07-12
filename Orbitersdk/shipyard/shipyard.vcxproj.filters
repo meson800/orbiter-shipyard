@@ -52,6 +52,9 @@
     <ClCompile Include="OrbiterDockingPort.cpp">
       <Filter>C++ Files</Filter>
     </ClCompile>
+    <ClCompile Include="SE_State.cpp">
+      <Filter>C++ Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h">
@@ -118,6 +121,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StackExportStructs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SE_State.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
