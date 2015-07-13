@@ -55,6 +55,7 @@ SE_DiffState::SE_DiffState(const SE_GlobalState& oldState, const SE_GlobalState&
             VesselDiffState currentVesselDiffState;
             currentVesselDiffState.diffType = VesselDiffState::DiffType::ADD;
             currentVesselDiffState.state = it->second;
+            state[it->first] = currentVesselDiffState;
         }
     }
 }
@@ -62,6 +63,8 @@ SE_DiffState::SE_DiffState(const SE_GlobalState& oldState, const SE_GlobalState&
 void SE_DiffState::apply(scene::ISceneManager* mgr)
 {
     //go through internal state, switching on diff type
+
+    //do ADD and DELETE operations first, so updates with docking work
     for (auto it = state.begin(); it != state.end(); ++it)
     {
         switch (it->second.diffType)
@@ -72,16 +75,29 @@ void SE_DiffState::apply(scene::ISceneManager* mgr)
             VesselSceneNode* newVessel = new VesselSceneNode(it->second.state, mgr->getRootSceneNode(), mgr, VESSEL_ID);
             break;
         }
-
+        case VesselDiffState::DiffType::DELETE:
+        {
+            VesselSceneNode* vessel = Helpers::getVesselByUID(it->first);
+            vessel->removeAll(); //removeAll only drops children, not the node itself
+            vessel->remove(); //remove from scene graph
+            vessel->drop(); //We need the extra drop because we called VesselSceneNode, which returns a pointer
+            break;
+        }
+        default:
+            break;
+        }
+    }
+    for (auto it = state.begin(); it != state.end(); ++it)
+    {
+        switch (it->second.diffType)
+        {
         case VesselDiffState::DiffType::UPDATE:
             //find current existing vessel and update it
             Helpers::getVesselByUID(it->first)->loadState(it->second.state);
             break;
-
-        case VesselDiffState::DiffType::DELETE:
-            //simply delete this vessel
-            mgr->getRootSceneNode()->removeChild(Helpers::getVesselByUID(it->first));
+        default:
             break;
         }
     }
+
 }

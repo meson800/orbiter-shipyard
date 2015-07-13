@@ -82,7 +82,9 @@ private:
 	void importStack();
 
     std::stack<SE_DiffState> undoStack;
+    std::stack<SE_DiffState> redoStack;
     void undo();
+    void redo();
     void pushUndoStack();
     SE_GlobalState lastGlobalState;
 

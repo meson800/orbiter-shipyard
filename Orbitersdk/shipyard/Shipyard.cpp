@@ -490,6 +490,23 @@ bool Shipyard::processKeyboardEvent(const SEvent &event)
         }
     }
 
+    if (event.KeyInput.PressedDown && event.KeyInput.Key == KEY_KEY_Y)
+    {
+        if (isKeyDown[EKEY_CODE::KEY_LCONTROL])
+        {
+            //we need to redo
+            //first deselect stack
+
+            //hide docking ports
+            setAllDockingPortVisibility(false, false);
+
+            delete selectedVesselStack;
+            selectedVesselStack = 0;
+            //and redo
+            redo();
+        }
+    }
+
 	//if we are dragging a node, see if it is a rotation
 	if (selectedVesselStack != 0 && event.KeyInput.PressedDown)
 	{
@@ -969,7 +986,10 @@ void Shipyard::clearSession()
 
     for (UINT i = 0; i < childrenToDelete.size(); ++i)
     {
-        smgr->getRootSceneNode()->removeChild(childrenToDelete[i]);
+        ISceneNode* vessel = childrenToDelete[i];
+        vessel->removeAll(); //removeAll only drops children, not the node itself
+        vessel->remove(); //remove from scene graph
+        vessel->drop(); //We need the extra drop because we called VesselSceneNode, which returns a pointer
     }
 }
 
@@ -1021,13 +1041,40 @@ void Shipyard::pushUndoStack()
     //create diff state from CURRENT state to OLD state, that is the correct diff
     undoStack.push(SE_DiffState(currentState, lastGlobalState));
     lastGlobalState = currentState;
+
+    //clear redo stack, if we do an action it destroys redo
+    while (!redoStack.empty())
+        redoStack.pop();
 }
 
 void Shipyard::undo()
 {
+    SE_GlobalState preUndoState = SE_GlobalState(uidVesselMap);
     if (undoStack.size() > 0)
     {
         undoStack.top().apply(smgr);
         undoStack.pop();
     }
+    //get new global state
+    SE_GlobalState postUndoState = SE_GlobalState(uidVesselMap);
+
+    //create diff state from CURRENT state to OLD state, that is the correct diff
+    redoStack.push(SE_DiffState(postUndoState, preUndoState));
+
+}
+
+void Shipyard::redo()
+{
+    SE_GlobalState preRedoState = SE_GlobalState(uidVesselMap);
+    if (redoStack.size() > 0)
+    {
+        redoStack.top().apply(smgr);
+        redoStack.pop();
+    }
+
+    //get new global state
+    SE_GlobalState postRedoState = SE_GlobalState(uidVesselMap);
+
+    //create diff state from CURRENT state to OLD state, that is the correct diff
+   undoStack.push(SE_DiffState(postRedoState, preRedoState));
 }

@@ -24,8 +24,10 @@ VesselSceneNode::VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent,
 	else if (!deferRegistration)
 	{
 		//set own UID
-		//currently unsave, as it doesn't check if the UID is actually unique
+		//currently unsafe, as it doesn't check if the UID is actually unique
 		uid = _uid;
+        //register self with map
+        Helpers::registerVessel(uid, this);
 	}
 }
 
@@ -382,6 +384,7 @@ void VesselSceneNode::loadState(const VesselSceneNodeState& state)
 
     for (UINT i = 0; i < dockingPorts.size(); ++i)
     {
+        dockingPorts[i].docked = state.dockingStatus[i].docked;
         if (state.dockingStatus[i].docked)
             dock(i, state.dockingStatus[i].dockedTo.vesselUID, state.dockingStatus[i].dockedTo.portID);
     }
