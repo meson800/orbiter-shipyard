@@ -6,6 +6,8 @@
 #include "Helpers.h"
 #include "VesselSceneNode.h"
 
+#undef DELETE //because some random windows header defines this
+
 class SE_GlobalState
 {
 public:
@@ -17,7 +19,8 @@ public:
 
 struct VesselDiffState
 {
-    enum DiffType {ADD,UPDATE,DELETE} diffType;
+    enum DiffType { ADD, UPDATE, DELETE };
+    DiffType diffType;
     VesselSceneNodeState state;
 };
 
