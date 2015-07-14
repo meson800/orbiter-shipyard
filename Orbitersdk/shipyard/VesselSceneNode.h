@@ -18,6 +18,17 @@ using namespace std;
 
 struct VesselSceneNodeState
 {
+    VesselSceneNodeState() {}
+    VesselSceneNodeState(VesselData* data, ifstream &file);
+    void saveToFile(ofstream &file);
+
+    //exceptions
+    class VesselSceneNodeParseError : public std::runtime_error
+    {
+    public:
+        VesselSceneNodeParseError(const char* arg) : runtime_error(arg){}
+    };
+
     VesselData* vesData;
     UINT uid;
     core::vector3df pos, rot;
@@ -28,8 +39,7 @@ struct VesselSceneNodeState
 class VesselSceneNode : public scene::ISceneNode
 {
 public:
-	VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id, 
-        UINT _uid = 0, bool deferRegistration=false); 
+	VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id, UINT _uid = Helpers::findFreeUID(next_uid++)); 
     VesselSceneNode(const VesselSceneNodeState& state, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id);
     ~VesselSceneNode();
 
@@ -50,8 +60,6 @@ public:
 
 	OrbiterDockingPort* dockingPortSceneNodeToOrbiter(scene::ISceneNode* sceneNode);
 	OrbiterDockingPort* dockingPortHelperNodeToOrbiter(scene::ISceneNode* sceneNode);
-	void saveToSession(ofstream &file);
-	bool loadFromSession(ifstream &file);
 
     VesselSceneNodeState saveState();
     void loadState(const VesselSceneNodeState& state);

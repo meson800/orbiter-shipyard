@@ -878,7 +878,7 @@ void Shipyard::saveSession(std::string filename)
     //write vessel info
     for (auto it = uidVesselMap.begin(); it != uidVesselMap.end(); ++it)
     {
-        it->second->saveToSession(file);
+        it->second->saveState().saveToFile(file);
     }
 
     //write docking info
@@ -931,11 +931,14 @@ bool Shipyard::loadSession(std::string path)
 				guiEnv->addMessageBox(L"He's dead, Jim!", L"No FILE declared for vessel, unable to load session");
 				return false;
 			}
-            VesselSceneNode* newvessel = new VesselSceneNode(dataManager.GetGlobalConfig(tokens[1], 
-                device->getVideoDriver()), smgr->getRootSceneNode(), smgr, VESSEL_ID, 0, true);
-            //defer registration on UID
 
-			if (!newvessel->loadFromSession(file))
+            try
+            {
+                VesselSceneNode* newvessel = new VesselSceneNode(
+                    VesselSceneNodeState(dataManager.GetGlobalConfig(tokens[1], device->getVideoDriver()), file)
+                    , smgr->getRootSceneNode(), smgr, VESSEL_ID);
+            }
+            catch (VesselSceneNodeState::VesselSceneNodeParseError)
 			{
 				guiEnv->addMessageBox(L"He's dead, Jim!", L"error while loading session");
 				return false;
@@ -991,6 +994,12 @@ void Shipyard::clearSession()
         vessel->remove(); //remove from scene graph
         vessel->drop(); //We need the extra drop because we called VesselSceneNode, which returns a pointer
     }
+
+    //clear undo and redo stacks
+    while (!redoStack.empty())
+        redoStack.pop();
+    while (!undoStack.empty())
+        undoStack.pop();
 }
 
 //creates a stack from importdata

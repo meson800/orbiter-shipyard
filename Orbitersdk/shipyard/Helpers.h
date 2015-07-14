@@ -53,6 +53,7 @@ public:
     static void unregisterVessel(unsigned int uid);
     static VesselSceneNode* getVesselByUID(unsigned int uid);
     static bool isUIDRegistered(unsigned int uid);
+    static unsigned int findFreeUID(unsigned int startNum);
 
 private:
     static std::map<unsigned int, VesselSceneNode*>* vesselMap;

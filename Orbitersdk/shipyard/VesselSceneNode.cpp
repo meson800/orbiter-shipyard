@@ -1,8 +1,95 @@
 #include "VesselSceneNode.h"
 
+VesselSceneNodeState::VesselSceneNodeState(VesselData* data, ifstream& file)
+{
+    vesData = data;
+    vector<string> tokens;
+    bool done = false;
+    while (!done)
+    {
+        done = !Helpers::readLine(file, tokens);
+        if (done)
+            //unexpected eof, write to log and abort
+        {
+            Helpers::writeToLog(string("ERROR: unexpected end of file while loading session"));
+            throw VesselSceneNodeParseError("Unexpected end of file wile loading from session");
+        }
+        if (tokens.size() == 0)
+            continue;
+        if (tokens[0].compare("POS") == 0)
+        {
+            if (tokens.size() < 4)
+                //line doesn't contain enough values
+            {
+                Helpers::writeToLog(string("ERROR: invalid POS in session"));
+                throw VesselSceneNodeParseError("Invalid POS in session");
+            }
+
+            pos = core::vector3df(Helpers::stringToDouble(tokens[1]),
+                Helpers::stringToDouble(tokens[2]),
+                Helpers::stringToDouble(tokens[3]));
+        }
+        else if (tokens[0].compare("ROT") == 0)
+        {
+            if (tokens.size() < 4)
+                //line doesn't contain enough values
+            {
+                Helpers::writeToLog(string("ERROR: invalid ROT in session"));
+                throw VesselSceneNodeParseError("Invalid ROT in session");
+            }
+
+            rot = core::vector3df(Helpers::stringToDouble(tokens[1]),
+                Helpers::stringToDouble(tokens[2]),
+                Helpers::stringToDouble(tokens[3]));
+        }
+        else if (tokens[0].compare("UID") == 0)
+        {
+            if (tokens.size() < 2)
+                //line doesn't contain enough values
+            {
+                Helpers::writeToLog(string("ERROR: invalid UID in session"));
+                throw VesselSceneNodeParseError("Invalid UID in session");
+            }
+            uid = Helpers::stringToInt(tokens[1]);
+        }
+        else if (tokens[0].compare("ORBITERNAME") == 0)
+        {
+            if (tokens.size() < 2)
+                //line doesn't contain enough values
+            {
+                Helpers::writeToLog(string("WARNING: invalid ORBITERNAME parameter"));
+                //loading is still successful. this is a minor issue
+            }
+            else
+            {
+                orbiterName = tokens[1];
+            }
+        }
+        else if (tokens[0].compare("VESSEL_END") == 0)
+        {
+            done = true;
+        }
+        tokens.clear();
+    }
+}
+
+void VesselSceneNodeState::saveToFile(ofstream& file)
+{
+    //writes pos and rot of the vesselscenenode to a session file
+    file << "VESSEL_BEGIN\n" << "FILE =  " << vesData->className << "\n";
+    file << "POS = " << pos.X << " " << pos.Y << " " << pos.Z << "\n";
+    file << "ROT = " << rot.X << " " << rot.Y << " " << rot.Z << "\n";
+    file << "UID = " << uid << "\n";
+    if (orbiterName != "")
+    {
+        file << "ORBITERNAME = " << orbiterName << "\n";
+    }
+    file << "VESSEL_END\n";
+}
+
 UINT VesselSceneNode::next_uid = 0;
 
-VesselSceneNode::VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id, UINT _uid, bool deferRegistration)
+VesselSceneNode::VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id, UINT _uid)
     : scene::ISceneNode(parent, mgr, id), smgr(mgr), uid(_uid)
 {
 	vesselData = vesData;
@@ -10,25 +97,11 @@ VesselSceneNode::VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent,
 	dockingPorts = vesselData->dockingPorts;
 
 	setupDockingPortNodes();
-
-    if (_uid == 0 && !deferRegistration)
-    {
-        //find a free UID
-        while (Helpers::isUIDRegistered(next_uid))
-            ++next_uid;
-
-        uid = next_uid++; //increment after assignment
-        //register self with map
-        Helpers::registerVessel(uid, this);
-    }
-	else if (!deferRegistration)
-	{
-		//set own UID
-		//currently unsafe, as it doesn't check if the UID is actually unique
-		uid = _uid;
-        //register self with map
-        Helpers::registerVessel(uid, this);
-	}
+    //set own UID
+    //currently unsafe, as it doesn't check if the UID is actually unique
+    uid = _uid;
+    //register self with map
+    Helpers::registerVessel(uid, this);
 }
 
 VesselSceneNode::VesselSceneNode(const VesselSceneNodeState& state, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id)
@@ -265,99 +338,6 @@ void VesselSceneNode::dock(UINT ourPortNum, UINT otherVesselUID, UINT otherPortI
     dock(dockingPorts[ourPortNum], Helpers::getVesselByUID(otherVesselUID)->dockingPorts[otherPortID]);
 }
 
-void VesselSceneNode::saveToSession(ofstream &file)
-//writes pos and rot of the vesselscenenode to a session file
-{
-	updateAbsolutePosition();		//just in case
-	file << "VESSEL_BEGIN\n" << "FILE =  " << vesselData->className << "\n";
-	core::vector3df pos = getAbsolutePosition();
-	core::vector3df rot = getRotation();
-	file << "POS = " << pos.X << " " << pos.Y << " " << pos.Z << "\n";
-	file << "ROT = " << rot.X << " " << rot.Y << " " << rot.Z << "\n";
-    file << "UID = " << uid << "\n";
-	if (orbitername != "")
-	{
-		file << "ORBITERNAME = " << orbitername << "\n";
-	}
-	file << "VESSEL_END\n";
-}
-
-bool VesselSceneNode::loadFromSession(ifstream &file)
-{
-	vector<string> tokens;
-	bool done = false;
-	while (!done)
-	{
-		done = !Helpers::readLine(file, tokens);
-		if (done)
-		//unexpected eof, write to log and abort
-		{
-			Helpers::writeToLog(string("ERROR: unexpected end of file while loading session"));
-			return false;
-		}
-		if (tokens.size() == 0)
-			continue;
-		if (tokens[0].compare("POS") == 0)
-		{
-			if (tokens.size() < 4)
-			//line doesn't contain enough values
-			{
-				Helpers::writeToLog(string("ERROR: invalid POS in session"));
-				return false;
-			}
-			core::vector3df pos = core::vector3df(Helpers::stringToDouble(tokens[1]),
-													Helpers::stringToDouble(tokens[2]),
-													Helpers::stringToDouble(tokens[3]));
-			setPosition(pos);
-			updateAbsolutePosition();
-		}
-		else if (tokens[0].compare("ROT") == 0)
-		{
-			if (tokens.size() < 4)
-			//line doesn't contain enough values
-			{
-				Helpers::writeToLog(string("ERROR: invalid ROT in session"));
-				return false;
-			}
-			core::vector3df rot = core::vector3df(Helpers::stringToDouble(tokens[1]),
-				Helpers::stringToDouble(tokens[2]),
-				Helpers::stringToDouble(tokens[3]));
-			setRotation(rot);
-			updateAbsolutePosition();
-		}
-        else if (tokens[0].compare("UID") == 0)
-        {
-            if (tokens.size() < 2)
-                //line doesn't contain enough values
-            {
-                Helpers::writeToLog(string("ERROR: invalid UID in session"));
-                return false;
-            }
-            uid = Helpers::stringToInt(tokens[1]);
-            Helpers::registerVessel(uid,this);
-        }
-		else if (tokens[0].compare("ORBITERNAME") == 0)
-		{
-			if (tokens.size() < 2)
-				//line doesn't contain enough values
-			{
-				Helpers::writeToLog(string("WARNING: invalid ORBITERNAME parameter"));
-				//loading is still successful. this is a minor issue
-			}
-			else
-			{
-				orbitername = tokens[1];
-			}
-		}
-		else if (tokens[0].compare("VESSEL_END") == 0)
-		{
-			done = true;
-		}
-		tokens.clear();
-	}
-	return true;
-}
-
 VesselSceneNodeState VesselSceneNode::saveState()
 {
     VesselSceneNodeState output;
@@ -382,7 +362,7 @@ void VesselSceneNode::loadState(const VesselSceneNodeState& state)
     setRotation(state.rot);
     orbitername = state.orbiterName;
 
-    for (UINT i = 0; i < dockingPorts.size(); ++i)
+    for (UINT i = 0; i < state.dockingStatus.size(); ++i)
     {
         dockingPorts[i].docked = state.dockingStatus[i].docked;
         if (state.dockingStatus[i].docked)

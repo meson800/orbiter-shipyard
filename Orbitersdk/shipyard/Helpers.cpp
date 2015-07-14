@@ -219,3 +219,10 @@ bool Helpers::isUIDRegistered(unsigned int uid)
     }
     return false;
 }
+
+unsigned int Helpers::findFreeUID(unsigned int startNum)
+{
+    while (isUIDRegistered(startNum))
+        ++startNum;
+    return startNum;
+}
