@@ -10,6 +10,8 @@
 #include <algorithm>
 #include <irrlicht.h>
 #include <sstream>
+
+#include "Version.h"
 #include "DdsImage.h"
 #include "Common.h"
 

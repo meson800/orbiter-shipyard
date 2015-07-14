@@ -120,6 +120,8 @@ CONFIGPARAMS Helpers::loadConfigParams()
 	ifstream configFile = ifstream(cfgPath.c_str());
 
 	writeToLog(std::string("Initialising StackEditor..."), true);
+    writeToLog(std::string("Build Date: ") + std::string(Version::build_date));
+    writeToLog(std::string("Build Version: ") + std::string(Version::build_git_version));
 	if (configFile)
 	{
 		std::vector<std::string> tokens;
