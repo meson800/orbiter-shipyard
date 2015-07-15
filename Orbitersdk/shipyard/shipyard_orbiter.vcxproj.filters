@@ -52,6 +52,9 @@
     <ClCompile Include="Version.cpp">
       <Filter>C++ Files</Filter>
     </ClCompile>
+    <ClCompile Include="Log.cpp">
+      <Filter>C++ Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h">
@@ -115,6 +118,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

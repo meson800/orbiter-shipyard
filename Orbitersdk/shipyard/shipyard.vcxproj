@@ -97,6 +97,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DdsImage.cpp" />
+    <ClCompile Include="Log.cpp" />
     <ClCompile Include="main_orbiter.cpp" />
     <ClCompile Include="OrbiterDockingPort.cpp" />
     <ClCompile Include="SE_ImsData.cpp" />
@@ -121,6 +122,7 @@
     <ClInclude Include="DdsHeader.h" />
     <ClInclude Include="DdsImage.h" />
     <ClInclude Include="GuiIdentifiers.h" />
+    <ClInclude Include="Log.h" />
     <ClInclude Include="SE_State.h" />
     <ClInclude Include="StackExport.h" />
     <ClInclude Include="StackExportStructs.h" />
