@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Log.h"
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -14,6 +16,7 @@
 #include "Version.h"
 #include "DdsImage.h"
 #include "Common.h"
+
 
 //using namespace std;
 using namespace irr;
@@ -40,8 +43,6 @@ public:
 	static video::ITexture* readDDS(std::string path, std::string name, video::IVideoDriver* driver);
 	static bool BothAreSpaces(char lhs, char rhs) { return (lhs == rhs) && (lhs == ' '); }
 	static void removeExtraSpaces(std::string& str);
-	static void writeToLog(std::string &logMsg, bool clear = false);
-	static void writeVectorToLog(const std::string& vectorName, irr::core::vector3df vec);
 	static std::mutex videoDriverMutex;
 //	static double min(double v1, double v2);
 //	static double max(double v1, double v2);

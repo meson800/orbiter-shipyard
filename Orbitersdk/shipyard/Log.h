@@ -8,7 +8,7 @@
 class Log
 {
 public:
-    enum LogLevel {ALL,DEBUG,INFO,WARN,ERROR,FATAL,OFF};
+    enum LogLevel {ALL,DEBUG,INFO,WARN,ERR,FATAL,OFF};
     static void clearLog();
     static void setLogLevel(LogLevel level);
     static void writeToLog(std::string &logMsg, LogLevel messageLevel);

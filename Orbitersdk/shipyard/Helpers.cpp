@@ -72,27 +72,6 @@ void Helpers::removeExtraSpaces(std::string& str)
 	str.erase(new_end, str.end());
 }
 
-void Helpers::writeToLog(std::string &logMsg, bool clear)
-{
-	std::ios_base::openmode mode = ios::app;
-	if (clear == true)
-	{
-		mode = ios::out;
-	}
-	std::ofstream logFile = std::ofstream("./StackEditor/StackEditor.log", mode);
-	logFile << logMsg << "\n";
-	logFile.close();
-}
-
-void Helpers::writeVectorToLog(const std::string& vecName, irr::core::vector3df vec)
-{
-	std::ofstream logFile = std::ofstream("./StackEditor/StackEditor.log", ios::app);
-	logFile << vecName << "-X: " << vec.X << " Y: " << vec.Y << " Z: " << vec.Z << "\n";
-	logFile.close();
-}
-
-
-
 //takes the name of the mesh as noted in the config file and returns the name of the GUI image for that mesh
 //basically, replaces all "/" or "\\" with _ and appends ".bmp"
 std::string Helpers::meshNameToImageName(std::string meshname)
@@ -119,9 +98,10 @@ CONFIGPARAMS Helpers::loadConfigParams()
 	std::string cfgPath("./StackEditor/StackEditor.cfg");
 	ifstream configFile = ifstream(cfgPath.c_str());
 
-	writeToLog(std::string("Initialising StackEditor..."), true);
-    writeToLog(std::string("Build Date: ") + std::string(Version::build_date));
-    writeToLog(std::string("Build Version: ") + std::string(Version::build_git_version));
+    Log::clearLog();
+	Log::writeToLog(std::string("Initialising StackEditor..."),Log::OFF);
+    Log::writeToLog(std::string("Build Date: ") + std::string(Version::build_date), Log::OFF);
+    Log::writeToLog(std::string("Build Version: ") + std::string(Version::build_git_version), Log::OFF);
 	if (configFile)
 	{
 		std::vector<std::string> tokens;
@@ -157,7 +137,7 @@ CONFIGPARAMS Helpers::loadConfigParams()
 	}
 	else
 	{
-		Helpers::writeToLog(std::string("\n WARNING: StackEditor.cfg not found!"));
+		Log::writeToLog(std::string("StackEditor.cfg not found!"), Log::WARN);
 	}
 	return params;
 }

@@ -36,7 +36,7 @@ int main()
 		return 1;
 
 	Helpers::irrdevice = device;
-	Helpers::writeToLog(std::string("\n Irrlicht device ok..."));
+	Log::writeToLog(std::string("Irrlicht device ok..."), Log::INFO);
 
 	//set caption
 	device->setWindowCaption(L"Orbiter Shipyard - unnamed");

@@ -1,7 +1,7 @@
 #include "Log.h"
 
 Log::LogLevel Log::logLevel = Log::LogLevel::WARN;
-const char *  Log::levelStrings[] = { "[ALL]", "[DEBUG]", "[INFO]", "[WARN]", "[ERROR]", "[FATAL]", "[OFF]" };
+const char *  Log::levelStrings[] = { "", "[DEBUG]", "[INFO]", "[WARN]", "[ERROR]", "[FATAL]", "" };
 
 void Log::clearLog()
 {

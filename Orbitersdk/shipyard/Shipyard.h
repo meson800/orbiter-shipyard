@@ -18,6 +18,9 @@
 #include "SE_ToolBox.h"
 #include "SE_PhotoStudio.h"
 #include "StackExportStructs.h"
+#include "Log.h"
+
+#undef ERROR
 
 
 
