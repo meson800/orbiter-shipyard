@@ -99,9 +99,9 @@ CONFIGPARAMS Helpers::loadConfigParams()
 	ifstream configFile = ifstream(cfgPath.c_str());
 
     Log::clearLog();
-	Log::writeToLog(std::string("Initialising StackEditor..."),Log::OFF);
-    Log::writeToLog(std::string("Build Date: ") + std::string(Version::build_date), Log::OFF);
-    Log::writeToLog(std::string("Build Version: ") + std::string(Version::build_git_version), Log::OFF);
+    Log::writeToLog("Initialising StackEditor...");
+    Log::writeToLog("Build Date: ",Version::build_date);
+    Log::writeToLog("Build Version: ",Version::build_git_version);
 	if (configFile)
 	{
 		std::vector<std::string> tokens;
@@ -137,7 +137,7 @@ CONFIGPARAMS Helpers::loadConfigParams()
 	}
 	else
 	{
-		Log::writeToLog(std::string("StackEditor.cfg not found!"), Log::WARN);
+        Log::writeToLog(Log::WARN, "StackEditor.cfg not found!");
 	}
 	return params;
 }

@@ -11,7 +11,7 @@ VesselSceneNodeState::VesselSceneNodeState(VesselData* data, ifstream& file)
         if (done)
             //unexpected eof, write to log and abort
         {
-            Log::writeToLog(string("Unexpected end of file while loading session"), Log::ERR);
+            Log::writeToLog(Log::ERR, "Unexpected end of file while loading session");
             throw VesselSceneNodeParseError("Unexpected end of file wile loading from session");
         }
         if (tokens.size() == 0)
@@ -21,7 +21,7 @@ VesselSceneNodeState::VesselSceneNodeState(VesselData* data, ifstream& file)
             if (tokens.size() < 4)
                 //line doesn't contain enough values
             {
-                Log::writeToLog(string("Invalid POS in session"), Log::ERR);
+                Log::writeToLog(Log::ERR, "Invalid POS in session");
                 throw VesselSceneNodeParseError("Invalid POS in session");
             }
 
@@ -34,7 +34,7 @@ VesselSceneNodeState::VesselSceneNodeState(VesselData* data, ifstream& file)
             if (tokens.size() < 4)
                 //line doesn't contain enough values
             {
-                Log::writeToLog(string("Invalid ROT in session"), Log::ERR);
+                Log::writeToLog(Log::ERR, "Invalid ROT in session");
                 throw VesselSceneNodeParseError("Invalid ROT in session");
             }
 
@@ -47,7 +47,7 @@ VesselSceneNodeState::VesselSceneNodeState(VesselData* data, ifstream& file)
             if (tokens.size() < 2)
                 //line doesn't contain enough values
             {
-                Log::writeToLog(string("Invalid UID in session"), Log::ERR);
+                Log::writeToLog(Log::ERR, "Invalid UID in session");
                 throw VesselSceneNodeParseError("Invalid UID in session");
             }
             uid = Helpers::stringToInt(tokens[1]);
@@ -57,7 +57,7 @@ VesselSceneNodeState::VesselSceneNodeState(VesselData* data, ifstream& file)
             if (tokens.size() < 2)
                 //line doesn't contain enough values
             {
-                Log::writeToLog(string("Invalid ORBITERNAME parameter"), Log::WARN);
+                Log::writeToLog(Log::WARN, "Invalid ORBITERNAME parameter");
                 //loading is still successful. this is a minor issue
             }
             else

@@ -2,6 +2,8 @@
 
 void VesselStackOperations::splitStack(OrbiterDockingPort* sourcePort)
 {
+    Log::writeToLog(Log::INFO, "Splitting stack on vessel UID: ", sourcePort->dockedTo.vesselUID, 
+        " Port UID: ", sourcePort->dockedTo.portID);
     OrbiterDockingPort* destPort = &(Helpers::getVesselByUID(sourcePort->dockedTo.vesselUID)->
         dockingPorts[sourcePort->dockedTo.portID]);
 	

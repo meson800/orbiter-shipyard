@@ -25,7 +25,7 @@ Shipyard::Shipyard(ExportData *exportdata, ImportData *importdata)
 Shipyard::~Shipyard()
 {
 	saveToolBoxes();
-	Log::writeToLog(std::string("Terminating StackEditor..."), Log::OFF);
+    Log::writeToLog("Terminating StackEditor...");
 }
 
 void Shipyard::setupDevice(IrrlichtDevice * _device, std::string toolboxSet)
@@ -75,7 +75,7 @@ void Shipyard::setupDevice(IrrlichtDevice * _device, std::string toolboxSet)
 	if (toolboxes.size() == 0)
 	//adding an empty toolbox in case there are none defined, since you can't even add toolboxes if there is none
 	{
-		Log::writeToLog(std::string("No toolboxes loaded, initialising default..."), Log::WARN);
+        Log::writeToLog(Log::WARN, "No toolboxes loaded, initialising default...");
 		toolboxes.push_back(new CGUIToolBox("empty toolbox", rect<s32>(0, dim.Height - 130, dim.Width, dim.Height), guiEnv, NULL));
 		guiEnv->getRootGUIElement()->addChild(toolboxes[toolboxes.size() - 1]);
 		toolBoxList->addItem(L"empty toolbox");
@@ -86,7 +86,7 @@ void Shipyard::setupDevice(IrrlichtDevice * _device, std::string toolboxSet)
 	rect<s32> tbxrect = toolBoxList[0].getAbsoluteClippingRect();
 
 	
-	Log::writeToLog(std::string("Initialisation complete..."), Log::INFO);
+    Log::writeToLog(Log::INFO, "Initialisation complete...");
 }
 
 void Shipyard::centerCamera()
@@ -784,7 +784,7 @@ bool Shipyard::loadToolBoxes()
 {
 	core::dimension2d<u32> dim = device->getVideoDriver()->getScreenSize();
 	std::string tbxPath = std::string(Helpers::workingDirectory + "/StackEditor/Toolboxes/" + tbxSet + "/");
-	Log::writeToLog(std::string("Loading toolbox set: ") + tbxSet, Log::INFO);
+    Log::writeToLog(Log::INFO, "Loading toolbox set: ", tbxSet);
 	std::string searchPath = std::string(tbxPath + "*.tbx");
 	HANDLE searchFileHndl;
 	WIN32_FIND_DATA foundFile;
@@ -798,7 +798,7 @@ bool Shipyard::loadToolBoxes()
 	searchFileHndl = FindFirstFile(searchPath.data(), &foundFile);
 	if (foundFile.cFileName[0] == 0)
 	{
-		Log::writeToLog(std::string("Could not open directory: /StackEditor/Toolboxes/" + tbxSet + " or no files in directory"), Log::ERR);
+        Log::writeToLog(Log::ERR,"Could not open directory: /StackEditor/Toolboxes/", tbxSet, " or no files in directory");
 		return false;
 	}
 
@@ -809,7 +809,7 @@ bool Shipyard::loadToolBoxes()
 		if (foundFile.dwFileAttributes != FILE_ATTRIBUTE_DIRECTORY)
 		{
 			//creating the toolbox and adding it to the GUI
-			Log::writeToLog(std::string("Loading " + std::string(foundFile.cFileName) + "..."), Log::INFO);
+            Log::writeToLog(Log::INFO, "Loading ", foundFile.cFileName, "...");
 
 			std::string toolboxName(foundFile.cFileName);
 			toolboxes.push_back(new CGUIToolBox(toolboxName.substr(0, toolboxName.size() - 4), rect<s32>(0, dim.Height - 130, dim.Width, dim.Height), guiEnv, NULL));
@@ -927,7 +927,7 @@ bool Shipyard::loadSession(std::string path)
 			if (tokens[0].compare("FILE") != 0)
 			//there's no file for the vessel, throw error and abort
 			{
-				Log::writeToLog(std::string("No FILE declared for vessel, unable to load session"), Log::ERR);
+                Log::writeToLog(Log::ERR, "No FILE declared for vessel, unable to load session");
 				guiEnv->addMessageBox(L"He's dead, Jim!", L"No FILE declared for vessel, unable to load session");
 				return false;
 			}

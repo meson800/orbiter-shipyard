@@ -111,7 +111,7 @@ void VesselStack::moveStackReferenced(core::vector3df movePos)
 	//check to make sure that we have the same amount of positions in previousPositions than we have nodes
 	if (nodes.size() != previousPositions.size())
 	{
-		Log::writeToLog(std::string("Tried to move a vessel stack without setting up previousPositions"), Log::WARN);
+        Log::writeToLog(Log::WARN, "Tried to move a vessel stack without setting up previousPositions");
 		return;
 	}
 

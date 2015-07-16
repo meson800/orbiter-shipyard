@@ -19,14 +19,11 @@ bool Log::shouldLog(LogLevel level)
     return level >= logLevel;
 }
 
-void Log::writeToLog(std::string &logMsg, LogLevel messageLevel)
+void Log::writeToLog()
 {
-    if (shouldLog(messageLevel))
-    {
-        std::ofstream logFile = std::ofstream("./StackEditor/StackEditor.log", std::ios::app);
-        logFile << levelStrings[messageLevel] << logMsg << "\n";
-        logFile.close();
-    }
+    std::ofstream logFile = std::ofstream("./StackEditor/StackEditor.log", std::ios::app);
+    logFile << "\n";
+    logFile.close();
 }
 
 void Log::writeVectorToLog(const std::string& vecName, irr::core::vector3df vec, LogLevel messageLevel)
