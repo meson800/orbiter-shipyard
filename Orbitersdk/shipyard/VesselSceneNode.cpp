@@ -373,7 +373,12 @@ void VesselSceneNode::loadState(const VesselSceneNodeState& state)
     {
         dockingPorts[i].docked = state.dockingStatus[i].docked;
         if (state.dockingStatus[i].docked)
-            dock(i, state.dockingStatus[i].dockedTo.vesselUID, state.dockingStatus[i].dockedTo.portID);
+        {
+            Log::writeToLog(Log::L_DEBUG, "Half-docking ourPort (VUID: ", getUID(), " PID: ", i,
+                ") to theirPort (VUID: ", state.dockingStatus[i].dockedTo.vesselUID, " PID: ", 
+                state.dockingStatus[i].dockedTo.portID, ")");
+            dockingPorts[i].dockedTo = state.dockingStatus[i].dockedTo;
+        }
     }
 
 }
