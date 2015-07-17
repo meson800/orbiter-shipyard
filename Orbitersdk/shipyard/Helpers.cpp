@@ -3,7 +3,7 @@
 std::map<unsigned int, VesselSceneNode*>* Helpers::vesselMap = 0;
 
 std::string Helpers::workingDirectory = "";
-Shipyard* Helpers::mainShipyard = 0;
+StackEditor* Helpers::mainStackEditor = 0;
 IrrlichtDevice *Helpers::irrdevice = NULL;
 std::mutex Helpers::videoDriverMutex;
 bool Helpers::readLine(ifstream& file, std::vector<std::string>& tokens, const std::string &delimiters)

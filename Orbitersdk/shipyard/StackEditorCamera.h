@@ -1,11 +1,11 @@
 #pragma once
 using namespace core;
 
-class ShipyardCamera
+class StackEditorCamera
 {
 public:
-	ShipyardCamera(vector3d<f32> pos, float radius, IrrlichtDevice *device, ICameraSceneNode* camera);
-	~ShipyardCamera(void);
+	StackEditorCamera(vector3d<f32> pos, float radius, IrrlichtDevice *device, ICameraSceneNode* camera);
+	~StackEditorCamera(void);
 	void mInit(float mXPos, float mYPos, float mZPos, float mRPos);
 	void setMinMaxRadius(float minRadius, float maxRadius);
 	void StopRotation();		//called when the right mouse button is depressed

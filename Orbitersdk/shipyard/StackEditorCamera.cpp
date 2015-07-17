@@ -1,7 +1,7 @@
 #include "Common.h"
-#include "ShipyardCamera.h"
+#include "StackEditorCamera.h"
 
-ShipyardCamera::ShipyardCamera(core::vector3d<f32> pos, float radius, IrrlichtDevice *device, ICameraSceneNode* camera) 
+StackEditorCamera::StackEditorCamera(core::vector3d<f32> pos, float radius, IrrlichtDevice *device, ICameraSceneNode* camera) 
 	: mX(pos.X), mY(pos.Y), mZ(pos.Z), mR(radius), camera_(camera), sensitivity(0.5), 
 	Theta(180.f), Phi(90.f), minRad(10), maxRad(20000), rotation_in_progress_(false), translation_in_progress_(false)
 {
@@ -12,21 +12,21 @@ ShipyardCamera::ShipyardCamera(core::vector3d<f32> pos, float radius, IrrlichtDe
 	device_ = device;
 }
 
-ShipyardCamera::~ShipyardCamera(void)
+StackEditorCamera::~StackEditorCamera(void)
 {
 }
 
-void ShipyardCamera::StopRotation()
+void StackEditorCamera::StopRotation()
 {
 	rotation_in_progress_ = false;
 }
 
-void ShipyardCamera::StartRotation()
+void StackEditorCamera::StartRotation()
 {
 	rotation_in_progress_ = true;
 }
 
-void ShipyardCamera::UpdatePosition(float mouseX, float mouseY, bool cntrl)
+void StackEditorCamera::UpdatePosition(float mouseX, float mouseY, bool cntrl)
 {
 //	translation_in_progress_ = cntrl;
 	if (rotation_in_progress_ )
@@ -41,19 +41,19 @@ void ShipyardCamera::UpdatePosition(float mouseX, float mouseY, bool cntrl)
 	PrevMouseY = mouseY;
 }
 
-void ShipyardCamera::StopTranslation()
+void StackEditorCamera::StopTranslation()
 {
 	translation_in_progress_ = false;
 }
 
-void ShipyardCamera::StartTranslation()
+void StackEditorCamera::StartTranslation()
 {
 	translation_in_progress_ = true;
 }
 
 
 
-void ShipyardCamera::rotateCam(float mouseX, float mouseY)
+void StackEditorCamera::rotateCam(float mouseX, float mouseY)
 {
 
 	f32 Radius = 20.f;
@@ -86,7 +86,7 @@ void ShipyardCamera::rotateCam(float mouseX, float mouseY)
 	camera_->setPosition(camera_->getTarget() + offset);
 }
 
-void ShipyardCamera::translateCam(float mouseX, float mouseY)
+void StackEditorCamera::translateCam(float mouseX, float mouseY)
 {
 	//get the directional vector the camera is facing
 	vector3d<f32> cameradir = camera_->getTarget() - camera_->getPosition();
@@ -107,7 +107,7 @@ void ShipyardCamera::translateCam(float mouseX, float mouseY)
 	camera_->setTarget(camera_->getTarget() +linearmovement + perpendicularmovement);
 }
 
-void ShipyardCamera::UpdateRadius(float wheel )
+void StackEditorCamera::UpdateRadius(float wheel )
 {
 	mR = mR - ( wheel * (mR/20) );
 	if (mR < minRad)
@@ -124,34 +124,34 @@ void ShipyardCamera::UpdateRadius(float wheel )
 }
 
 
-void ShipyardCamera::setMinMaxRadius(float minRadius, float maxRadius)
+void StackEditorCamera::setMinMaxRadius(float minRadius, float maxRadius)
 {
 	minRad = minRadius;
 	maxRad = maxRadius;
 }
 
-vector3d<f32> ShipyardCamera::getPosition()
+vector3d<f32> StackEditorCamera::getPosition()
 {
 	return camera_->getPosition();
 }
 
-vector3d<f32> ShipyardCamera::getTarget()
+vector3d<f32> StackEditorCamera::getTarget()
 {
 	return camera_->getTarget();
 }
 
-bool ShipyardCamera::IsActionInProgress()
+bool StackEditorCamera::IsActionInProgress()
 //returns true if the camera is currently translating or rotating
 {
 	return rotation_in_progress_ + translation_in_progress_;
 }
 
-matrix4 ShipyardCamera::getMatrix()
+matrix4 StackEditorCamera::getMatrix()
 {
 	return camera_->getAbsoluteTransformation();
 }
 
-vector3df ShipyardCamera::getCursorPosAtRadius(float radius)
+vector3df StackEditorCamera::getCursorPosAtRadius(float radius)
 //returns the absolute 3d position of the point under the mousecursor at distance radius from the camera
 //Well, at approximately distance radius. We're checking against a plane here, not a sphere... anyways, it works decently enough.
 {

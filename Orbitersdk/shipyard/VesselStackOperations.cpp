@@ -60,7 +60,7 @@ std::vector<VesselSceneNode*> VesselStackOperations::copyStack(VesselStack* stac
 	}
 
 	//Finally, return the new vessels we created so they can be registered
-	//Bad stuff happens if the new nodes aren't registered (shipyard can't use the dockport lookup table)
+	//Bad stuff happens if the new nodes aren't registered (stackEditor can't use the dockport lookup table)
 	return newNodes;
 
 }

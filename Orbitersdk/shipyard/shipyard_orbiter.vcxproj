@@ -104,8 +104,8 @@
     <ClCompile Include="s3tc.cpp" />
     <ClCompile Include="SE_State.cpp" />
     <ClCompile Include="SE_ToolBox.cpp" />
-    <ClCompile Include="Shipyard.cpp" />
-    <ClCompile Include="ShipyardCamera.cpp" />
+    <ClCompile Include="StackEditor.cpp" />
+    <ClCompile Include="StackEditorCamera.cpp" />
     <ClCompile Include="Version.cpp" />
     <ClCompile Include="VesselStack.cpp" />
     <ClCompile Include="VesselSceneNode.cpp" />
@@ -128,11 +128,11 @@
     <ClInclude Include="s3tc.h" />
     <ClInclude Include="SE_State.h" />
     <ClInclude Include="SE_ToolBox.h" />
-    <ClInclude Include="ShipyardCamera.h" />
+    <ClInclude Include="StackEditor.h" />
+    <ClInclude Include="StackEditorCamera.h" />
     <ClInclude Include="Version.h" />
     <ClInclude Include="VesselStack.h" />
     <ClInclude Include="VesselSceneNode.h" />
-    <ClInclude Include="Shipyard.h" />
     <ClInclude Include="VesselStackOperations.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

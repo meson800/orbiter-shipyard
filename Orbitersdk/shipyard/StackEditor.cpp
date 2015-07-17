@@ -1,9 +1,9 @@
-#include "Shipyard.h"
+#include "StackEditor.h"
 #include "GuiIdentifiers.h"
 #include "windows.h"
 
 
-Shipyard::Shipyard(ExportData *exportdata, ImportData *importdata)
+StackEditor::StackEditor(ExportData *exportdata, ImportData *importdata)
 {
 	for (u32 i = 0; i<KEY_KEY_CODES_COUNT; ++i)
 		isKeyDown[i] = false;
@@ -22,13 +22,13 @@ Shipyard::Shipyard(ExportData *exportdata, ImportData *importdata)
     Helpers::setVesselMap(&uidVesselMap);
 }
 
-Shipyard::~Shipyard()
+StackEditor::~StackEditor()
 {
 	saveToolBoxes();
     Log::writeToLog("Terminating StackEditor...");
 }
 
-void Shipyard::setupDevice(IrrlichtDevice * _device, std::string toolboxSet)
+void StackEditor::setupDevice(IrrlichtDevice * _device, std::string toolboxSet)
 {
 	device = _device;
 	smgr = device->getSceneManager();
@@ -89,17 +89,17 @@ void Shipyard::setupDevice(IrrlichtDevice * _device, std::string toolboxSet)
     Log::writeToLog(Log::INFO, "Initialisation complete...");
 }
 
-void Shipyard::centerCamera()
+void StackEditor::centerCamera()
 {
 //	camera->setTarget(returnOverallBoundingBox().getCenter());
 }
 
-void Shipyard::loop()
+void StackEditor::loop()
 {
 	video::IVideoDriver* driver = device->getVideoDriver();
 	
 	//add the camera
-	camera = new ShipyardCamera(vector3d<f32>(0, 0, 0), 30, device, smgr->addCameraSceneNode());
+	camera = new StackEditorCamera(vector3d<f32>(0, 0, 0), 30, device, smgr->addCameraSceneNode());
 
 	smgr->setAmbientLight(SColor(150,150,150,150));
 	scene::ILightSceneNode *light = smgr->addLightSceneNode(0, core::vector3df(200, 282, 200),
@@ -146,7 +146,7 @@ void Shipyard::loop()
     clearSession();
 }
 
-VesselSceneNode *Shipyard::addVessel(VesselData* vesseldata, bool snaptocursor)
+VesselSceneNode *StackEditor::addVessel(VesselData* vesseldata, bool snaptocursor)
 {
 	//make sure we have valid vesseldata
 	if (!vesseldata)
@@ -173,7 +173,7 @@ VesselSceneNode *Shipyard::addVessel(VesselData* vesseldata, bool snaptocursor)
 	return newvessel;
 }
 
-void Shipyard::moveVesselToCursor(VesselSceneNode* vessel)
+void StackEditor::moveVesselToCursor(VesselSceneNode* vessel)
 //moves a VesselSceneNode to the mousecursor. used when a new vessel is created
 {
 	//estimating a radius based on the maximum extent of the vessel
@@ -182,7 +182,7 @@ void Shipyard::moveVesselToCursor(VesselSceneNode* vessel)
 	vessel->setPosition(camera->getCursorPosAtRadius(radius));
 }
 
-core::vector3df Shipyard::returnMouseRelativePos()
+core::vector3df StackEditor::returnMouseRelativePos()
 {
 	core::vector3df mouse3DPos;
 	if (selectedVesselStack != 0 && selectedVesselStack->numVessels() != 0)
@@ -201,7 +201,7 @@ core::vector3df Shipyard::returnMouseRelativePos()
 	return mouse3DPos;
 }
 
-core::aabbox3d<f32> Shipyard::returnOverallBoundingBox()
+core::aabbox3d<f32> StackEditor::returnOverallBoundingBox()
 {
 	core::aabbox3d<f32> result;
     for (auto it = uidVesselMap.begin(); it != uidVesselMap.end(); ++it)
@@ -209,7 +209,7 @@ core::aabbox3d<f32> Shipyard::returnOverallBoundingBox()
 	return result;
 }
 
-bool Shipyard::OnEvent(const SEvent& event)
+bool StackEditor::OnEvent(const SEvent& event)
 {
 	
 	//EGET_LISTBOX_CHANGED seems to fire unreliably, so we have to check it ourselves
@@ -238,7 +238,7 @@ bool Shipyard::OnEvent(const SEvent& event)
 	return false;
 }
 
-bool Shipyard::processGuiEvent(const SEvent &event)
+bool StackEditor::processGuiEvent(const SEvent &event)
 {
 	switch (event.GUIEvent.EventType)
 	{
@@ -458,7 +458,7 @@ bool Shipyard::processGuiEvent(const SEvent &event)
 	return false;
 }
 
-bool Shipyard::processKeyboardEvent(const SEvent &event)
+bool StackEditor::processKeyboardEvent(const SEvent &event)
 {
 
 	//it's a key, store it
@@ -612,7 +612,7 @@ bool Shipyard::processKeyboardEvent(const SEvent &event)
 	return false;
 }
 
-bool Shipyard::processMouseEvent(const SEvent &event)
+bool StackEditor::processMouseEvent(const SEvent &event)
 {
 	//return if cursor is over the GUI, so the GUI gets the event
 	if (cursorOnGui || dialogOpen)
@@ -750,7 +750,7 @@ bool Shipyard::processMouseEvent(const SEvent &event)
 	return false;
 }
 
-void Shipyard::setupSelectedStack()
+void StackEditor::setupSelectedStack()
 //sets up move reference and ports for the selected vessel stack
 {
 	if (selectedVesselStack != 0)
@@ -763,7 +763,7 @@ void Shipyard::setupSelectedStack()
 	}
 }
 
-void Shipyard::setAllDockingPortVisibility(bool showEmpty, bool showDocked)
+void StackEditor::setAllDockingPortVisibility(bool showEmpty, bool showDocked)
 {
     if (selectedVesselStack != 0)
     {
@@ -778,7 +778,7 @@ void Shipyard::setAllDockingPortVisibility(bool showEmpty, bool showDocked)
         
 }
 
-bool Shipyard::loadToolBoxes()
+bool StackEditor::loadToolBoxes()
 //loads all tbx files from the Toolbox directory
 //returns false if any of the toolbox entries failed to load. The rest will be loaded none the less.
 {
@@ -841,7 +841,7 @@ bool Shipyard::loadToolBoxes()
 }
 
 
-void Shipyard::saveToolBoxes()
+void StackEditor::saveToolBoxes()
 {
 
 	for (UINT i = 0; i < toolboxes.size(); ++i)
@@ -851,7 +851,7 @@ void Shipyard::saveToolBoxes()
 }
 
 
-void Shipyard::switchToolBox()
+void StackEditor::switchToolBox()
 {
 	activetoolbox = toolBoxList->getSelected();
 	for (UINT i = 0; i < toolboxes.size(); ++i)
@@ -870,7 +870,7 @@ void Shipyard::switchToolBox()
 }
 
 
-void Shipyard::saveSession(std::string filename)
+void StackEditor::saveSession(std::string filename)
 {
     Log::writeToLog(Log::INFO, "Saving session to ", filename, ".ses");
 
@@ -910,7 +910,7 @@ void Shipyard::saveSession(std::string filename)
 }
 
 
-bool Shipyard::loadSession(std::string path)
+bool StackEditor::loadSession(std::string path)
 {
     Log::writeToLog(Log::INFO, "Loading session from ", path);
 	clearSession();
@@ -977,7 +977,7 @@ bool Shipyard::loadSession(std::string path)
 	return true;
 }
 
-void Shipyard::clearSession()
+void StackEditor::clearSession()
 {
     //remove all vessels from root scene node
     //they will auto-delete from the uidVesselMap
@@ -1006,7 +1006,7 @@ void Shipyard::clearSession()
 }
 
 //creates a stack from importdata
-void Shipyard::importStack()
+void StackEditor::importStack()
 {
 	//vector to store the created vessels during creation. We need them in fixed order for the docking to work!
 	vector<VesselSceneNode*> createdvessels;
@@ -1045,7 +1045,7 @@ void Shipyard::importStack()
 	}
 }
 
-void Shipyard::pushUndoStack()
+void StackEditor::pushUndoStack()
 {
     //get new global state
     SE_GlobalState currentState = SE_GlobalState(uidVesselMap);
@@ -1059,7 +1059,7 @@ void Shipyard::pushUndoStack()
         redoStack.pop();
 }
 
-void Shipyard::undo()
+void StackEditor::undo()
 {
     if (undoStack.size() > 0)
     {
@@ -1080,7 +1080,7 @@ void Shipyard::undo()
     }
 }
 
-void Shipyard::redo()
+void StackEditor::redo()
 {
     if (redoStack.size() > 0)
     {

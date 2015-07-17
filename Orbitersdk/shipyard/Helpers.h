@@ -23,7 +23,7 @@ using namespace irr;
 
 class VesselSceneNode;
 
-class Shipyard;
+class StackEditor;
 struct CONFIGPARAMS
 {
 	std::string toolboxset;
@@ -33,7 +33,7 @@ struct CONFIGPARAMS
 class Helpers
 {
 public:
-	static Shipyard* mainShipyard;
+	static StackEditor* mainStackEditor;
 	static std::string workingDirectory;
 	static bool readLine(ifstream& file, std::vector<std::string>& tokens, const std::string &delimiters = std::string("\t ="));
 	static void tokenize(std::string line, std::vector<std::string>& tokens, const std::string &delimiters);

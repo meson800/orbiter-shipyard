@@ -22,12 +22,6 @@
     <ClCompile Include="SE_ToolBox.cpp">
       <Filter>C++ Files</Filter>
     </ClCompile>
-    <ClCompile Include="Shipyard.cpp">
-      <Filter>C++ Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ShipyardCamera.cpp">
-      <Filter>C++ Files</Filter>
-    </ClCompile>
     <ClCompile Include="VesselSceneNode.cpp">
       <Filter>C++ Files</Filter>
     </ClCompile>
@@ -53,6 +47,12 @@
       <Filter>C++ Files</Filter>
     </ClCompile>
     <ClCompile Include="Log.cpp">
+      <Filter>C++ Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StackEditor.cpp">
+      <Filter>C++ Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StackEditorCamera.cpp">
       <Filter>C++ Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -93,12 +93,6 @@
     <ClInclude Include="SE_ToolBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Shipyard.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ShipyardCamera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="VesselSceneNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -121,6 +115,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Log.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StackEditor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StackEditorCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

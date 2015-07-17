@@ -13,7 +13,7 @@
 #include "VesselStackOperations.h"
 #include "SE_State.h"
 //#include "CSceneNodeAnimatorCameraCustom.h"
-#include "ShipyardCamera.h"
+#include "StackEditorCamera.h"
 #include "DataManager.h"
 #include "SE_ToolBox.h"
 #include "SE_PhotoStudio.h"
@@ -28,11 +28,11 @@
 
 using namespace irr;
 
-class Shipyard : public IEventReceiver
+class StackEditor : public IEventReceiver
 {
 public:
-	Shipyard(ExportData *exportdata = NULL, ImportData *importdata = NULL);
-	~Shipyard();
+	StackEditor(ExportData *exportdata = NULL, ImportData *importdata = NULL);
+	~StackEditor();
 	void setupDevice(IrrlichtDevice * _device, std::string toolboxSet);
 	void loop();
 	bool OnEvent(const SEvent & event);
@@ -56,7 +56,7 @@ private:
 	bool isOpenDialogOpen;
 	IrrlichtDevice * device;
 	//scene::ICameraSceneNode* camera;
-	ShipyardCamera* camera;
+	StackEditorCamera* camera;
 	VesselStack* selectedVesselStack;
 	void setupSelectedStack();
 	scene::ISceneCollisionManager* collisionManager;

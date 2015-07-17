@@ -1,6 +1,6 @@
 #include "Common.h"
 #include <algorithm>
-#include "Shipyard.h"
+#include "StackEditor.h"
 #include "Helpers.h"
 
 #ifdef _IRR_WINDOWS_
@@ -26,11 +26,11 @@ int main()
 	}
 	
 
-	Shipyard shipyard = Shipyard();
-	//setup the shipyard
-	Helpers::mainShipyard = &shipyard;
+	StackEditor stackEditor = StackEditor();
+	//setup the stackEditor
+	Helpers::mainStackEditor = &stackEditor;
 
-	IrrlichtDevice *device = createDevice(video::EDT_DIRECT3D9, params.windowres, 32, false, false, false, &shipyard);
+	IrrlichtDevice *device = createDevice(video::EDT_DIRECT3D9, params.windowres, 32, false, false, false, &stackEditor);
 	
 	if (!device)
 		return 1;
@@ -46,10 +46,10 @@ int main()
 	std::replace(directory.begin(), directory.end(), '/', '\\');
 	Helpers::workingDirectory = directory;
 
-	//pass it off to Shipyard
-	shipyard.setupDevice(device, params.toolboxset);
+	//pass it off to StackEditor
+	stackEditor.setupDevice(device, params.toolboxset);
 	//and run!
-	shipyard.loop();
+	stackEditor.loop();
 	device->drop();
 	
 	return 0;
