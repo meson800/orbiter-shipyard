@@ -320,3 +320,15 @@ void VesselStack::resetFirstNode()
 		nodes[0]->dockingPorts[i].helperNode->setVisible(false);
 	}
 }
+
+std::string VesselStack::toString()
+{
+    std::string output;
+    for (UINT i = 0; i < nodes.size(); ++i)
+    {
+        
+        output += std::to_string(nodes[i]->getUID());
+        output += " ";
+    }
+    return output;
+}
