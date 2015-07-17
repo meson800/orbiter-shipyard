@@ -148,6 +148,7 @@ bool OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 			}
 
 			//something went wrong, just break
+            Log::writeToLog(Log::ERR, "Something went wrong loading mesh definition in ", meshFilename);
 			break;
 
 		case 1:
@@ -211,6 +212,8 @@ bool OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 					stage++;
 				break;
 			}
+
+            Log::writeToLog(Log::ERR, "Something went wrong loading materials from ", meshFilename);
 			break;
 		case 2:
 			//now we are loading textures

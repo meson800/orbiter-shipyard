@@ -39,6 +39,7 @@ SE_PhotoStudio::~SE_PhotoStudio()
 // scene_prepared: send true if the render target has already been set
 ITexture *SE_PhotoStudio::makePicture(VesselData *vesseldata, string imagename)
 {
+    Log::writeToLog(Log::INFO, "Generating image for vessel, className: ", vesseldata->className);
 	Helpers::videoDriverMutex.lock();
 	//pop up a message that images are being created
 	gui::IGUIWindow *msg = gui->addMessageBox(L"", L"StackEditor is loading some meshes for the first time and has to create images for them.\n \n Please be patient. This procedure will not be repeated at further startups.",

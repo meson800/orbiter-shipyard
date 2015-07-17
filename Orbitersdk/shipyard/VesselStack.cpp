@@ -4,6 +4,8 @@ VesselStack::VesselStack(VesselSceneNode* startingVessel)
 {
 	//recurse through with the helper
 	createStackHelper(startingVessel);
+
+    Log::writeToLog(Log::L_DEBUG, "Created vessel stack: ", toString());
 	issnaped = false;
 }
 
@@ -39,6 +41,8 @@ void VesselStack::rotateStack(core::vector3df relativeRot)
 
 void VesselStack::rotateStack(core::quaternion relativeRot)
 {
+    Log::writeToLog(Log::INFO, "Rotating vessel stack: ", toString(),
+        "by X: ", relativeRot.X, " Y: ", relativeRot.Y, " Z: ", relativeRot.Z, " W: ", relativeRot.W);
 	//simplified by only rotating the first vessel in the stack (the one the stack was selected with) and just snapping the rest of the stack to it.
 	//prevents the stack from running away when being rotated.
 
@@ -53,31 +57,6 @@ void VesselStack::rotateStack(core::quaternion relativeRot)
 	snapStack(0);
 
 	//use the force, erm, quaternoins to rotate each node in the stack to avoid gimbal lock
-/*	for (unsigned int i = 0; i < nodes.size(); i++)
-	{
-		core::quaternion thisNodeRotation = core::quaternion(nodes[i]->getRotation() * core::DEGTORAD);
-		//rotate this sucker
-		thisNodeRotation = thisNodeRotation * relativeRot;
-		//set the rotation
-		core::vector3df eulerRotation;
-		thisNodeRotation.toEuler(eulerRotation);
-		nodes[i]->setRotation(eulerRotation * core::RADTODEG);
-	}
-
-	//now that the nodes are rotated into the correct directions, move them so they line up correctly
-	//first, find the center
-	core::aabbox3d<f32> overallBox;
-	for (unsigned int i = 0; i < nodes.size(); i++)
-		overallBox.addInternalBox(nodes[i]->getTransformedBoundingBox());
-	core::vector3df center = overallBox.getCenter();
-	//now, compare each node's position to the center, rotate the relative position by the overall rotation, and translate it
-	for (unsigned int i = 0; i < nodes.size(); i++)
-	{
-		nodes[i]->updateAbsolutePosition();
-		core::vector3df relativePos = nodes[i]->getAbsolutePosition() - center;
-		core::vector3df rotatedPos = relativeRot * relativePos;
-		nodes[i]->setPosition(nodes[i]->getPosition() + (rotatedPos - relativePos));
-	}*/
 }
 
 void VesselStack::setMoveReference(core::vector3df refPos)

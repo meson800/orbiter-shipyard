@@ -131,6 +131,35 @@ CONFIGPARAMS Helpers::loadConfigParams()
 				}
 			}
 
+            if (tokens[0].compare("loglevel") == 0)
+            {
+                if (tokens.size() < 2)
+                {
+                    Log::writeToLog(Log::WARN, "Missing loglevel setting, defaulting to WARN");
+                }
+                else if (tokens.size() >= 2)
+                {
+                    std::string level = tokens[1];
+                    std::transform(level.begin(), level.end(), level.begin(), ::tolower);
+                    std::map<std::string, Log::LogLevel> stringToLevel = { { "all", Log::ALL }, { "debug", Log::L_DEBUG },
+                    { "warn", Log::WARN }, { "warning", Log::WARN }, { "error", Log::ERR }, { "fatal", Log::FATAL }, { "off", Log::OFF } };
+
+                    if (stringToLevel.count(level))
+                    {
+                        Log::setLogLevel(stringToLevel[level]);
+                    }
+                    else
+                    {
+                        Log::writeToLog(Log::WARN, "Bad loglevel setting, defaulting to WARN");
+                    }
+
+                    if (tokens.size() > 2)
+                    {
+                        Log::writeToLog(Log::WARN, "Unusual loglevel setting, too many arguments");
+                    }
+                }
+            }
+
 			tokens.clear();
 		}
 		configFile.close();

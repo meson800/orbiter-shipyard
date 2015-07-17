@@ -872,6 +872,8 @@ void Shipyard::switchToolBox()
 
 void Shipyard::saveSession(std::string filename)
 {
+    Log::writeToLog(Log::INFO, "Saving session to ", filename, ".ses");
+
 	std::string fullpath = Helpers::workingDirectory + "\\StackEditor\\Sessions\\" + filename + ".ses";
 	ofstream file(fullpath);
 
@@ -910,6 +912,7 @@ void Shipyard::saveSession(std::string filename)
 
 bool Shipyard::loadSession(std::string path)
 {
+    Log::writeToLog(Log::INFO, "Loading session from ", path);
 	clearSession();
 	ifstream file(path.c_str());
 	std::vector<std::string> tokens;
@@ -1058,35 +1061,39 @@ void Shipyard::pushUndoStack()
 
 void Shipyard::undo()
 {
-    SE_GlobalState preUndoState = SE_GlobalState(uidVesselMap);
     if (undoStack.size() > 0)
     {
+        Log::writeToLog(Log::INFO, "Undo triggered");
+        SE_GlobalState preUndoState = SE_GlobalState(uidVesselMap);
+
         undoStack.top().apply(smgr);
         undoStack.pop();
+
+        //get new global state
+        SE_GlobalState postUndoState = SE_GlobalState(uidVesselMap);
+
+        //create diff state from CURRENT state to OLD state, that is the correct diff
+        redoStack.push(SE_DiffState(postUndoState, preUndoState));
+
+        //set global state
+        lastGlobalState = SE_GlobalState(uidVesselMap);
     }
-    //get new global state
-    SE_GlobalState postUndoState = SE_GlobalState(uidVesselMap);
-
-    //create diff state from CURRENT state to OLD state, that is the correct diff
-    redoStack.push(SE_DiffState(postUndoState, preUndoState));
-
-    //set global state
-    lastGlobalState = SE_GlobalState(uidVesselMap);
-
 }
 
 void Shipyard::redo()
 {
-    SE_GlobalState preRedoState = SE_GlobalState(uidVesselMap);
     if (redoStack.size() > 0)
     {
+        Log::writeToLog(Log::INFO, "Redo triggered");
+        SE_GlobalState preRedoState = SE_GlobalState(uidVesselMap);
+
         redoStack.top().apply(smgr);
         redoStack.pop();
+        //get new global state
+        SE_GlobalState postRedoState = SE_GlobalState(uidVesselMap);
+
+        //create diff state from CURRENT state to OLD state, that is the correct diff
+        undoStack.push(SE_DiffState(postRedoState, preRedoState));
+
     }
-
-    //get new global state
-    SE_GlobalState postRedoState = SE_GlobalState(uidVesselMap);
-
-    //create diff state from CURRENT state to OLD state, that is the correct diff
-   undoStack.push(SE_DiffState(postRedoState, preRedoState));
 }

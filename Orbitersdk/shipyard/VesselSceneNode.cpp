@@ -92,6 +92,7 @@ UINT VesselSceneNode::next_uid = 0;
 VesselSceneNode::VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id, UINT _uid)
     : scene::ISceneNode(parent, mgr, id), smgr(mgr), uid(_uid)
 {
+    Log::writeToLog(Log::INFO, "Creating VesselSceneNode with UID: ", _uid);
 	vesselData = vesData;
 	vesselMesh = vesselData->vesselMesh;
 	dockingPorts = vesselData->dockingPorts;
@@ -113,6 +114,7 @@ VesselSceneNode::VesselSceneNode(const VesselSceneNodeState& state, scene::IScen
 
 VesselSceneNode::~VesselSceneNode()
 {
+    Log::writeToLog(Log::INFO, "Deleting VesselSceneNode with UID: ", uid);
     //unregister self from map
     Helpers::unregisterVessel(uid);
 }
@@ -322,6 +324,9 @@ void VesselSceneNode::snap(OrbiterDockingPort& ourPort, OrbiterDockingPort& thei
 
 void VesselSceneNode::dock(OrbiterDockingPort& ourPort, OrbiterDockingPort& theirPort)
 {
+    Log::writeToLog(Log::INFO, "Docking ourPort (VUID: ", ourPort.parent->getUID(), " PID: ", ourPort.portID,
+        ") to theirPort (VUID: ", theirPort.parent->getUID(), " PID: ", theirPort.portID, ")");
+
 	//set both docked flags
 	ourPort.docked = true;
 	theirPort.docked = true;
@@ -340,6 +345,7 @@ void VesselSceneNode::dock(UINT ourPortNum, UINT otherVesselUID, UINT otherPortI
 
 VesselSceneNodeState VesselSceneNode::saveState()
 {
+    Log::writeToLog(Log::L_DEBUG, "Saving VesselSceneNode state, UID: ", uid);
     VesselSceneNodeState output;
     output.vesData = returnVesselData();
     output.uid = uid;
@@ -356,6 +362,7 @@ VesselSceneNodeState VesselSceneNode::saveState()
 
 void VesselSceneNode::loadState(const VesselSceneNodeState& state)
 {
+    Log::writeToLog(Log::L_DEBUG, "Loading VesselSceneNode state, UID: ", uid);
     if (state.uid != uid)
         throw UID_Mismatch();
     setPosition(state.pos);

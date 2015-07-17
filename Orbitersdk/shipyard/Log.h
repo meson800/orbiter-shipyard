@@ -5,10 +5,13 @@
 #include <fstream>
 #include <irrlicht.h>
 
+#undef DEBUG
+
 class Log
 {
 public:
-    enum LogLevel {ALL,DEBUG,INFO,WARN,ERR,FATAL,OFF};
+    //L_DEBUG because windows global defines DEBUG :(
+    enum LogLevel {ALL,L_DEBUG,INFO,WARN,ERR,FATAL,OFF};
     static void clearLog();
     static void setLogLevel(LogLevel level);
 
