@@ -349,7 +349,7 @@ VesselSceneNodeState VesselSceneNode::saveState()
     VesselSceneNodeState output;
     output.vesData = returnVesselData();
     output.uid = uid;
-    output.pos = getAbsolutePosition();
+    output.pos = getPosition();
     output.rot = getRotation();
     output.orbiterName = orbitername;
 
