@@ -183,7 +183,8 @@ ToolboxData* DataManager::GetGlobalToolboxData(std::string configName, video::IV
 			{
 				maxfuel = tokens[1];
 			}
-			else if (tokens[0].compare("meshname") == 0 && tokens.size() >= 2)
+			else if (tokens[0].compare("meshname") == 0 && tokens.size() >= 2 ||
+					tokens[0].compare("se_meshname") == 0 && tokens.size() >= 2)
 			//check for image file
 			{
 				std::string imgname = Helpers::meshNameToImageName(tokens[1]);
@@ -321,7 +322,9 @@ VesselData *DataManager::LoadVesselData(string configFileName, video::IVideoDriv
 			continue;
 
 		//or if it is the end
-		if (tokens[0].compare("END_DOCKLIST") == 0)
+		if (tokens[0].compare("END_DOCKLIST") == 0 || 
+			tokens[0].compare("END_SE_DOCKLIST") == 0 ||
+			tokens[0].compare("END_IMS_ATTACHMENT") == 0)
 		{
 			readingDockingPorts = false;
 		}
@@ -346,7 +349,9 @@ VesselData *DataManager::LoadVesselData(string configFileName, video::IVideoDriv
             Log::writeToLog(Log::ERR, "Invalid docking port definition in cfg file ", configFileName, ": definition contains less than 9 entries!");
 		}
 		//now see if this is the beginning of a docking port list
-		if (tokens[0].compare("BEGIN_DOCKLIST") == 0)
+		if (tokens[0].compare("BEGIN_DOCKLIST") == 0 ||
+			tokens[0].compare("BEGIN_SE_DOCKLIST") == 0 ||
+			tokens[0].compare("BEGIN_IMS_ATTACHMENT") == 0)
 		{
 			readingDockingPorts = true;
 			portsDefined = true;
@@ -357,7 +362,8 @@ VesselData *DataManager::LoadVesselData(string configFileName, video::IVideoDriv
 		//put it in lowercase to start
 		transform(tokens[0].begin(), tokens[0].end(), tokens[0].begin(), ::tolower);
 		//see if it matches
-		if (tokens[0].compare("meshname") == 0)
+		if (tokens[0].compare("meshname") == 0 ||
+			tokens[0].compare("se_meshname") == 0)
 			//load the mesh!
 		{
 			newVessel->vesselMesh = GetGlobalMesh(tokens[1], driver);

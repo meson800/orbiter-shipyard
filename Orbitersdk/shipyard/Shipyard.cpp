@@ -274,7 +274,7 @@ bool Shipyard::processGuiEvent(const SEvent &event)
 					std::vector<std::string> tokens;
 					Helpers::tokenize(fullfilename, tokens, "/\\.");
 					session = tokens[tokens.size() - 2];
-					std::string newcaption = "Orbiter Shipyard - " + session;
+					std::string newcaption = "Orbiter Stack Editor - " + session;
 					device->setWindowCaption(std::wstring(newcaption.begin(), newcaption.end()).c_str());
 				}
 				Helpers::resetDirectory();
@@ -904,7 +904,7 @@ void Shipyard::saveSession(std::string filename)
     }
 
 	file.close();
-	std::string newcaption = "Orbiter Shipyard - " + filename;
+	std::string newcaption = "Orbiter Stack Editor - " + filename;
 	device->setWindowCaption(std::wstring(newcaption.begin(), newcaption.end()).c_str());
 	session = filename;
 }

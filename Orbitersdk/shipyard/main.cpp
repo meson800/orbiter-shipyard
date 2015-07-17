@@ -39,7 +39,7 @@ int main()
     Log::writeToLog(Log::INFO, "Irrlicht device ok...");
 
 	//set caption
-	device->setWindowCaption(L"Orbiter Shipyard - unnamed");
+	device->setWindowCaption(L"Orbiter Stack Editor - unnamed");
 
 	//set the working directory
 	std::string directory = device->getFileSystem()->getWorkingDirectory().c_str();

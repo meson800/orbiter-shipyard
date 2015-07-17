@@ -36,8 +36,22 @@ DLLCLBK void InitModule(HINSTANCE hDLL)
 
 }
 
+//close SE when orbiter closes simulation
+DLLCLBK void opcCloseRenderViewport()
+{
+	//for some reason, closing the stack editor here will also close the launchpad...?
+	/*	if (Helpers::irrdevice)
+	{
+		Helpers::irrdevice->closeDevice();
+	}*/
+}
+
 DLLCLBK void ExitModule(HINSTANCE hDLL)
 {
+	if (Helpers::irrdevice)
+	{
+		Helpers::irrdevice->closeDevice();
+	}
 	oapiUnregisterCustomCmd(g_dwCmd);
 }
 
@@ -109,7 +123,7 @@ void OpenSE()
     Log::writeToLog(Log::INFO, "Irrlicht device ok...");
 
 	//set caption
-	device->setWindowCaption(L"Orbiter Shipyard - unnamed");
+	device->setWindowCaption(L"Orbiter Stack Editor - unnamed");
 
 	//set the working directory
 	std::string directory = device->getFileSystem()->getWorkingDirectory().c_str();
@@ -121,6 +135,7 @@ void OpenSE()
 	//and run!
 	shipyard.loop();
 	device->drop();
+	Helpers::irrdevice = NULL;
 
 	return;
 } 
