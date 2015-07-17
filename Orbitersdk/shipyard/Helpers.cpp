@@ -141,7 +141,7 @@ CONFIGPARAMS Helpers::loadConfigParams()
                 {
                     std::string level = tokens[1];
                     std::transform(level.begin(), level.end(), level.begin(), ::tolower);
-                    std::map<std::string, Log::LogLevel> stringToLevel = { { "all", Log::ALL }, { "debug", Log::L_DEBUG },
+                    std::map<std::string, Log::LogLevel> stringToLevel = { { "all", Log::ALL }, { "debug", Log::L_DEBUG }, { "info", Log::INFO },
                     { "warn", Log::WARN }, { "warning", Log::WARN }, { "error", Log::ERR }, { "fatal", Log::FATAL }, { "off", Log::OFF } };
 
                     if (stringToLevel.count(level))
