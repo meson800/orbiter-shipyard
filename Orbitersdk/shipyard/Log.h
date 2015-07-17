@@ -1,5 +1,6 @@
 #pragma once
 
+#include <mutex>
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -15,35 +16,45 @@ public:
     static void clearLog();
     static void setLogLevel(LogLevel level);
 
+    //thread safe definition, to avoid recursive mutex
+    template<typename ... Types>
+    static void writeToLog(Types ... rest)
+    {
+        writeMutex.lock();
+        writeToLogThreadUnsafe(rest...);
+        writeMutex.unlock();
+    }
+
     //varadic write to log so its easier to use
     template<typename ... Types>
     //case that returns if messageLevel isn't enough to log
-    static void writeToLog(LogLevel messageLevel, Types ... rest)
+    static void writeToLogThreadUnsafe(LogLevel messageLevel, Types ... rest)
     {
         if (shouldLog(messageLevel))
         {
             std::ofstream logFile = std::ofstream("./StackEditor/StackEditor.log", std::ios::app);
             logFile << levelStrings[messageLevel];
             logFile.close();
-            writeToLog(rest...);
+            writeToLogThreadUnsafe(rest...);
         }
     }
 
     template<typename T, typename ... Types>
     //Generic case, prints out using << operator
-    static void writeToLog(T first, Types ... rest)
+    static void writeToLogThreadUnsafe(T first, Types ... rest)
     {
         std::ofstream logFile = std::ofstream("./StackEditor/StackEditor.log", std::ios::app);
         logFile << first;
         logFile.close();
         //recurse for other arguments
-        writeToLog(rest...);
+        writeToLogThreadUnsafe(rest...);
     }
     //base case, write out newline
-    static void writeToLog();
+    static void writeToLogThreadUnsafe();
 
     static void writeVectorToLog(const std::string& vectorName, irr::core::vector3df vec, LogLevel messageLevel);
 private:
+    static std::mutex writeMutex;
     static const char* levelStrings[];
     static bool shouldLog(LogLevel level);
     static LogLevel logLevel;

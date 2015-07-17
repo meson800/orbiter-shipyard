@@ -1,5 +1,7 @@
 #include "Log.h"
 
+std::mutex Log::writeMutex;
+
 Log::LogLevel Log::logLevel = Log::LogLevel::WARN;
 const char *  Log::levelStrings[] = { "[ALL]", "[DEBUG]", "[INFO]", "[WARN]", "[ERROR]", "[FATAL]", "[OFF]" };
 
@@ -20,7 +22,7 @@ bool Log::shouldLog(LogLevel level)
     return level >= logLevel;
 }
 
-void Log::writeToLog()
+void Log::writeToLogThreadUnsafe()
 {
     std::ofstream logFile = std::ofstream("./StackEditor/StackEditor.log", std::ios::app);
     logFile << "\n";
