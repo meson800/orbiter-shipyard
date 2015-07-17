@@ -61,6 +61,12 @@
       <AdditionalDependencies>irrlicht.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\irrlicht-1.8.1\lib\Win32-visualstudio</AdditionalLibraryDirectories>
     </Link>
+    <PreBuildEvent>
+      <Command>powershell.exe .\writeVersion.ps1</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Writing version.cpp</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -78,9 +84,16 @@
       <AdditionalDependencies>irrlicht.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\irrlicht-1.8.1\lib\Win32-visualstudio</AdditionalLibraryDirectories>
     </Link>
+    <PreBuildEvent>
+      <Command>powershell.exe .\writeVersion.ps1</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Writing version.cpp</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DdsImage.cpp" />
+    <ClCompile Include="Log.cpp" />
     <ClCompile Include="OrbiterDockingPort.cpp" />
     <ClCompile Include="SE_ImsData.cpp" />
     <ClCompile Include="SE_PhotoStudio.cpp" />
@@ -93,6 +106,7 @@
     <ClCompile Include="SE_ToolBox.cpp" />
     <ClCompile Include="Shipyard.cpp" />
     <ClCompile Include="ShipyardCamera.cpp" />
+    <ClCompile Include="Version.cpp" />
     <ClCompile Include="VesselStack.cpp" />
     <ClCompile Include="VesselSceneNode.cpp" />
     <ClCompile Include="VesselStackOperations.cpp" />
@@ -102,6 +116,7 @@
     <ClInclude Include="DdsHeader.h" />
     <ClInclude Include="DdsImage.h" />
     <ClInclude Include="GuiIdentifiers.h" />
+    <ClInclude Include="Log.h" />
     <ClInclude Include="SE_ImsData.h" />
     <ClInclude Include="SE_PhotoStudio.h" />
     <ClInclude Include="Helpers.h" />
@@ -114,6 +129,7 @@
     <ClInclude Include="SE_State.h" />
     <ClInclude Include="SE_ToolBox.h" />
     <ClInclude Include="ShipyardCamera.h" />
+    <ClInclude Include="Version.h" />
     <ClInclude Include="VesselStack.h" />
     <ClInclude Include="VesselSceneNode.h" />
     <ClInclude Include="Shipyard.h" />

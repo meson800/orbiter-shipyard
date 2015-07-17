@@ -68,7 +68,7 @@ OrbiterMesh* DataManager::GetGlobalMesh(string meshName, video::IVideoDriver* dr
 		//mesh not found, delete allocated pointer and return NULL
 		{
 			delete newMesh;
-			Helpers::writeToLog(std::string("\n ERROR: could not load mesh: " + meshName + ".msh"));
+            Log::writeToLog(Log::ERR,"Could not load mesh: ", meshName, ".msh");
 			return NULL;
 		}
 	}
@@ -105,7 +105,7 @@ VesselData* DataManager::GetGlobalConfig(string cfgName, video::IVideoDriver* dr
 		}
 		else
 		{
-			Helpers::writeToLog(std::string("\n ERROR: could not load cfg: " + cfgName));
+            Log::writeToLog(Log::ERR, "Could not load cfg: ", cfgName);
 		}
 		_runningthreads--;		//the loading thread will terminate after returning
 		return newVessel;
@@ -224,7 +224,7 @@ ToolboxData* DataManager::GetGlobalToolboxData(std::string configName, video::IV
 		}
 		else
 		{
-			Helpers::writeToLog(std::string("\n ERROR: could not load cfg while loading toolbox data: " + configName));
+            Log::writeToLog(Log::ERR, "Could not load cfg while loading toolbox data: ", configName);
 			delete toolboxData;
 			toolboxData = NULL;
 		}
@@ -286,7 +286,7 @@ video::ITexture *DataManager::GetGlobalImg(string imgname, string configname, vi
 		else
 		//something went wrong, dump to log
 		{
-			Helpers::writeToLog("\n ERROR: unable to find or create image: " + imgname);
+            Log::writeToLog(Log::ERR, "Unable to find or create image: ", imgname);
 			return NULL;
 		}
 	}
@@ -338,12 +338,12 @@ VesselData *DataManager::LoadVesselData(string configFileName, video::IVideoDriv
 			newVessel->dockingPorts[newVessel->dockingPorts.size() - 1].index = newVessel->dockingPorts.size() - 1;
 			if (tokens.size() > 9)
 			{
-				Helpers::writeToLog(std::string("\n WARNING: Unusual docking port definition in cfg file " + configFileName) + ": definition contains more than 9 entries!");
+                Log::writeToLog(Log::WARN, "Unusual docking port definition in cfg file ", configFileName,  ": definition contains more than 9 entries!");
 			}
 		}
 		else if (readingDockingPorts && tokens.size() < 9)
 		{
-			Helpers::writeToLog(std::string("\n ERROR: Invalid docking port definition in cfg file " + configFileName) + ": definition contains less than 9 entries!");
+            Log::writeToLog(Log::ERR, "Invalid docking port definition in cfg file ", configFileName, ": definition contains less than 9 entries!");
 		}
 		//now see if this is the beginning of a docking port list
 		if (tokens[0].compare("BEGIN_DOCKLIST") == 0)
@@ -374,13 +374,13 @@ VesselData *DataManager::LoadVesselData(string configFileName, video::IVideoDriv
 
 	if (!meshDefined)
 	{
-		Helpers::writeToLog(std::string("\n WARNING: no mesh defined in " + configFileName));
+        Log::writeToLog(Log::WARN, "No mesh defined in ", configFileName);
 		delete newVessel;
 		newVessel = NULL;
 	}
 	if (newVessel && !portsDefined)
 	{
-		Helpers::writeToLog(std::string("\n WARNING: no docking ports defined in " + configFileName));
+        Log::writeToLog(Log::WARN, "No docking ports defined in ", configFileName);
 		delete newVessel;
 		newVessel = NULL;
 	}

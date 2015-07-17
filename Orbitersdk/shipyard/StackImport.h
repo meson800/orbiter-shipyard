@@ -1,4 +1,8 @@
 #pragma once
+
+#include "orbitersdk.h"
+#include <queue>
+#include "StackExportStructs.h"
 class StackImport
 {
 public:

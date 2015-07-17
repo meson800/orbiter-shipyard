@@ -1,6 +1,9 @@
 #pragma once
 
+#include "Log.h"
+
 #include <vector>
+#include <string>
 #include <map>
 #include <algorithm>
 #include "VesselSceneNode.h"
@@ -29,6 +32,8 @@ public:
 	UINT getStackSize();
 	void showFirstNodeForSplitting();
 	void resetFirstNode();
+
+    std::string toString();
 private:
 	//recursive helper to init the stack
 	void createStackHelper(VesselSceneNode* startingVessel);

@@ -211,6 +211,7 @@ bool OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 					stage++;
 				break;
 			}
+
 			break;
 		case 2:
 			//now we are loading textures

@@ -62,6 +62,7 @@ SE_DiffState::SE_DiffState(const SE_GlobalState& oldState, const SE_GlobalState&
 
 void SE_DiffState::apply(scene::ISceneManager* mgr)
 {
+    Log::writeToLog(Log::INFO, "Applying diff state");
     //go through internal state, switching on diff type
 
     //do ADD and DELETE operations first, so updates with docking work
@@ -92,6 +93,7 @@ void SE_DiffState::apply(scene::ISceneManager* mgr)
         switch (it->second.diffType)
         {
         case VesselDiffState::DiffType::UPDATE:
+            Log::writeToLog(Log::L_DEBUG, "DiffState: Updating vessel, uid: ", it->first);
             //find current existing vessel and update it
             Helpers::getVesselByUID(it->first)->loadState(it->second.state);
             break;

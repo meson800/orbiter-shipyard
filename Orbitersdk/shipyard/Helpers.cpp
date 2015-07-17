@@ -72,27 +72,6 @@ void Helpers::removeExtraSpaces(std::string& str)
 	str.erase(new_end, str.end());
 }
 
-void Helpers::writeToLog(std::string &logMsg, bool clear)
-{
-	std::ios_base::openmode mode = ios::app;
-	if (clear == true)
-	{
-		mode = ios::out;
-	}
-	std::ofstream logFile = std::ofstream("./StackEditor/StackEditor.log", mode);
-	logFile << logMsg << "\n";
-	logFile.close();
-}
-
-void Helpers::writeVectorToLog(const std::string& vecName, irr::core::vector3df vec)
-{
-	std::ofstream logFile = std::ofstream("./StackEditor/StackEditor.log", ios::app);
-	logFile << vecName << "-X: " << vec.X << " Y: " << vec.Y << " Z: " << vec.Z << "\n";
-	logFile.close();
-}
-
-
-
 //takes the name of the mesh as noted in the config file and returns the name of the GUI image for that mesh
 //basically, replaces all "/" or "\\" with _ and appends ".bmp"
 std::string Helpers::meshNameToImageName(std::string meshname)
@@ -119,7 +98,10 @@ CONFIGPARAMS Helpers::loadConfigParams()
 	std::string cfgPath("./StackEditor/StackEditor.cfg");
 	ifstream configFile = ifstream(cfgPath.c_str());
 
-	writeToLog(std::string("Initialising StackEditor..."), true);
+    Log::clearLog();
+    Log::writeToLog("Initialising StackEditor...");
+    Log::writeToLog("Build Date: ",Version::build_date);
+    Log::writeToLog("Build Version: ",Version::build_git_version);
 	if (configFile)
 	{
 		std::vector<std::string> tokens;
@@ -149,13 +131,42 @@ CONFIGPARAMS Helpers::loadConfigParams()
 				}
 			}
 
+            if (tokens[0].compare("loglevel") == 0)
+            {
+                if (tokens.size() < 2)
+                {
+                    Log::writeToLog(Log::WARN, "Missing loglevel setting, defaulting to WARN");
+                }
+                else if (tokens.size() >= 2)
+                {
+                    std::string level = tokens[1];
+                    std::transform(level.begin(), level.end(), level.begin(), ::tolower);
+                    std::map<std::string, Log::LogLevel> stringToLevel = { { "all", Log::ALL }, { "debug", Log::L_DEBUG }, { "info", Log::INFO },
+                    { "warn", Log::WARN }, { "warning", Log::WARN }, { "error", Log::ERR }, { "fatal", Log::FATAL }, { "off", Log::OFF } };
+
+                    if (stringToLevel.count(level))
+                    {
+                        Log::setLogLevel(stringToLevel[level]);
+                    }
+                    else
+                    {
+                        Log::writeToLog(Log::WARN, "Bad loglevel setting, defaulting to WARN");
+                    }
+
+                    if (tokens.size() > 2)
+                    {
+                        Log::writeToLog(Log::WARN, "Unusual loglevel setting, too many arguments");
+                    }
+                }
+            }
+
 			tokens.clear();
 		}
 		configFile.close();
 	}
 	else
 	{
-		Helpers::writeToLog(std::string("\n WARNING: StackEditor.cfg not found!"));
+        Log::writeToLog(Log::WARN, "StackEditor.cfg not found!");
 	}
 	return params;
 }

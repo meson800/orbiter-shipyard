@@ -2,6 +2,8 @@
 
 void VesselStackOperations::splitStack(OrbiterDockingPort* sourcePort)
 {
+    Log::writeToLog(Log::INFO, "Splitting stack on vessel UID: ", sourcePort->dockedTo.vesselUID, 
+        " Port UID: ", sourcePort->dockedTo.portID);
     OrbiterDockingPort* destPort = &(Helpers::getVesselByUID(sourcePort->dockedTo.vesselUID)->
         dockingPorts[sourcePort->dockedTo.portID]);
 	
@@ -17,6 +19,7 @@ void VesselStackOperations::splitStack(OrbiterDockingPort* sourcePort)
 
 std::vector<VesselSceneNode*> VesselStackOperations::copyStack(VesselStack* stack, scene::ISceneManager* smgr)
 {
+    Log::writeToLog(Log::INFO, "Copying vessel stack: ", stack->toString());
 	//Ugh, too bad ISceneNode doesn't implement a copy constructor, so we have to manually implement :(
 
 	//Start by copying every node
@@ -65,6 +68,7 @@ std::vector<VesselSceneNode*> VesselStackOperations::copyStack(VesselStack* stac
 //Assumes that vessels have been deregistered prior to sending it to this
 void VesselStackOperations::deleteStack(VesselStack* stack)
 {
+    Log::writeToLog(Log::INFO, "Deleting vessel stack: ", stack->toString());
 	for (UINT i = 0; i < stack->numVessels(); ++i)
 	{
         VesselSceneNode* vessel = stack->getVessel(i);

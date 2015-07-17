@@ -25,7 +25,7 @@ Shipyard::Shipyard(ExportData *exportdata, ImportData *importdata)
 Shipyard::~Shipyard()
 {
 	saveToolBoxes();
-	Helpers::writeToLog(std::string("\n Terminating StackEditor..."));
+    Log::writeToLog("Terminating StackEditor...");
 }
 
 void Shipyard::setupDevice(IrrlichtDevice * _device, std::string toolboxSet)
@@ -75,7 +75,7 @@ void Shipyard::setupDevice(IrrlichtDevice * _device, std::string toolboxSet)
 	if (toolboxes.size() == 0)
 	//adding an empty toolbox in case there are none defined, since you can't even add toolboxes if there is none
 	{
-		Helpers::writeToLog(std::string("\n WARNING: No toolboxes loaded, initialising default..."));
+        Log::writeToLog(Log::WARN, "No toolboxes loaded, initialising default...");
 		toolboxes.push_back(new CGUIToolBox("empty toolbox", rect<s32>(0, dim.Height - 130, dim.Width, dim.Height), guiEnv, NULL));
 		guiEnv->getRootGUIElement()->addChild(toolboxes[toolboxes.size() - 1]);
 		toolBoxList->addItem(L"empty toolbox");
@@ -86,7 +86,7 @@ void Shipyard::setupDevice(IrrlichtDevice * _device, std::string toolboxSet)
 	rect<s32> tbxrect = toolBoxList[0].getAbsoluteClippingRect();
 
 	
-	Helpers::writeToLog(std::string("\n Initialisation complete..."));
+    Log::writeToLog(Log::INFO, "Initialisation complete...");
 }
 
 void Shipyard::centerCamera()
@@ -784,7 +784,7 @@ bool Shipyard::loadToolBoxes()
 {
 	core::dimension2d<u32> dim = device->getVideoDriver()->getScreenSize();
 	std::string tbxPath = std::string(Helpers::workingDirectory + "/StackEditor/Toolboxes/" + tbxSet + "/");
-	Helpers::writeToLog(std::string("\n Loading toolbox set: ") + tbxSet);
+    Log::writeToLog(Log::INFO, "Loading toolbox set: ", tbxSet);
 	std::string searchPath = std::string(tbxPath + "*.tbx");
 	HANDLE searchFileHndl;
 	WIN32_FIND_DATA foundFile;
@@ -798,7 +798,7 @@ bool Shipyard::loadToolBoxes()
 	searchFileHndl = FindFirstFile(searchPath.data(), &foundFile);
 	if (foundFile.cFileName[0] == 0)
 	{
-		Helpers::writeToLog(std::string("\n ERROR: could not open directory: /StackEditor/Toolboxes/" + tbxSet + " or no files in directory"));
+        Log::writeToLog(Log::ERR,"Could not open directory: /StackEditor/Toolboxes/", tbxSet, " or no files in directory");
 		return false;
 	}
 
@@ -809,7 +809,7 @@ bool Shipyard::loadToolBoxes()
 		if (foundFile.dwFileAttributes != FILE_ATTRIBUTE_DIRECTORY)
 		{
 			//creating the toolbox and adding it to the GUI
-			Helpers::writeToLog(std::string("\n Loading " + std::string(foundFile.cFileName) + "..."));
+            Log::writeToLog(Log::INFO, "Loading ", foundFile.cFileName, "...");
 
 			std::string toolboxName(foundFile.cFileName);
 			toolboxes.push_back(new CGUIToolBox(toolboxName.substr(0, toolboxName.size() - 4), rect<s32>(0, dim.Height - 130, dim.Width, dim.Height), guiEnv, NULL));
@@ -872,6 +872,8 @@ void Shipyard::switchToolBox()
 
 void Shipyard::saveSession(std::string filename)
 {
+    Log::writeToLog(Log::INFO, "Saving session to ", filename, ".ses");
+
 	std::string fullpath = Helpers::workingDirectory + "\\StackEditor\\Sessions\\" + filename + ".ses";
 	ofstream file(fullpath);
 
@@ -910,6 +912,7 @@ void Shipyard::saveSession(std::string filename)
 
 bool Shipyard::loadSession(std::string path)
 {
+    Log::writeToLog(Log::INFO, "Loading session from ", path);
 	clearSession();
 	ifstream file(path.c_str());
 	std::vector<std::string> tokens;
@@ -927,7 +930,7 @@ bool Shipyard::loadSession(std::string path)
 			if (tokens[0].compare("FILE") != 0)
 			//there's no file for the vessel, throw error and abort
 			{
-				Helpers::writeToLog(std::string("Error: No FILE declared for vessel, unable to load session"));
+                Log::writeToLog(Log::ERR, "No FILE declared for vessel, unable to load session");
 				guiEnv->addMessageBox(L"He's dead, Jim!", L"No FILE declared for vessel, unable to load session");
 				return false;
 			}
@@ -1058,35 +1061,42 @@ void Shipyard::pushUndoStack()
 
 void Shipyard::undo()
 {
-    SE_GlobalState preUndoState = SE_GlobalState(uidVesselMap);
     if (undoStack.size() > 0)
     {
+        Log::writeToLog(Log::INFO, "Undo triggered");
+        SE_GlobalState preUndoState = SE_GlobalState(uidVesselMap);
+
         undoStack.top().apply(smgr);
         undoStack.pop();
+
+        //get new global state
+        SE_GlobalState postUndoState = SE_GlobalState(uidVesselMap);
+
+        //create diff state from CURRENT state to OLD state, that is the correct diff
+        redoStack.push(SE_DiffState(postUndoState, preUndoState));
+
+        //set global state
+        lastGlobalState = SE_GlobalState(uidVesselMap);
     }
-    //get new global state
-    SE_GlobalState postUndoState = SE_GlobalState(uidVesselMap);
-
-    //create diff state from CURRENT state to OLD state, that is the correct diff
-    redoStack.push(SE_DiffState(postUndoState, preUndoState));
-
-    //set global state
-    lastGlobalState = SE_GlobalState(uidVesselMap);
-
 }
 
 void Shipyard::redo()
 {
-    SE_GlobalState preRedoState = SE_GlobalState(uidVesselMap);
     if (redoStack.size() > 0)
     {
+        Log::writeToLog(Log::INFO, "Redo triggered");
+        SE_GlobalState preRedoState = SE_GlobalState(uidVesselMap);
+
         redoStack.top().apply(smgr);
         redoStack.pop();
+        //get new global state
+        SE_GlobalState postRedoState = SE_GlobalState(uidVesselMap);
+
+        //create diff state from CURRENT state to OLD state, that is the correct diff
+        undoStack.push(SE_DiffState(postRedoState, preRedoState));
+
+        //set global state
+        lastGlobalState = SE_GlobalState(uidVesselMap);
+
     }
-
-    //get new global state
-    SE_GlobalState postRedoState = SE_GlobalState(uidVesselMap);
-
-    //create diff state from CURRENT state to OLD state, that is the correct diff
-   undoStack.push(SE_DiffState(postRedoState, preRedoState));
 }
