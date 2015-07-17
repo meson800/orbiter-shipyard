@@ -1095,5 +1095,8 @@ void Shipyard::redo()
         //create diff state from CURRENT state to OLD state, that is the correct diff
         undoStack.push(SE_DiffState(postRedoState, preRedoState));
 
+        //set global state
+        lastGlobalState = SE_GlobalState(uidVesselMap);
+
     }
 }
