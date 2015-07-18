@@ -5,7 +5,7 @@
 
 StackEditorCamera::StackEditorCamera(core::vector3d<f32> pos, float radius, IrrlichtDevice *device, ICameraSceneNode* camera) 
 	: mX(pos.X), mY(pos.Y), mZ(pos.Z), mR(radius), camera_(camera), sensitivity(0.5), 
-	Theta(180.f), Phi(90.f), minRad(10), maxRad(20000), rotation_in_progress_(false), translation_in_progress_(false)
+	Theta(90.f), Phi(90.f), minRad(10), maxRad(20000), rotation_in_progress_(false), translation_in_progress_(false)
 {
 	//the camera parent is also its target. When translating, only the parent will be moved, leaving camera placement to irrlicht
 //	camera_->getParent()->setPosition(vector3d<f32>(0, 0, 0));

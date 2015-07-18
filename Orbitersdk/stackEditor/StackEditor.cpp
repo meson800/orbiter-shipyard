@@ -218,7 +218,7 @@ bool StackEditor::OnEvent(const SEvent& event)
 	//also, some events fire before setupDevice() is called, so we have to make sure that it has already been initialised
 	if (device)
 	{
-		if (activetoolbox != toolBoxList->getSelected())
+		if (toolboxes.size() > 0 && activetoolbox != toolBoxList->getSelected())
 		{
 			switchToolBox();
 		}
