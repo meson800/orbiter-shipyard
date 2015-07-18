@@ -65,7 +65,7 @@
       <AdditionalLibraryDirectories>C:\irrlicht-1.8.1\lib\Win32-visualstudio; ..\lib;</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>powershell.exe -ExecutionPolicy Bypass .\writeVersion.ps1</Command>
+      <Command>powershell.exe -ExecutionPolicy bypass ./writeVersion.ps1</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>Writing version.cpp</Message>
@@ -89,7 +89,7 @@
       <AdditionalLibraryDirectories>C:\irrlicht-1.8.1\lib\Win32-visualstudio; ..\lib;</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>powershell .\writeVersion.ps1</Command>
+      <Command>powershell.exe -ExecutionPolicy bypass ./writeVersion.ps1</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>Writing version.cpp</Message>
