@@ -11,19 +11,19 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{666C9E33-B157-4DB3-B299-A212BAAF2ECC}</ProjectGuid>
-    <RootNamespace>shipyard</RootNamespace>
-    <ProjectName>shipyard_standalone</ProjectName>
+    <ProjectGuid>{20FBF293-D374-45C3-8EBB-A1AA89578084}</ProjectGuid>
+    <RootNamespace>stackEditor</RootNamespace>
+    <ProjectName>stackEditor_orbiter</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -40,12 +40,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>..\..</OutDir>
+    <OutDir>..\..\Modules\Plugin</OutDir>
     <IncludePath>..\include;..\include\irrlicht;$(IncludePath)</IncludePath>
     <LibraryPath>..\lib;$(LibraryPath)</LibraryPath>
+    <IntDir>$(Configuration)_orbiter\</IntDir>
+    <TargetName>StackEditor</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>..\..</OutDir>
+    <OutDir>..\..\Modules\Plugin</OutDir>
     <IncludePath>..\include;..\include\irrlicht;$(IncludePath)</IncludePath>
     <LibraryPath>..\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
@@ -54,12 +56,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\irrlicht-1.8.1\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\irrlicht-1.8.1\include;..\include;</AdditionalIncludeDirectories>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>irrlicht.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\irrlicht-1.8.1\lib\Win32-visualstudio</AdditionalLibraryDirectories>
+      <AdditionalDependencies>orbiter.lib;orbitersdk.lib;irrlicht.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\irrlicht-1.8.1\lib\Win32-visualstudio; ..\lib;</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
       <Command>powershell.exe -ExecutionPolicy Bypass .\writeVersion.ps1</Command>
@@ -75,17 +78,18 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\irrlicht-1.8.1\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\irrlicht-1.8.1\include;..\include;</AdditionalIncludeDirectories>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>irrlicht.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\irrlicht-1.8.1\lib\Win32-visualstudio</AdditionalLibraryDirectories>
+      <AdditionalDependencies>orbitersdk.lib;irrlicht.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\irrlicht-1.8.1\lib\Win32-visualstudio; ..\lib;</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>powershell.exe .\writeVersion.ps1</Command>
+      <Command>powershell .\writeVersion.ps1</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>Writing version.cpp</Message>
@@ -94,11 +98,11 @@
   <ItemGroup>
     <ClCompile Include="DdsImage.cpp" />
     <ClCompile Include="Log.cpp" />
+    <ClCompile Include="main_orbiter.cpp" />
     <ClCompile Include="OrbiterDockingPort.cpp" />
     <ClCompile Include="SE_ImsData.cpp" />
     <ClCompile Include="SE_PhotoStudio.cpp" />
     <ClCompile Include="Helpers.cpp" />
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="DataManager.cpp" />
     <ClCompile Include="OrbiterMesh.cpp" />
     <ClCompile Include="s3tc.cpp" />
@@ -106,6 +110,8 @@
     <ClCompile Include="SE_ToolBox.cpp" />
     <ClCompile Include="StackEditor.cpp" />
     <ClCompile Include="StackEditorCamera.cpp" />
+    <ClCompile Include="StackExport.cpp" />
+    <ClCompile Include="StackImport.cpp" />
     <ClCompile Include="Version.cpp" />
     <ClCompile Include="VesselStack.cpp" />
     <ClCompile Include="VesselSceneNode.cpp" />
@@ -117,6 +123,11 @@
     <ClInclude Include="DdsImage.h" />
     <ClInclude Include="GuiIdentifiers.h" />
     <ClInclude Include="Log.h" />
+    <ClInclude Include="SE_State.h" />
+    <ClInclude Include="StackEditor.h" />
+    <ClInclude Include="StackEditorCamera.h" />
+    <ClInclude Include="StackExport.h" />
+    <ClInclude Include="StackExportStructs.h" />
     <ClInclude Include="SE_ImsData.h" />
     <ClInclude Include="SE_PhotoStudio.h" />
     <ClInclude Include="Helpers.h" />
@@ -126,10 +137,8 @@
     <ClInclude Include="OrbiterMeshGroup.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="s3tc.h" />
-    <ClInclude Include="SE_State.h" />
     <ClInclude Include="SE_ToolBox.h" />
-    <ClInclude Include="StackEditor.h" />
-    <ClInclude Include="StackEditorCamera.h" />
+    <ClInclude Include="StackImport.h" />
     <ClInclude Include="Version.h" />
     <ClInclude Include="VesselStack.h" />
     <ClInclude Include="VesselSceneNode.h" />

@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Express 2013 for Windows Desktop
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shipyard_orbiter", "shipyard.vcxproj", "{20FBF293-D374-45C3-8EBB-A1AA89578084}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "stackEditor_orbiter", "stackEditor_orbiter.vcxproj", "{20FBF293-D374-45C3-8EBB-A1AA89578084}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shipyard_standalone", "shipyard_orbiter.vcxproj", "{666C9E33-B157-4DB3-B299-A212BAAF2ECC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "stackEditor_standalone", "stackEditor_standalone.vcxproj", "{666C9E33-B157-4DB3-B299-A212BAAF2ECC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
