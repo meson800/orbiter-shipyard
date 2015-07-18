@@ -878,6 +878,8 @@ void StackEditor::saveSession(std::string filename)
 
 	std::string fullpath = Helpers::workingDirectory + "\\StackEditor\\Sessions\\" + filename + ".ses";
 	ofstream file(fullpath);
+    //write version number
+    file << "VERSION = 1\n";
 
     //write vessel info
     for (auto it = uidVesselMap.begin(); it != uidVesselMap.end(); ++it)
@@ -918,12 +920,26 @@ bool StackEditor::loadSession(std::string path)
 	clearSession();
 	ifstream file(path.c_str());
 	std::vector<std::string> tokens;
+    int version = 1;
 	while (Helpers::readLine(file, tokens))
 	{
 		if (tokens.size() == 0)
 		{
 			continue;
 		}
+
+        if (tokens[0].compare("VERSION") == 0)
+        {
+            if (tokens.size() < 2)
+            {
+                Log::writeToLog(Log::WARN, "Incomplete version definition in session, fallback to version 1");
+            }
+            else
+            {
+                version = Helpers::stringToInt(tokens[1]);
+                Log::writeToLog(Log::INFO, "Session version number: ", version);
+            }
+        }
 
 		if (tokens[0].compare("VESSEL_BEGIN") == 0)
 		{
