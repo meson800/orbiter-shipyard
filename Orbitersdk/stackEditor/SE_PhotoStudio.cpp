@@ -1,3 +1,5 @@
+//Copyright (c) 2015 Christopher Johnstone(meson800) and Benedict Haefeli(jedidia)
+//The MIT License - See ../../LICENSE for more info
 #include "Common.h"
 #include "DataManager.h"
 #include "VesselSceneNode.h"

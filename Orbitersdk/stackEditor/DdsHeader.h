@@ -1,3 +1,5 @@
+//Copyright (c) 2015 Christopher Johnstone(meson800) and Benedict Haefeli(jedidia)
+//The MIT License - See ../../LICENSE for more info
 /* DdsHeader.h -- Definition of the DDS File header
 
  Copyright (C) 2007 by Egon A. Rath

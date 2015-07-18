@@ -1,3 +1,5 @@
+//Copyright (c) 2015 Christopher Johnstone(meson800) and Benedict Haefeli(jedidia)
+//The MIT License - See ../../LICENSE for more info
 //structs neccessary for exporting data to orbiter.
 //only include in orbiter_main.cpp
 

@@ -1,3 +1,5 @@
+//Copyright (c) 2015 Christopher Johnstone(meson800) and Benedict Haefeli(jedidia)
+//The MIT License - See ../../LICENSE for more info
 /* s3tc.c -- S3TC Decoding Functions
 
  Copyright (C) 2007 by Ivo van Poorten

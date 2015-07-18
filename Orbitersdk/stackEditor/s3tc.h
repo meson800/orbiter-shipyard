@@ -1,3 +1,5 @@
+//Copyright (c) 2015 Christopher Johnstone(meson800) and Benedict Haefeli(jedidia)
+//The MIT License - See ../../LICENSE for more info
 /* s3tc.c -- S3TC Decoding Functions
 
  Copyright (C) 2007 by Ivo van Poorten
@@ -51,7 +53,7 @@
 #endif
 
 
-/* Added by Benedict Häfeli, 2015
+/* Added by Benedict H?feli, 2015
  * read uncompressed .dds files
  * @param *src source buffer, has to be aligned on a 4-byte boundary
  * @param *dst destination buffer
