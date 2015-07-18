@@ -94,7 +94,7 @@ UINT VesselSceneNode::next_uid = 0;
 VesselSceneNode::VesselSceneNode(VesselData *vesData, scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id, UINT _uid)
     : scene::ISceneNode(parent, mgr, id), smgr(mgr), uid(_uid)
 {
-    Log::writeToLog(Log::INFO, "Creating VesselSceneNode with UID: ", _uid);
+    Log::writeToLog(Log::INFO, "Creating VesselSceneNode with UID: ", _uid, " and classname: ", vesData->className);
 	vesselData = vesData;
 	vesselMesh = vesselData->vesselMesh;
 	dockingPorts = vesselData->dockingPorts;
