@@ -1082,20 +1082,36 @@ void StackEditor::undo()
 {
     if (undoStack.size() > 0)
     {
-        Log::writeToLog(Log::INFO, "Undo triggered");
-        SE_GlobalState preUndoState = SE_GlobalState(uidVesselMap);
+        try
+        {
+            Log::writeToLog(Log::INFO, "Undo triggered");
+            SE_GlobalState preUndoState = SE_GlobalState(uidVesselMap);
 
-        undoStack.top().apply(smgr);
-        undoStack.pop();
+            undoStack.top().apply(smgr);
+            undoStack.pop();
 
-        //get new global state
-        SE_GlobalState postUndoState = SE_GlobalState(uidVesselMap);
+            //get new global state
+            SE_GlobalState postUndoState = SE_GlobalState(uidVesselMap);
 
-        //create diff state from CURRENT state to OLD state, that is the correct diff
-        redoStack.push(SE_DiffState(postUndoState, preUndoState));
+            //create diff state from CURRENT state to OLD state, that is the correct diff
+            redoStack.push(SE_DiffState(postUndoState, preUndoState));
 
-        //set global state
-        lastGlobalState = SE_GlobalState(uidVesselMap);
+            //set global state
+            lastGlobalState = SE_GlobalState(uidVesselMap);
+        }
+        catch (std::exception& e)
+        {
+            Log::writeToLog(Log::ERR, "Caught exception during undo: ", e.what());
+            //clear redo/undo stacks
+            while (!redoStack.empty())
+                redoStack.pop();
+            while (!undoStack.empty())
+                undoStack.pop();
+            //restore last known state
+            lastGlobalState.apply(smgr);
+            guiEnv->addMessageBox(L"Undo failed", L"Something failed during undo, details logged and undo/redo stacks cleared.\nPlease report this on the StackEditor development thread.");
+
+        }
     }
 }
 
@@ -1103,19 +1119,35 @@ void StackEditor::redo()
 {
     if (redoStack.size() > 0)
     {
-        Log::writeToLog(Log::INFO, "Redo triggered");
-        SE_GlobalState preRedoState = SE_GlobalState(uidVesselMap);
+        try
+        {
+            Log::writeToLog(Log::INFO, "Redo triggered");
+            SE_GlobalState preRedoState = SE_GlobalState(uidVesselMap);
 
-        redoStack.top().apply(smgr);
-        redoStack.pop();
-        //get new global state
-        SE_GlobalState postRedoState = SE_GlobalState(uidVesselMap);
+            redoStack.top().apply(smgr);
+            redoStack.pop();
+            //get new global state
+            SE_GlobalState postRedoState = SE_GlobalState(uidVesselMap);
 
-        //create diff state from CURRENT state to OLD state, that is the correct diff
-        undoStack.push(SE_DiffState(postRedoState, preRedoState));
+            //create diff state from CURRENT state to OLD state, that is the correct diff
+            undoStack.push(SE_DiffState(postRedoState, preRedoState));
 
-        //set global state
-        lastGlobalState = SE_GlobalState(uidVesselMap);
+            //set global state
+            lastGlobalState = SE_GlobalState(uidVesselMap);
+        }
+        catch (std::exception& e)
+        {
+            Log::writeToLog(Log::ERR, "Caught exception during redo: ", e.what());
+            //clear redo/undo stacks
+            while (!redoStack.empty())
+                redoStack.pop();
+            while (!undoStack.empty())
+                undoStack.pop();
+            //restore last known state
+            lastGlobalState.apply(smgr);
+            guiEnv->addMessageBox(L"Redo failed", L"Something failed during redo, details logged and undo/redo stacks cleared.\nPlease report this on the StackEditor development thread.");
+
+        }
 
     }
 }
