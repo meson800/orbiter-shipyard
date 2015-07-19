@@ -228,7 +228,7 @@ bool Helpers::isUIDRegistered(unsigned int uid)
 {
     if (vesselMap != 0)
     {
-        return vesselMap->count(uid);
+        return vesselMap->count(uid) != 0;
     }
     return false;
 }

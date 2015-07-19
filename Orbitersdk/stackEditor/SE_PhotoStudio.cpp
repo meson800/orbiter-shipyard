@@ -95,7 +95,7 @@ void SE_PhotoStudio::setupStudioCam(VesselSceneNode *model)
 	f32 requiredwidth = extent.X * cos(abs(camRotation.Y) * core::DEGTORAD) + extent.Z * sin(abs(camRotation.Y) * core::DEGTORAD);
 	f32 requiredheight = extent.Y * cos(abs(camRotation.X) * core::DEGTORAD) + extent.X * sin(abs(camRotation.X) * core::DEGTORAD);
 	//since our images are quadratic, we're only really interested in the larger of the two. we also enlarge it a bit to have a bit of a border
-	f32 largestdim = std::max(requiredwidth, requiredheight) * 1.2;
+    f32 largestdim = (irr::f32)(std::max(requiredwidth, requiredheight) * 1.2);
 
 	//now calculate how far away the camera needs to be to accomodate these dimensions with its given FOV
 	f32 cam_radius = (largestdim / 2) / tan((camFOV / 2) * core::DEGTORAD);

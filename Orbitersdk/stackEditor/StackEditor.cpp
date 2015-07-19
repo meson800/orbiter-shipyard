@@ -743,7 +743,7 @@ bool StackEditor::processMouseEvent(const SEvent &event)
 			}
 		}
 		//update camera position
-		camera->UpdatePosition(event.MouseInput.X, event.MouseInput.Y, isKeyDown[EKEY_CODE::KEY_LCONTROL]);
+		camera->UpdatePosition((float)event.MouseInput.X, (float)event.MouseInput.Y, isKeyDown[EKEY_CODE::KEY_LCONTROL]);
 		break;
 	case EMIE_MOUSE_WHEEL:
 		camera->UpdateRadius(event.MouseInput.Wheel);
@@ -835,7 +835,7 @@ bool StackEditor::loadToolBoxes()
 			tbxFile.close();
 			toolboxes[toolboxes.size() - 1]->finishedLoading();
 		}
-		searchFiles = FindNextFile(searchFileHndl, &foundFile);
+		searchFiles = FindNextFile(searchFileHndl, &foundFile) != 0;
 	}
 	FindClose(searchFileHndl);
 
@@ -1040,7 +1040,7 @@ void StackEditor::importStack()
 			createdvessels.push_back(addVessel(dataManager.GetGlobalConfig(newv.className, device->getVideoDriver()), false));
 			createdvessels[createdvessels.size() - 1]->setOrbiterName(newv.orbitername);
 		}
-		catch (int e)
+		catch (int)
 		{
 			std::string msg = newv.className + ": This vessel is not compatible with StackEditor, the import has been aborted!\nlikely cause: no mesh or docking ports defined in .cfg";
 			guiEnv->addMessageBox(L"I'm afraid I can't do that, dave!", std::wstring(msg.begin(), msg.end()).c_str(), true, EMBF_OK);

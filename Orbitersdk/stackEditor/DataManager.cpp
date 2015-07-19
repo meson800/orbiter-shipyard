@@ -334,12 +334,12 @@ VesselData *DataManager::LoadVesselData(string configFileName, video::IVideoDriv
 		if (readingDockingPorts && tokens.size() >= 9)
 		{
 			newVessel->dockingPorts.push_back(OrbiterDockingPort(
-				core::vector3d<f32>(Helpers::stringToDouble(tokens[0]),
-				Helpers::stringToDouble(tokens[1]), Helpers::stringToDouble(tokens[2])),
-				core::vector3d<f32>(Helpers::stringToDouble(tokens[3]),
-				Helpers::stringToDouble(tokens[4]), Helpers::stringToDouble(tokens[5])),
-				core::vector3d<f32>(Helpers::stringToDouble(tokens[6]),
-				Helpers::stringToDouble(tokens[7]), Helpers::stringToDouble(tokens[8]))));
+                core::vector3d<f32>((irr::f32)Helpers::stringToDouble(tokens[0]),
+                (irr::f32)Helpers::stringToDouble(tokens[1]), (irr::f32)Helpers::stringToDouble(tokens[2])),
+                core::vector3d<f32>((irr::f32)Helpers::stringToDouble(tokens[3]),
+                (irr::f32)Helpers::stringToDouble(tokens[4]), (irr::f32)Helpers::stringToDouble(tokens[5])),
+                core::vector3d<f32>((irr::f32)Helpers::stringToDouble(tokens[6]),
+                (irr::f32)Helpers::stringToDouble(tokens[7]), (irr::f32)Helpers::stringToDouble(tokens[8]))));
 			newVessel->dockingPorts[newVessel->dockingPorts.size() - 1].index = newVessel->dockingPorts.size() - 1;
 			if (tokens.size() > 9)
 			{

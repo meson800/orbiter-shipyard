@@ -145,7 +145,7 @@ vector3d<f32> StackEditorCamera::getTarget()
 bool StackEditorCamera::IsActionInProgress()
 //returns true if the camera is currently translating or rotating
 {
-	return rotation_in_progress_ + translation_in_progress_;
+	return rotation_in_progress_ || translation_in_progress_;
 }
 
 matrix4 StackEditorCamera::getMatrix()

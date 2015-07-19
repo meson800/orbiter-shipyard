@@ -71,7 +71,7 @@ DdsImage::DdsImage( const char *fileName, IVideoDriver *driver )
     // Read file content
     ifstream input( fileName, ios::binary );
     input.seekg( 0, ios::end );
-    m_RawLen = input.tellg();
+    m_RawLen = (unsigned int)input.tellg();
     m_RawBytes = new unsigned char[m_RawLen];
     input.seekg( 0, ios::beg );
 

@@ -40,14 +40,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>..\..\Modules\Plugin</OutDir>
+    <OutDir>..\..\Modules\Plugin\</OutDir>
     <IncludePath>..\include;..\include\irrlicht;$(IncludePath)</IncludePath>
     <LibraryPath>..\lib;$(LibraryPath)</LibraryPath>
     <IntDir>$(Configuration)_orbiter\</IntDir>
     <TargetName>StackEditor</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>..\..\Modules\Plugin</OutDir>
+    <OutDir>..\..\Modules\Plugin\</OutDir>
     <IncludePath>..\include;..\include\irrlicht;$(IncludePath)</IncludePath>
     <LibraryPath>..\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>

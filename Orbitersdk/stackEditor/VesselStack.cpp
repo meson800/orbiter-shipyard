@@ -17,12 +17,12 @@ void VesselStack::changeDockingPortVisibility(bool showEmpty, bool showDocked)
 		nodes[i]->changeDockingPortVisibility(showEmpty, showDocked, true);
 }
 
-int VesselStack::numVessels()
+UINT VesselStack::numVessels()
 {
 	return nodes.size();
 }
 
-VesselSceneNode* VesselStack::getVessel(int index)
+VesselSceneNode* VesselStack::getVessel(UINT index)
 {
 	if (index >= nodes.size())
 		return 0;
@@ -145,7 +145,7 @@ void VesselStack::checkForSnapping(VesselSceneNode* vessel, ISceneNode* dockport
 	//get the dockport on this stack that is closest to the snapping port
 	int closestvessel = -1;
 	int closestport = -1;
-	float closestdist = 99999999999;
+	float closestdist = (float)99999999999;
 	for (UINT i = 0; i < nodes.size(); ++i)
 	{
 		VesselSceneNode* v = nodes[i];

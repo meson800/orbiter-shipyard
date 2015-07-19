@@ -27,9 +27,9 @@ VesselSceneNodeState::VesselSceneNodeState(VesselData* data, ifstream& file)
                 throw VesselSceneNodeParseError("Invalid POS in session");
             }
 
-            pos = core::vector3df(Helpers::stringToDouble(tokens[1]),
-                Helpers::stringToDouble(tokens[2]),
-                Helpers::stringToDouble(tokens[3]));
+            pos = core::vector3df((irr::f32)Helpers::stringToDouble(tokens[1]),
+                (irr::f32)Helpers::stringToDouble(tokens[2]),
+                (irr::f32)Helpers::stringToDouble(tokens[3]));
         }
         else if (tokens[0].compare("ROT") == 0)
         {
@@ -40,9 +40,9 @@ VesselSceneNodeState::VesselSceneNodeState(VesselData* data, ifstream& file)
                 throw VesselSceneNodeParseError("Invalid ROT in session");
             }
 
-            rot = core::vector3df(Helpers::stringToDouble(tokens[1]),
-                Helpers::stringToDouble(tokens[2]),
-                Helpers::stringToDouble(tokens[3]));
+            rot = core::vector3df((irr::f32)Helpers::stringToDouble(tokens[1]),
+                (irr::f32)Helpers::stringToDouble(tokens[2]),
+                (irr::f32)Helpers::stringToDouble(tokens[3]));
         }
         else if (tokens[0].compare("UID") == 0)
         {
@@ -128,7 +128,7 @@ UINT VesselSceneNode::getUID()
 
 void VesselSceneNode::setupDockingPortNodes()
 {
-	for (int i = 0; i < dockingPorts.size(); i++)
+	for (UINT i = 0; i < dockingPorts.size(); i++)
 	{
 		dockingPorts[i].parent = this;
 		dockingPorts[i].docked = false;
@@ -179,18 +179,18 @@ void VesselSceneNode::render()
 {
 	video::IVideoDriver* driver = SceneManager->getVideoDriver();
 	//loop over the mesh groups, drawing them
-	for (int i = 0; i < vesselMesh->meshGroups.size(); i++)
+	for (UINT i = 0; i < vesselMesh->meshGroups.size(); i++)
 	{
 		//set the texture of the material
 		//set it to zero if there is no texture
 		if (vesselMesh->meshGroups[i].textureIndex == 0)
 			vesselMesh->materials[vesselMesh->meshGroups[i].materialIndex].setTexture(0, 0);
-		else if (vesselMesh->meshGroups[i].materialIndex < vesselMesh->materials.size() &&
-			vesselMesh->meshGroups[i].textureIndex < vesselMesh->textures.size())
+		else if (vesselMesh->meshGroups[i].materialIndex < (int)vesselMesh->materials.size() &&
+			vesselMesh->meshGroups[i].textureIndex < (int)vesselMesh->textures.size())
 			vesselMesh->materials[vesselMesh->meshGroups[i].materialIndex].setTexture(0,
 				vesselMesh->textures[vesselMesh->meshGroups[i].textureIndex]);
 		//set the material for the video driver
-		if (vesselMesh->meshGroups[i].materialIndex < vesselMesh->materials.size())
+		if (vesselMesh->meshGroups[i].materialIndex < (int)vesselMesh->materials.size())
 		{
 			SMaterial material = vesselMesh->materials[vesselMesh->meshGroups[i].materialIndex];
 			if (transparent)
