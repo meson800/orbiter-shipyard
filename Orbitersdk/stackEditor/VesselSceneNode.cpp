@@ -134,7 +134,7 @@ void VesselSceneNode::setupDockingPortNodes()
 		dockingPorts[i].docked = false;
         dockingPorts[i].portID = i;
 
-		dockingPorts[i].portNode = smgr->addSphereSceneNode((f32)1.4, 16, this, DOCKPORT_ID, dockingPorts[i].position);
+		dockingPorts[i].portNode = smgr->addSphereSceneNode((f32)1.1, 16, this, DOCKPORT_ID, dockingPorts[i].position);
 		setupDockingPortNode(dockingPorts[i].portNode);
 
 		//rotate portNode so it has the actual orientation of the dockport (direction and up)
@@ -145,7 +145,7 @@ void VesselSceneNode::setupDockingPortNodes()
 
 		//the helper node is used to avoid collision conflicts when checking for visual overlap between the mousecursor and docking nodes
 		//in short, the currently selected stack turns on the helper nodes to avoid stealing the overlap event from other vessels
-		dockingPorts[i].helperNode = smgr->addSphereSceneNode((f32)1.4, 16, this, HELPER_ID, dockingPorts[i].position);
+		dockingPorts[i].helperNode = smgr->addSphereSceneNode((f32)1.1, 16, this, HELPER_ID, dockingPorts[i].position);
 		setupDockingPortNode(dockingPorts[i].helperNode);
 	}
 }
