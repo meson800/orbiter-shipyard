@@ -184,27 +184,27 @@ bool OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 				//4		5	6	7		Ambient colour(RGBA)
 				//8		9	10	11	12 Specular colour(RGBA) and specular power(float)
 				//13	14	15	16		Emissive colour(RGBA)
-                materials[materialCounter].DiffuseColor.setRed((irr::u32)Helpers::stringToDouble(tokens[0]) * 255);
-                materials[materialCounter].DiffuseColor.setGreen((irr::u32)Helpers::stringToDouble(tokens[1]) * 255);
-                materials[materialCounter].DiffuseColor.setBlue((irr::u32)Helpers::stringToDouble(tokens[2]) * 255);
-                materials[materialCounter].DiffuseColor.setAlpha((irr::u32)Helpers::stringToDouble(tokens[3]) * 255);
+                materials[materialCounter].DiffuseColor.setRed((irr::u32)(Helpers::stringToDouble(tokens[0]) * 255));
+                materials[materialCounter].DiffuseColor.setGreen((irr::u32)(Helpers::stringToDouble(tokens[1]) * 255));
+                materials[materialCounter].DiffuseColor.setBlue((irr::u32)(Helpers::stringToDouble(tokens[2]) * 255));
+                materials[materialCounter].DiffuseColor.setAlpha((irr::u32)(Helpers::stringToDouble(tokens[3]) * 255));
 
-                materials[materialCounter].AmbientColor.setRed((irr::u32)Helpers::stringToDouble(tokens[4]) * 255);
-                materials[materialCounter].AmbientColor.setGreen((irr::u32)Helpers::stringToDouble(tokens[5]) * 255);
-                materials[materialCounter].AmbientColor.setBlue((irr::u32)Helpers::stringToDouble(tokens[6]) * 255);
-                materials[materialCounter].AmbientColor.setAlpha((irr::u32)Helpers::stringToDouble(tokens[7]) * 255);
+                materials[materialCounter].AmbientColor.setRed((irr::u32)(Helpers::stringToDouble(tokens[4]) * 255));
+                materials[materialCounter].AmbientColor.setGreen((irr::u32)(Helpers::stringToDouble(tokens[5]) * 255));
+                materials[materialCounter].AmbientColor.setBlue((irr::u32)(Helpers::stringToDouble(tokens[6]) * 255));
+                materials[materialCounter].AmbientColor.setAlpha((irr::u32)(Helpers::stringToDouble(tokens[7]) * 255));
 
-                materials[materialCounter].SpecularColor.setRed((irr::u32)Helpers::stringToDouble(tokens[8]) * 255);
-                materials[materialCounter].SpecularColor.setGreen((irr::u32)Helpers::stringToDouble(tokens[9]) * 255);
-                materials[materialCounter].SpecularColor.setBlue((irr::u32)Helpers::stringToDouble(tokens[10]) * 255);
-                materials[materialCounter].SpecularColor.setAlpha((irr::u32)Helpers::stringToDouble(tokens[11]) * 255);
+                materials[materialCounter].SpecularColor.setRed((irr::u32)(Helpers::stringToDouble(tokens[8]) * 255));
+                materials[materialCounter].SpecularColor.setGreen((irr::u32)(Helpers::stringToDouble(tokens[9]) * 255));
+                materials[materialCounter].SpecularColor.setBlue((irr::u32)(Helpers::stringToDouble(tokens[10]) * 255));
+                materials[materialCounter].SpecularColor.setAlpha((irr::u32)(Helpers::stringToDouble(tokens[11]) * 255));
 				//set specular power-"shineness". Modified from the orbiter value because the irrlicht shader interprets it differently
 				materials[materialCounter].Shininess = (irr::f32)std::min(128.0, Helpers::stringToDouble(tokens[12]) * 2);
 
-                materials[materialCounter].EmissiveColor.setRed((irr::u32)Helpers::stringToDouble(tokens[13]) * 255);
-                materials[materialCounter].EmissiveColor.setGreen((irr::u32)Helpers::stringToDouble(tokens[14]) * 255);
-                materials[materialCounter].EmissiveColor.setBlue((irr::u32)Helpers::stringToDouble(tokens[15]) * 255);
-                materials[materialCounter].EmissiveColor.setAlpha((irr::u32)Helpers::stringToDouble(tokens[16]) * 255);
+                materials[materialCounter].EmissiveColor.setRed((irr::u32)(Helpers::stringToDouble(tokens[13]) * 255));
+                materials[materialCounter].EmissiveColor.setGreen((irr::u32)(Helpers::stringToDouble(tokens[14]) * 255));
+                materials[materialCounter].EmissiveColor.setBlue((irr::u32)(Helpers::stringToDouble(tokens[15]) * 255));
+                materials[materialCounter].EmissiveColor.setAlpha((irr::u32)(Helpers::stringToDouble(tokens[16]) * 255));
 
 
 				//we're done!
