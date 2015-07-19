@@ -159,7 +159,6 @@ void VesselStack::checkForSnapping(VesselSceneNode* vessel, ISceneNode* dockport
 				ISceneCollisionManager *col = Helpers::irrdevice->getSceneManager()->getSceneCollisionManager();
 				float dist = col->getScreenCoordinatesFrom3DPosition(dockportnode->getAbsolutePosition()).getDistanceFrom(
 								col->getScreenCoordinatesFrom3DPosition(v->dockingPorts[j].portNode->getAbsolutePosition()));
-				//float dist = dockportnode->getAbsolutePosition().getDistanceFrom(v->dockingPorts[j].portNode->getAbsolutePosition());
 				if (dist < closestdist)
 					//this one's closer, mark it as the closest so far
 				{

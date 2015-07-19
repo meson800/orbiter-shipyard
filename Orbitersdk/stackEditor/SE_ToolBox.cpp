@@ -190,8 +190,13 @@ void CGUIToolBox::removeCurrentElement()
 {
 	if (rightClickedElement != -1)
 	{
+		if (entries[rightClickedElement]->imsData != NULL)
+		{
+			entries[rightClickedElement]->imsData->setVisible(false);
+		}
 		entries.erase(entries.begin() + rightClickedElement);
 		hasbeenedited = true;
+		lasthovered = -1;
 	}
 	rightClickedElement = -1;
 

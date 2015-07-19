@@ -7,3 +7,5 @@ ims/power_generation/bp101_solar_panel.cfg
 ims/power_generation/fissionreactor_10mw.cfg
 ims/power_generation/solararrayrect.cfg
 ims/power_generation/solararraycirc_7m.cfg
+ims/power_generation/solararraycirc_3m.cfg
+ims/power_generation/fissionreactor_4mw.cfg
