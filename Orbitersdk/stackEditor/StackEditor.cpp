@@ -743,7 +743,7 @@ bool StackEditor::processMouseEvent(const SEvent &event)
 			}
 		}
 		//update camera position
-		camera->UpdatePosition(event.MouseInput.X, event.MouseInput.Y, isKeyDown[EKEY_CODE::KEY_LCONTROL]);
+		camera->UpdatePosition((float)event.MouseInput.X, (float)event.MouseInput.Y, isKeyDown[EKEY_CODE::KEY_LCONTROL]);
 		break;
 	case EMIE_MOUSE_WHEEL:
 		camera->UpdateRadius(event.MouseInput.Wheel);
@@ -835,7 +835,7 @@ bool StackEditor::loadToolBoxes()
 			tbxFile.close();
 			toolboxes[toolboxes.size() - 1]->finishedLoading();
 		}
-		searchFiles = FindNextFile(searchFileHndl, &foundFile);
+		searchFiles = FindNextFile(searchFileHndl, &foundFile) != 0;
 	}
 	FindClose(searchFileHndl);
 
@@ -916,6 +916,7 @@ void StackEditor::saveSession(std::string filename)
 
 bool StackEditor::loadSession(std::string path)
 {
+    Helpers::resetDirectory();
     Log::writeToLog(Log::INFO, "Loading session from ", path);
 	clearSession();
 	ifstream file(path.c_str());
@@ -1039,7 +1040,7 @@ void StackEditor::importStack()
 			createdvessels.push_back(addVessel(dataManager.GetGlobalConfig(newv.className, device->getVideoDriver()), false));
 			createdvessels[createdvessels.size() - 1]->setOrbiterName(newv.orbitername);
 		}
-		catch (int e)
+		catch (int)
 		{
 			std::string msg = newv.className + ": This vessel is not compatible with StackEditor, the import has been aborted!\nlikely cause: no mesh or docking ports defined in .cfg";
 			guiEnv->addMessageBox(L"I'm afraid I can't do that, dave!", std::wstring(msg.begin(), msg.end()).c_str(), true, EMBF_OK);
@@ -1081,20 +1082,36 @@ void StackEditor::undo()
 {
     if (undoStack.size() > 0)
     {
-        Log::writeToLog(Log::INFO, "Undo triggered");
-        SE_GlobalState preUndoState = SE_GlobalState(uidVesselMap);
+        try
+        {
+            Log::writeToLog(Log::INFO, "Undo triggered");
+            SE_GlobalState preUndoState = SE_GlobalState(uidVesselMap);
 
-        undoStack.top().apply(smgr);
-        undoStack.pop();
+            undoStack.top().apply(smgr);
+            undoStack.pop();
 
-        //get new global state
-        SE_GlobalState postUndoState = SE_GlobalState(uidVesselMap);
+            //get new global state
+            SE_GlobalState postUndoState = SE_GlobalState(uidVesselMap);
 
-        //create diff state from CURRENT state to OLD state, that is the correct diff
-        redoStack.push(SE_DiffState(postUndoState, preUndoState));
+            //create diff state from CURRENT state to OLD state, that is the correct diff
+            redoStack.push(SE_DiffState(postUndoState, preUndoState));
 
-        //set global state
-        lastGlobalState = SE_GlobalState(uidVesselMap);
+            //set global state
+            lastGlobalState = SE_GlobalState(uidVesselMap);
+        }
+        catch (std::exception& e)
+        {
+            Log::writeToLog(Log::ERR, "Caught exception during undo: ", e.what());
+            //clear redo/undo stacks
+            while (!redoStack.empty())
+                redoStack.pop();
+            while (!undoStack.empty())
+                undoStack.pop();
+            //restore last known state
+            lastGlobalState.apply(smgr);
+            guiEnv->addMessageBox(L"Undo failed", L"Something failed during undo, details logged and undo/redo stacks cleared.\nPlease report this on the StackEditor development thread.");
+
+        }
     }
 }
 
@@ -1102,19 +1119,35 @@ void StackEditor::redo()
 {
     if (redoStack.size() > 0)
     {
-        Log::writeToLog(Log::INFO, "Redo triggered");
-        SE_GlobalState preRedoState = SE_GlobalState(uidVesselMap);
+        try
+        {
+            Log::writeToLog(Log::INFO, "Redo triggered");
+            SE_GlobalState preRedoState = SE_GlobalState(uidVesselMap);
 
-        redoStack.top().apply(smgr);
-        redoStack.pop();
-        //get new global state
-        SE_GlobalState postRedoState = SE_GlobalState(uidVesselMap);
+            redoStack.top().apply(smgr);
+            redoStack.pop();
+            //get new global state
+            SE_GlobalState postRedoState = SE_GlobalState(uidVesselMap);
 
-        //create diff state from CURRENT state to OLD state, that is the correct diff
-        undoStack.push(SE_DiffState(postRedoState, preRedoState));
+            //create diff state from CURRENT state to OLD state, that is the correct diff
+            undoStack.push(SE_DiffState(postRedoState, preRedoState));
 
-        //set global state
-        lastGlobalState = SE_GlobalState(uidVesselMap);
+            //set global state
+            lastGlobalState = SE_GlobalState(uidVesselMap);
+        }
+        catch (std::exception& e)
+        {
+            Log::writeToLog(Log::ERR, "Caught exception during redo: ", e.what());
+            //clear redo/undo stacks
+            while (!redoStack.empty())
+                redoStack.pop();
+            while (!undoStack.empty())
+                undoStack.pop();
+            //restore last known state
+            lastGlobalState.apply(smgr);
+            guiEnv->addMessageBox(L"Redo failed", L"Something failed during redo, details logged and undo/redo stacks cleared.\nPlease report this on the StackEditor development thread.");
+
+        }
 
     }
 }

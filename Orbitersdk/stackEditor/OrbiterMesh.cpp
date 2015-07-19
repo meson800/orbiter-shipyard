@@ -113,10 +113,10 @@ bool OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 				}
 				//it's a vertex!
 				meshGroups[groupCounter].vertices.push_back(video::S3DVertex(
-					Helpers::stringToDouble(tokens[0]), Helpers::stringToDouble(tokens[1]),
-					Helpers::stringToDouble(tokens[2]), Helpers::stringToDouble(tokens[3]),
-					Helpers::stringToDouble(tokens[4]), Helpers::stringToDouble(tokens[5]),
-					video::SColor(255,255,255,255), Helpers::stringToDouble(tokens[6]), Helpers::stringToDouble(tokens[7])));
+                    (irr::f32)Helpers::stringToDouble(tokens[0]), (irr::f32)Helpers::stringToDouble(tokens[1]),
+                    (irr::f32)Helpers::stringToDouble(tokens[2]), (irr::f32)Helpers::stringToDouble(tokens[3]),
+                    (irr::f32)Helpers::stringToDouble(tokens[4]), (irr::f32)Helpers::stringToDouble(tokens[5]),
+                    video::SColor(255, 255, 255, 255), (irr::f32)Helpers::stringToDouble(tokens[6]), (irr::f32)Helpers::stringToDouble(tokens[7])));
 				vertexCounter--;
 				break;
 			}
@@ -184,27 +184,27 @@ bool OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 				//4		5	6	7		Ambient colour(RGBA)
 				//8		9	10	11	12 Specular colour(RGBA) and specular power(float)
 				//13	14	15	16		Emissive colour(RGBA)
-				materials[materialCounter].DiffuseColor.setRed(Helpers::stringToDouble(tokens[0]) * 255);
-				materials[materialCounter].DiffuseColor.setGreen(Helpers::stringToDouble(tokens[1]) * 255);
-				materials[materialCounter].DiffuseColor.setBlue(Helpers::stringToDouble(tokens[2]) * 255);
-				materials[materialCounter].DiffuseColor.setAlpha(Helpers::stringToDouble(tokens[3]) * 255);
+                materials[materialCounter].DiffuseColor.setRed((irr::u32)Helpers::stringToDouble(tokens[0]) * 255);
+                materials[materialCounter].DiffuseColor.setGreen((irr::u32)Helpers::stringToDouble(tokens[1]) * 255);
+                materials[materialCounter].DiffuseColor.setBlue((irr::u32)Helpers::stringToDouble(tokens[2]) * 255);
+                materials[materialCounter].DiffuseColor.setAlpha((irr::u32)Helpers::stringToDouble(tokens[3]) * 255);
 
-				materials[materialCounter].AmbientColor.setRed(Helpers::stringToDouble(tokens[4]) * 255);
-				materials[materialCounter].AmbientColor.setGreen(Helpers::stringToDouble(tokens[5]) * 255);
-				materials[materialCounter].AmbientColor.setBlue(Helpers::stringToDouble(tokens[6]) * 255);
-				materials[materialCounter].AmbientColor.setAlpha(Helpers::stringToDouble(tokens[7]) * 255);
+                materials[materialCounter].AmbientColor.setRed((irr::u32)Helpers::stringToDouble(tokens[4]) * 255);
+                materials[materialCounter].AmbientColor.setGreen((irr::u32)Helpers::stringToDouble(tokens[5]) * 255);
+                materials[materialCounter].AmbientColor.setBlue((irr::u32)Helpers::stringToDouble(tokens[6]) * 255);
+                materials[materialCounter].AmbientColor.setAlpha((irr::u32)Helpers::stringToDouble(tokens[7]) * 255);
 
-				materials[materialCounter].SpecularColor.setRed(Helpers::stringToDouble(tokens[8]) * 255);
-				materials[materialCounter].SpecularColor.setGreen(Helpers::stringToDouble(tokens[9]) * 255);
-				materials[materialCounter].SpecularColor.setBlue(Helpers::stringToDouble(tokens[10]) * 255);
-				materials[materialCounter].SpecularColor.setAlpha(Helpers::stringToDouble(tokens[11]) * 255);
+                materials[materialCounter].SpecularColor.setRed((irr::u32)Helpers::stringToDouble(tokens[8]) * 255);
+                materials[materialCounter].SpecularColor.setGreen((irr::u32)Helpers::stringToDouble(tokens[9]) * 255);
+                materials[materialCounter].SpecularColor.setBlue((irr::u32)Helpers::stringToDouble(tokens[10]) * 255);
+                materials[materialCounter].SpecularColor.setAlpha((irr::u32)Helpers::stringToDouble(tokens[11]) * 255);
 				//set specular power-"shineness". Modified from the orbiter value because the irrlicht shader interprets it differently
-				materials[materialCounter].Shininess = std::min(128.0, Helpers::stringToDouble(tokens[12]) * 2);
+				materials[materialCounter].Shininess = (irr::f32)std::min(128.0, Helpers::stringToDouble(tokens[12]) * 2);
 
-				materials[materialCounter].EmissiveColor.setRed(Helpers::stringToDouble(tokens[13]) * 255);
-				materials[materialCounter].EmissiveColor.setGreen(Helpers::stringToDouble(tokens[14]) * 255);
-				materials[materialCounter].EmissiveColor.setBlue(Helpers::stringToDouble(tokens[15]) * 255);
-				materials[materialCounter].EmissiveColor.setAlpha(Helpers::stringToDouble(tokens[16]) * 255);
+                materials[materialCounter].EmissiveColor.setRed((irr::u32)Helpers::stringToDouble(tokens[13]) * 255);
+                materials[materialCounter].EmissiveColor.setGreen((irr::u32)Helpers::stringToDouble(tokens[14]) * 255);
+                materials[materialCounter].EmissiveColor.setBlue((irr::u32)Helpers::stringToDouble(tokens[15]) * 255);
+                materials[materialCounter].EmissiveColor.setAlpha((irr::u32)Helpers::stringToDouble(tokens[16]) * 255);
 
 
 				//we're done!
@@ -242,9 +242,9 @@ bool OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 	//now, set up the bounding box
 	boundingBox.reset(meshGroups[0].vertices[0].Pos);
 	//loop over every vertex
-	for (int i = 0; i < meshGroups.size(); i++)
+	for (UINT i = 0; i < meshGroups.size(); i++)
 	{
-		for (int j = 0; j < meshGroups[i].vertices.size(); j++)
+		for (UINT j = 0; j < meshGroups[i].vertices.size(); j++)
 			boundingBox.addInternalPoint(meshGroups[i].vertices[j].Pos);
 	}
 	return true;
@@ -253,11 +253,11 @@ bool OrbiterMesh::setupMesh(string meshFilename, video::IVideoDriver* driver)
 void OrbiterMesh::setupNormals(int meshGroup)
 {
 	//reset all normals in this mesh group just in case
-	for (int i = 0; i < meshGroups[meshGroup].vertices.size(); i++)
+	for (UINT i = 0; i < meshGroups[meshGroup].vertices.size(); i++)
 		meshGroups[meshGroup].vertices[i].Normal = core::vector3df(0, 0, 0);
 
 	//calculate normal
-	for (int i = 0; i < meshGroups[meshGroup].triangleList.size() / 3; i++)
+	for (UINT i = 0; i < meshGroups[meshGroup].triangleList.size() / 3; i++)
 	{
 		core::vector3df firstvec = meshGroups[meshGroup].vertices[meshGroups[meshGroup].triangleList[i * 3 + 1]].Pos -
 			meshGroups[meshGroup].vertices[meshGroups[meshGroup].triangleList[i * 3]].Pos;
@@ -271,7 +271,7 @@ void OrbiterMesh::setupNormals(int meshGroup)
 	}
 
 	//normalize the normals
-	for (int i = 0; i < meshGroups[meshGroup].vertices.size(); i++)
+	for (UINT i = 0; i < meshGroups[meshGroup].vertices.size(); i++)
 		meshGroups[meshGroup].vertices[i].Normal = meshGroups[meshGroup].vertices[i].Normal.normalize();
 }
 

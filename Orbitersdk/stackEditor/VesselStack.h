@@ -24,8 +24,8 @@ public:
 	void checkForSnapping(VesselSceneNode* vessel, ISceneNode* dockportnode, bool dock=false);
 	void snapStack(int srcvesselidx, int srcdockportidx = -1, OrbiterDockingPort *tgtport = NULL);
 	void changeDockingPortVisibility(bool showEmpty, bool showDocked);
-	int numVessels();
-	VesselSceneNode* getVessel(int index);
+	UINT numVessels();
+	VesselSceneNode* getVessel(UINT index);
 	bool isVesselInStack(VesselSceneNode* vessel);
 	int getIndexOfVessel(VesselSceneNode* vessel);
 	void unSnap(core::vector3df refPos);

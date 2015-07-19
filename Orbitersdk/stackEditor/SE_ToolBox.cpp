@@ -124,7 +124,7 @@ void CGUIToolBox::draw()
 
 	if (ScrollBar->isVisible())
 	{
-		scrollPos = double(ScrollBar->getPos()) / 100 * ((entries.size() * imgWidth) - AbsoluteRect.getWidth());
+		scrollPos = (int)double(ScrollBar->getPos()) / 100 * ((entries.size() * imgWidth) - AbsoluteRect.getWidth());
 	}
 
 	IGUISkin* skin = Environment->getSkin();
@@ -161,7 +161,7 @@ bool CGUIToolBox::addElement(ToolboxData *newElement)
 	if (newElement != NULL)
 	{
 		entries.push_back(newElement);
-		if (entries.size() * imgWidth > width)
+		if (((int)entries.size()) * imgWidth > width)
 		{
 			ScrollBar->setVisible(true);
 			ScrollBar->setEnabled(true);
@@ -195,7 +195,7 @@ void CGUIToolBox::removeCurrentElement()
 	}
 	rightClickedElement = -1;
 
-	if (entries.size() * imgWidth <= width)
+	if (((int)entries.size()) * imgWidth <= width)
 	{
 		ScrollBar->setVisible(false);
 		ScrollBar->setEnabled(false);
@@ -239,7 +239,7 @@ int CGUIToolBox::GetEntryUnderCursor(int x)
 {
 	int effectiveCursorPos = scrollPos + x;		//position of the cursor on the toolbox overall (not just visible part)
 	int idx = effectiveCursorPos / imgWidth;		//calculating index of entry at this position
-	if (idx >= entries.size())
+	if (idx >= (int)entries.size())
 	{
 		idx = -1;
 	}

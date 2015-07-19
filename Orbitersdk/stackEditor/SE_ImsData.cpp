@@ -36,8 +36,8 @@ ImsData::ImsData(gui::IGUIEnvironment *env, std::string moduletype, ifstream &co
 
 	//calculate height now that the number of rows is known
 	//int bugme = env->getSkin()->getFont()->getKerningHeight();
-	pos.UpperLeftCorner.Y = driver->getScreenSize().Height - 130 - (data->getRowCount() + 1) * 
-		(float)(env->getSkin()->getFont()->getDimension(L"J").Height) * 1.3;		//this is a rough approximation for the row height. Irrlicht doesn't provide a way to retrieve it.
+	pos.UpperLeftCorner.Y = (irr::s32)(driver->getScreenSize().Height - 130 - (data->getRowCount() + 1) * 
+		(float)(env->getSkin()->getFont()->getDimension(L"J").Height) * 1.3);		//this is a rough approximation for the row height. Irrlicht doesn't provide a way to retrieve it.
 	data->setRelativePosition(pos);
 }
 
