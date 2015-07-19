@@ -916,6 +916,7 @@ void StackEditor::saveSession(std::string filename)
 
 bool StackEditor::loadSession(std::string path)
 {
+    Helpers::resetDirectory();
     Log::writeToLog(Log::INFO, "Loading session from ", path);
 	clearSession();
 	ifstream file(path.c_str());
