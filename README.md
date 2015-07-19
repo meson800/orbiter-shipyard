@@ -63,19 +63,19 @@ selected node.  Simply click a node to undock that, splitting the stack.
 
 Keymap
 ------
-Left click         - Selects/deselects a stack
-Shift-left click   - Quick-adds the last created node
-Right-click held   - Camera pan
-Control-mouse move - Camera move
-Middle-mouse wheel - Camera zoom
-Tab                - Switches to undocking view with selected stack
-ASDWQE             - Rotation keys for the selected stack
-Control-o          - Exports the currently selected stack to Orbiter (if in linked mode)
-Control-i          - Imports the current Orbiter focus vessel and all connected vessels (if in linked mode)
-Control-c          - Creates a copy of the currently selected stack
-Delete             - Deletes the currently selected stack
-Control-z          - Undo
-Control-y          - Redo
+Left click         - Selects/deselects a stack  
+Shift-left click   - Quick-adds the last created node  
+Right-click held   - Camera pan  
+Control-mouse move - Camera move  
+Middle-mouse wheel - Camera zoom  
+Tab                - Switches to undocking view with selected stack  
+ASDWQE             - Rotation keys for the selected stack  
+Control-o          - Exports the currently selected stack to Orbiter (if in linked mode)  
+Control-i          - Imports the current Orbiter focus vessel and all connected vessels (if in linked mode)  
+Control-c          - Creates a copy of the currently selected stack  
+Delete             - Deletes the currently selected stack  
+Control-z          - Undo  
+Control-y          - Redo  
 
 Toolboxes
 ---------
