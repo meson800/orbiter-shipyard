@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <irrlicht.h>
+#include "Helpers.h"
 
 #undef DEBUG
 
@@ -34,7 +35,7 @@ public:
     {
         if (shouldLog(messageLevel))
         {
-            std::ofstream logFile = std::ofstream("./StackEditor/StackEditor.log", std::ios::app);
+            std::ofstream logFile = std::ofstream(Helpers::workingDirectory + "StackEditor/StackEditor.log", std::ios::app);
             logFile << levelStrings[messageLevel];
             logFile.close();
             writeToLogThreadUnsafe(rest...);
@@ -45,7 +46,7 @@ public:
     //Generic case, prints out using << operator
     static void writeToLogThreadUnsafe(T first, Types ... rest)
     {
-        std::ofstream logFile = std::ofstream("./StackEditor/StackEditor.log", std::ios::app);
+        std::ofstream logFile = std::ofstream(Helpers::workingDirectory + "StackEditor/StackEditor.log", std::ios::app);
         logFile << first;
         logFile.close();
         //recurse for other arguments
