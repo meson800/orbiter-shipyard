@@ -9,7 +9,7 @@ const char *  Log::levelStrings[] = { "[ALL]", "[DEBUG]", "[INFO]", "[WARN]", "[
 
 void Log::clearLog()
 {
-    std::ofstream logFile = std::ofstream(Helpers::workingDirectory + "StackEditor/StackEditor.log", std::ios::out);
+    std::ofstream logFile = std::ofstream("./StackEditor/StackEditor.log", std::ios::out);
     logFile.close();
 }
 
@@ -26,7 +26,7 @@ bool Log::shouldLog(LogLevel level)
 
 void Log::writeToLogThreadUnsafe()
 {
-    std::ofstream logFile = std::ofstream(Helpers::workingDirectory + "StackEditor/StackEditor.log", std::ios::app);
+    std::ofstream logFile = std::ofstream("./StackEditor/StackEditor.log", std::ios::app);
     logFile << "\n";
     logFile.close();
 }
@@ -35,7 +35,7 @@ void Log::writeVectorToLog(const std::string& vecName, irr::core::vector3df vec,
 {
     if (shouldLog(messageLevel))
     {
-        std::ofstream logFile = std::ofstream(Helpers::workingDirectory + "StackEditor/StackEditor.log", std::ios::app);
+        std::ofstream logFile = std::ofstream("./StackEditor/StackEditor.log", std::ios::app);
         logFile << levelStrings[messageLevel] << vecName << "-X: " << vec.X << " Y: " << vec.Y << " Z: " << vec.Z << "\n";
         logFile.close();
     }
