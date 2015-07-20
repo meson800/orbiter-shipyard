@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <irrlicht.h>
+#include "Helpers.h"
 
 #undef DEBUG
 

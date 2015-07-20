@@ -829,6 +829,7 @@ bool StackEditor::loadToolBoxes()
 				bool success = toolboxes[toolboxes.size() - 1]->addElement(dataManager.GetGlobalToolboxData(line, device->getVideoDriver()));
 				if (!success)
 				{
+                    Log::writeToLog(Log::ERR, "Failed to load vessel: ", line);
 					haderrors = true;
 				}
 			}
