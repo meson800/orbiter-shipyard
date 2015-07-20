@@ -13,7 +13,7 @@ What isn't it?
 ---------------
 StackEditor is not Orbiter Shipyard or IMS, which create one Orbiter vessel out of
 other sub-vessels.  StackEditor can certainly help by exporting all of the vessels
-docked together in Orbiter, but does have any integration features like IMS.
+docked together in Orbiter, but does not have any integration features like IMS.
 
 Installation
 ------------
@@ -41,12 +41,12 @@ How do I use it?
 To use in standalone mode, run StackEditor_standalone.exe from the root Orbiter
 folder.  The only restriction in standalone mode is that you cannot import/export to Orbiter.
 
-To use in linked mode, go F4->Custom->StackEditor.
+To use in linked mode inside Orbiter, go F4->Custom->StackEditor.
 
 When StackEditor loads, you will see four main sections of the GUI.
-In the upper left is the main screen.  This is where you manipulate all nodes in the session.
+Most of the window will be taken up by the main screen.  This is where you manipulate all nodes in the session.
 
-In the upper right is the toolbox list.  StackEditor comes with a default set of IMS toolboxes
+In the upper left is the toolbox list.  StackEditor comes with a default set of IMS toolboxes
 to get you started.
 
 Below the toolbox list is the session manipulation buttons.  Save/save as saves the current session,
@@ -55,27 +55,39 @@ load loads the current session.
 In the lower portion is the currently selected toolbox.  Double click an item to add it into
 your current session.
 
-Left-click selects a stack (a node and all nodes docked to it).  If you bring two stacks close enough together,
-their docking ports (blue spheres) will snap together.  Clicking again will dock the two stacks.
+Left-click selects a stack (a node and all nodes docked to it).  If you hover the cursor over a docking
+port (blue sphere) of another stack/vessel, their docking ports will snap together.
+Clicking again will dock the two stacks.
 
-Pressing tab with a stack selected allows you to undock a stack.  Tab will show currently docked nodes on the
-selected node.  Simply click a node to undock that, splitting the stack.
+Pressing tab with a stack selected allows you to undock a stack.  Tab will show currently docked ports on the
+selected vessel.  Simply click a docking port to undock that, splitting the stack.
+
+When using StackEditor in linked mode, you can export your current stack to Orbiter by selecting it,
+pressing ctrl-o and entering a name for the stack. Pay attention to deactivate the OrbiterSound module before doing this.
+The resulting dock message spam typical for larger stacks will most probably crash Orbiter.
+
+You can also import a stack that exists inside Orbiter into StackEditor. Make sure a vessel from the stack
+is currently the focus vessel in Orbiter, and press ctr-i. If you make changes to an existing stack and
+re-export it, StackEditor will modify the actual stack in Orbiter, instead of just spawning it anew.
+Only vessels that were not previously in the stack will be newly created. Vessels that were removed from the stack,
+however, will not be deleted in Orbiter. They'll just float off into space.
+These rules also apply if you re-export a previously exported stack, provided the scenario is still the same.
 
 Keymap
 ------
-Left click         - Selects/deselects a stack
-Shift-left click   - Quick-adds the last created node
-Right-click held   - Camera pan
-Control-mouse move - Camera move
-Middle-mouse wheel - Camera zoom
-Tab                - Switches to undocking view with selected stack
-ASDWQE             - Rotation keys for the selected stack
-Control-o          - Exports the currently selected stack to Orbiter (if in linked mode)
-Control-i          - Imports the current Orbiter focus vessel and all connected vessels (if in linked mode)
-Control-c          - Creates a copy of the currently selected stack
-Delete             - Deletes the currently selected stack
-Control-z          - Undo
-Control-y          - Redo
+Left click         - Selects/deselects a stack  
+Shift-left click   - Quick-adds the last created node  
+Right-click held   - rotate Camera  
+Niddle mouse button or Control-mouse move - Camera move  
+Middle-mouse wheel - Camera zoom  
+Tab                - Switches to undocking view with selected stack  
+ASDWQE             - Rotation keys for the selected stack  
+Control-o          - Exports the currently selected stack to Orbiter (if in linked mode)  
+Control-i          - Imports the current Orbiter focus vessel and all connected vessels (if in linked mode)  
+Control-c          - Creates a copy of the currently selected stack  
+Delete             - Deletes the currently selected stack  
+Control-z          - Undo  
+Control-y          - Redo  
 
 Toolboxes
 ---------
