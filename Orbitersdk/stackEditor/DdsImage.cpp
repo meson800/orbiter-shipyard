@@ -44,8 +44,9 @@ bool DdsImage::decodePixels( IImage *destination )
 
 	if (m_DdsHeader->PF.FourCC == DDS_FOURCC_DXT1)
         ff_decode_dxt1( src, dest, m_DdsHeader->Width, m_DdsHeader->Height, m_DdsHeader->Width * 4 );
-    else if( m_DdsHeader->PF.FourCC == DDS_FOURCC_DXT3 )
-        ff_decode_dxt3( src, dest, m_DdsHeader->Width, m_DdsHeader->Height, m_DdsHeader->Width * 4 );
+	else if (m_DdsHeader->PF.FourCC == DDS_FOURCC_DXT3 ||
+		m_DdsHeader->PF.FourCC == DDS_FOURCC_DXT5)
+		ff_decode_dxt3(src, dest, m_DdsHeader->Width, m_DdsHeader->Height, m_DdsHeader->Width * 4);
 	else
 		ff_read_uncompressed(src, dest, m_DdsHeader->Width, m_DdsHeader->Height);
 	

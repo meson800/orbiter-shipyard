@@ -55,7 +55,8 @@ namespace irrutils
     enum DDS_FOURCC
     {
         DDS_FOURCC_DXT1   = MAKEFOURCC( 'D', 'X', 'T', '1' ),
-        DDS_FOURCC_DXT3   = MAKEFOURCC( 'D', 'X', 'T', '3' )
+        DDS_FOURCC_DXT3   = MAKEFOURCC( 'D', 'X', 'T', '3' ),
+		DDS_FOURCC_DXT5   = MAKEFOURCC('D', 'X', 'T', '5')
     };
 
     struct PixelFormat
